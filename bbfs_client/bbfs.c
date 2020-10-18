@@ -22,7 +22,7 @@
   bbfs.log, in the directory from which you run bbfs.
 */
 #include "params.h"
-#include "IDL.h"
+#include "../IDL.h"
 
 #include <ctype.h>
 #include <dirent.h>

@@ -107,8 +107,8 @@ void *
 hellotest_10_svc(void *argp, struct svc_req *rqstp)
 {
 	static char * result;
-	printf("*****************************\n")
-	printf("HELLO!!!!!!!!!!!!!\n")
-	printf("*****************************\n")
+	printf("*****************************\n");
+	printf("HELLO!!!!!!!!!!!!!\n");
+	printf("*****************************\n");
 	return (void *) &result;
 }
