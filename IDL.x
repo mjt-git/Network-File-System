@@ -65,7 +65,7 @@ struct read_IDL{
        char *buf;
        uint32_t size;
        uint32_t offset;
-       struct fuse_file_info * fi;
+       struct fuse_file_info_IDL * fi;
 };
 
 struct write_IDL{
@@ -73,7 +73,7 @@ struct write_IDL{
        char *buf;
        uint32_t size;
        uint32_t offset;
-       struct fuse_file_info * fi;
+       struct fuse_file_info_IDL * fi;
 };
 
 struct opendir_IDL{
@@ -98,5 +98,6 @@ program NFS_FUSE{
         	int WRITE(write_IDL)=6;
                 int OPENDIR(opendir_IDL)=7;
                 int READDIR(readdir_IDL)=8;
-	} = 9;
+		void HELLOTEST()=9;
+	} = 10;
 } = 123789456;

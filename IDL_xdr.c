@@ -217,7 +217,7 @@ xdr_read_IDL (XDR *xdrs, read_IDL *objp)
 		 return FALSE;
 	 if (!xdr_uint32_t (xdrs, &objp->offset))
 		 return FALSE;
-	 if (!xdr_pointer (xdrs, (char **)&objp->fi, sizeof (struct fuse_file_info), (xdrproc_t) xdr_fuse_file_info))
+	 if (!xdr_pointer (xdrs, (char **)&objp->fi, sizeof (fuse_file_info_IDL), (xdrproc_t) xdr_fuse_file_info_IDL))
 		 return FALSE;
 	return TRUE;
 }
@@ -235,7 +235,7 @@ xdr_write_IDL (XDR *xdrs, write_IDL *objp)
 		 return FALSE;
 	 if (!xdr_uint32_t (xdrs, &objp->offset))
 		 return FALSE;
-	 if (!xdr_pointer (xdrs, (char **)&objp->fi, sizeof (struct fuse_file_info), (xdrproc_t) xdr_fuse_file_info))
+	 if (!xdr_pointer (xdrs, (char **)&objp->fi, sizeof (fuse_file_info_IDL), (xdrproc_t) xdr_fuse_file_info_IDL))
 		 return FALSE;
 	return TRUE;
 }

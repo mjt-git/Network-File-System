@@ -5,6 +5,7 @@
  */
 
 #include "IDL.h"
+#include <stdio.h>
 
 int *
 getattr_10_svc(getattr_IDL *argp, struct svc_req *rqstp)
@@ -106,10 +107,8 @@ void *
 hellotest_10_svc(void *argp, struct svc_req *rqstp)
 {
 	static char * result;
-
-	/*
-	 * insert server code here
-	 */
-
+	printf("*****************************\n")
+	printf("HELLO!!!!!!!!!!!!!\n")
+	printf("*****************************\n")
 	return (void *) &result;
 }

@@ -80,7 +80,7 @@ struct read_IDL {
 	char *buf;
 	uint32_t size;
 	uint32_t offset;
-	struct fuse_file_info *fi;
+	struct fuse_file_info_IDL *fi;
 };
 typedef struct read_IDL read_IDL;
 
@@ -89,7 +89,7 @@ struct write_IDL {
 	char *buf;
 	uint32_t size;
 	uint32_t offset;
-	struct fuse_file_info *fi;
+	struct fuse_file_info_IDL *fi;
 };
 typedef struct write_IDL write_IDL;
 
@@ -108,61 +108,67 @@ struct readdir_IDL {
 typedef struct readdir_IDL readdir_IDL;
 
 #define NFS_FUSE 123789456
-#define NFS_FUSE_VERS 9
+#define NFS_FUSE_VERS 10
 
 #if defined(__STDC__) || defined(__cplusplus)
 #define GETATTR 1
-extern  int * getattr_9(getattr_IDL *, CLIENT *);
-extern  int * getattr_9_svc(getattr_IDL *, struct svc_req *);
+extern  int * getattr_10(getattr_IDL *, CLIENT *);
+extern  int * getattr_10_svc(getattr_IDL *, struct svc_req *);
 #define MKDIR 2
-extern  int * mkdir_9(mkdir_IDL *, CLIENT *);
-extern  int * mkdir_9_svc(mkdir_IDL *, struct svc_req *);
+extern  int * mkdir_10(mkdir_IDL *, CLIENT *);
+extern  int * mkdir_10_svc(mkdir_IDL *, struct svc_req *);
 #define RMDIR 3
-extern  int * rmdir_9(rmdir_IDL *, CLIENT *);
-extern  int * rmdir_9_svc(rmdir_IDL *, struct svc_req *);
+extern  int * rmdir_10(rmdir_IDL *, CLIENT *);
+extern  int * rmdir_10_svc(rmdir_IDL *, struct svc_req *);
 #define OPEN 4
-extern  int * open_9(open_IDL *, CLIENT *);
-extern  int * open_9_svc(open_IDL *, struct svc_req *);
+extern  int * open_10(open_IDL *, CLIENT *);
+extern  int * open_10_svc(open_IDL *, struct svc_req *);
 #define READ 5
-extern  int * read_9(read_IDL *, CLIENT *);
-extern  int * read_9_svc(read_IDL *, struct svc_req *);
+extern  int * read_10(read_IDL *, CLIENT *);
+extern  int * read_10_svc(read_IDL *, struct svc_req *);
 #define WRITE 6
-extern  int * write_9(write_IDL *, CLIENT *);
-extern  int * write_9_svc(write_IDL *, struct svc_req *);
+extern  int * write_10(write_IDL *, CLIENT *);
+extern  int * write_10_svc(write_IDL *, struct svc_req *);
 #define OPENDIR 7
-extern  int * opendir_9(opendir_IDL *, CLIENT *);
-extern  int * opendir_9_svc(opendir_IDL *, struct svc_req *);
+extern  int * opendir_10(opendir_IDL *, CLIENT *);
+extern  int * opendir_10_svc(opendir_IDL *, struct svc_req *);
 #define READDIR 8
-extern  int * readdir_9(readdir_IDL *, CLIENT *);
-extern  int * readdir_9_svc(readdir_IDL *, struct svc_req *);
-extern int nfs_fuse_9_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
+extern  int * readdir_10(readdir_IDL *, CLIENT *);
+extern  int * readdir_10_svc(readdir_IDL *, struct svc_req *);
+#define HELLOTEST 9
+extern  void * hellotest_10(void *, CLIENT *);
+extern  void * hellotest_10_svc(void *, struct svc_req *);
+extern int nfs_fuse_10_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
 #define GETATTR 1
-extern  int * getattr_9();
-extern  int * getattr_9_svc();
+extern  int * getattr_10();
+extern  int * getattr_10_svc();
 #define MKDIR 2
-extern  int * mkdir_9();
-extern  int * mkdir_9_svc();
+extern  int * mkdir_10();
+extern  int * mkdir_10_svc();
 #define RMDIR 3
-extern  int * rmdir_9();
-extern  int * rmdir_9_svc();
+extern  int * rmdir_10();
+extern  int * rmdir_10_svc();
 #define OPEN 4
-extern  int * open_9();
-extern  int * open_9_svc();
+extern  int * open_10();
+extern  int * open_10_svc();
 #define READ 5
-extern  int * read_9();
-extern  int * read_9_svc();
+extern  int * read_10();
+extern  int * read_10_svc();
 #define WRITE 6
-extern  int * write_9();
-extern  int * write_9_svc();
+extern  int * write_10();
+extern  int * write_10_svc();
 #define OPENDIR 7
-extern  int * opendir_9();
-extern  int * opendir_9_svc();
+extern  int * opendir_10();
+extern  int * opendir_10_svc();
 #define READDIR 8
-extern  int * readdir_9();
-extern  int * readdir_9_svc();
-extern int nfs_fuse_9_freeresult ();
+extern  int * readdir_10();
+extern  int * readdir_10_svc();
+#define HELLOTEST 9
+extern  void * hellotest_10();
+extern  void * hellotest_10_svc();
+extern int nfs_fuse_10_freeresult ();
 #endif /* K&R C */
 
 /* the xdr functions */

@@ -10,7 +10,7 @@
 static struct timeval TIMEOUT = { 25, 0 };
 
 int *
-getattr_9(getattr_IDL *argp, CLIENT *clnt)
+getattr_10(getattr_IDL *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
@@ -25,7 +25,7 @@ getattr_9(getattr_IDL *argp, CLIENT *clnt)
 }
 
 int *
-mkdir_9(mkdir_IDL *argp, CLIENT *clnt)
+mkdir_10(mkdir_IDL *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
@@ -40,7 +40,7 @@ mkdir_9(mkdir_IDL *argp, CLIENT *clnt)
 }
 
 int *
-rmdir_9(rmdir_IDL *argp, CLIENT *clnt)
+rmdir_10(rmdir_IDL *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
@@ -55,7 +55,7 @@ rmdir_9(rmdir_IDL *argp, CLIENT *clnt)
 }
 
 int *
-open_9(open_IDL *argp, CLIENT *clnt)
+open_10(open_IDL *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
@@ -70,7 +70,7 @@ open_9(open_IDL *argp, CLIENT *clnt)
 }
 
 int *
-read_9(read_IDL *argp, CLIENT *clnt)
+read_10(read_IDL *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
@@ -85,7 +85,7 @@ read_9(read_IDL *argp, CLIENT *clnt)
 }
 
 int *
-write_9(write_IDL *argp, CLIENT *clnt)
+write_10(write_IDL *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
@@ -100,7 +100,7 @@ write_9(write_IDL *argp, CLIENT *clnt)
 }
 
 int *
-opendir_9(opendir_IDL *argp, CLIENT *clnt)
+opendir_10(opendir_IDL *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
@@ -115,7 +115,7 @@ opendir_9(opendir_IDL *argp, CLIENT *clnt)
 }
 
 int *
-readdir_9(readdir_IDL *argp, CLIENT *clnt)
+readdir_10(readdir_IDL *argp, CLIENT *clnt)
 {
 	static int clnt_res;
 
@@ -127,4 +127,19 @@ readdir_9(readdir_IDL *argp, CLIENT *clnt)
 		return (NULL);
 	}
 	return (&clnt_res);
+}
+
+void *
+hellotest_10(void *argp, CLIENT *clnt)
+{
+	static char clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call (clnt, HELLOTEST,
+		(xdrproc_t) xdr_void, (caddr_t) argp,
+		(xdrproc_t) xdr_void, (caddr_t) &clnt_res,
+		TIMEOUT) != RPC_SUCCESS) {
+		return (NULL);
+	}
+	return ((void *)&clnt_res);
 }

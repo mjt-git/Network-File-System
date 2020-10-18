@@ -17,17 +17,17 @@
 #endif
 
 static void
-nfs_fuse_9(struct svc_req *rqstp, register SVCXPRT *transp)
+nfs_fuse_10(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
-		getattr_IDL getattr_9_arg;
-		mkdir_IDL mkdir_9_arg;
-		rmdir_IDL rmdir_9_arg;
-		open_IDL open_9_arg;
-		read_IDL read_9_arg;
-		write_IDL write_9_arg;
-		opendir_IDL opendir_9_arg;
-		readdir_IDL readdir_9_arg;
+		getattr_IDL getattr_10_arg;
+		mkdir_IDL mkdir_10_arg;
+		rmdir_IDL rmdir_10_arg;
+		open_IDL open_10_arg;
+		read_IDL read_10_arg;
+		write_IDL write_10_arg;
+		opendir_IDL opendir_10_arg;
+		readdir_IDL readdir_10_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -41,49 +41,55 @@ nfs_fuse_9(struct svc_req *rqstp, register SVCXPRT *transp)
 	case GETATTR:
 		_xdr_argument = (xdrproc_t) xdr_getattr_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) getattr_9_svc;
+		local = (char *(*)(char *, struct svc_req *)) getattr_10_svc;
 		break;
 
 	case MKDIR:
 		_xdr_argument = (xdrproc_t) xdr_mkdir_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) mkdir_9_svc;
+		local = (char *(*)(char *, struct svc_req *)) mkdir_10_svc;
 		break;
 
 	case RMDIR:
 		_xdr_argument = (xdrproc_t) xdr_rmdir_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) rmdir_9_svc;
+		local = (char *(*)(char *, struct svc_req *)) rmdir_10_svc;
 		break;
 
 	case OPEN:
 		_xdr_argument = (xdrproc_t) xdr_open_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) open_9_svc;
+		local = (char *(*)(char *, struct svc_req *)) open_10_svc;
 		break;
 
 	case READ:
 		_xdr_argument = (xdrproc_t) xdr_read_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) read_9_svc;
+		local = (char *(*)(char *, struct svc_req *)) read_10_svc;
 		break;
 
 	case WRITE:
 		_xdr_argument = (xdrproc_t) xdr_write_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) write_9_svc;
+		local = (char *(*)(char *, struct svc_req *)) write_10_svc;
 		break;
 
 	case OPENDIR:
 		_xdr_argument = (xdrproc_t) xdr_opendir_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) opendir_9_svc;
+		local = (char *(*)(char *, struct svc_req *)) opendir_10_svc;
 		break;
 
 	case READDIR:
 		_xdr_argument = (xdrproc_t) xdr_readdir_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (char *(*)(char *, struct svc_req *)) readdir_9_svc;
+		local = (char *(*)(char *, struct svc_req *)) readdir_10_svc;
+		break;
+
+	case HELLOTEST:
+		_xdr_argument = (xdrproc_t) xdr_void;
+		_xdr_result = (xdrproc_t) xdr_void;
+		local = (char *(*)(char *, struct svc_req *)) hellotest_10_svc;
 		break;
 
 	default:
@@ -118,7 +124,7 @@ main (int argc, char **argv)
 		fprintf (stderr, "%s", "cannot create udp service.");
 		exit(1);
 	}
-	if (!svc_register(transp, NFS_FUSE, NFS_FUSE_VERS, nfs_fuse_9, IPPROTO_UDP)) {
+	if (!svc_register(transp, NFS_FUSE, NFS_FUSE_VERS, nfs_fuse_10, IPPROTO_UDP)) {
 		fprintf (stderr, "%s", "unable to register (NFS_FUSE, NFS_FUSE_VERS, udp).");
 		exit(1);
 	}
@@ -128,7 +134,7 @@ main (int argc, char **argv)
 		fprintf (stderr, "%s", "cannot create tcp service.");
 		exit(1);
 	}
-	if (!svc_register(transp, NFS_FUSE, NFS_FUSE_VERS, nfs_fuse_9, IPPROTO_TCP)) {
+	if (!svc_register(transp, NFS_FUSE, NFS_FUSE_VERS, nfs_fuse_10, IPPROTO_TCP)) {
 		fprintf (stderr, "%s", "unable to register (NFS_FUSE, NFS_FUSE_VERS, tcp).");
 		exit(1);
 	}
