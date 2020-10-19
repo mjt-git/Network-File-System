@@ -87,7 +87,7 @@ static void bb_fullpath(char fpath[PATH_MAX], const char *path)
  * ignored.  The 'st_ino' field is ignored except if the 'use_ino'
  * mount option is given.
  */
-/*int bb_getattr(const char *path, struct stat *statbuf)
+int bb_getattr(const char *path, struct stat *statbuf)
 {
     int retstat;
     char fpath[PATH_MAX];
@@ -97,31 +97,39 @@ static void bb_fullpath(char fpath[PATH_MAX], const char *path)
     //bb_fullpath(fpath, path);
 
     //retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
+    log_msg("before create client\n");
     CLIENT * clnt = createclient();
+    log_msg("after create client\n");
     int result;
     int * p = &result;
     struct getattr_IDL * new_getattr = (struct getattr_IDL*)malloc(sizeof(struct getattr_IDL));
-    new_getattr->path = path;
+    new_getattr->path = (char*)malloc(sizeof(char) * strlen(path));
+    //new_getattr->statbuf = (struct stat_IDL*)malloc(sizeof(struct stat_IDL));
+    strncpy(new_getattr->path, path, strlen(path));
+    log_msg("before getattr\n");
     p = getattr_10(new_getattr, clnt);
-    statbuf->st_dev = new_getattr->statbuf->st_dev;
-    statbuf->st_ino = new_getattr->statbuf->st_ino;
-    statbuf->st_mode = new_getattr->statbuf->st_mode;
-    statbuf->st_nlink = new_getattr->statbuf->st_nlink;
-    statbuf->st_uid = new_getattr->statbuf->st_uid;
-    statbuf->st_gid = new_getattr->statbuf->st_gid;
-    statbuf->st_rdev = new_getattr->statbuf->st_rdev;
-    statbuf->st_size = new_getattr->statbuf->st_size;
-    statbuf->st_blksize = new_getattr->statbuf->st_blksize;
-    statbuf->st_blocks = new_getattr->statbuf->st_blocks;
-    statbuf->st_atime = new_getattr->statbuf->st_atim.tv_sec;
-    statbuf->st_mtime = new_getattr->statbuf->st_mtim.tv_sec;
-    statbuf->st_ctime = new_getattr->statbuf->st_ctim.tv_sec;
+    log_msg("after getattr\n");
+    log_msg("mode recv is %3o\n", new_getattr->st_mode);
+    statbuf->st_dev = new_getattr->st_dev;
+    statbuf->st_ino = new_getattr->st_ino;
+    statbuf->st_mode = new_getattr->st_mode;
+    statbuf->st_nlink = new_getattr->st_nlink;
+    statbuf->st_uid = new_getattr->st_uid;
+    statbuf->st_gid = new_getattr->st_gid;
+    statbuf->st_rdev = new_getattr->st_rdev;
+    statbuf->st_size = new_getattr->st_size;
+    statbuf->st_blksize = new_getattr->st_blksize;
+    statbuf->st_blocks = new_getattr->st_blocks;
+    statbuf->st_atime = new_getattr->st_atim;
+    statbuf->st_mtime = new_getattr->st_mtim;
+    statbuf->st_ctime = new_getattr->st_ctim;
+    log_msg("mode returned is %3o\n", statbuf->st_mode);
     log_stat(statbuf);
-    destroy(clnt);
+    destroyclient(clnt);
     return *p;
-    }*/
+    }
 
-int bb_getattr(const char *path, struct stat *statbuf)
+/*int bb_getattr(const char *path, struct stat *statbuf)
 {
     int retstat;
     char fpath[PATH_MAX];
@@ -135,7 +143,7 @@ int bb_getattr(const char *path, struct stat *statbuf)
     log_stat(statbuf);
 
     return retstat;
-}
+    }*/
 
 /** Read the target of a symbolic link
  *
@@ -208,16 +216,17 @@ int bb_mkdir(const char *path, mode_t mode)
     
     log_msg("\nbb_mkdir(path=\"%s\", mode=0%3o)\n",
 	    path, mode);
-    //bb_fullpath(fpath, path);
     CLIENT * clnt = createclient();
     struct mkdir_IDL * new_mkdir = (struct mkdir_IDL*)malloc(sizeof(struct mkdir_IDL));
-    new_mkdir->path = path;
+    new_mkdir->path = (char*)malloc(sizeof(char) * strlen(path));
+    strncpy(new_mkdir->path, path, strlen(path));
+    log_msg("path sent %s\n", new_mkdir->path);
     new_mkdir->mode = mode;
     int result;                                                                                                 
     int * p = &result;
     p = mkdir_10(new_mkdir, clnt);
     destroyclient(clnt);
-    //return log_syscall("mkdir", mkdir(fpath, mode), 0);
+    free(new_mkdir->path);
     free(new_mkdir);
     return *p;
 }
@@ -241,19 +250,18 @@ int bb_rmdir(const char *path)
     
     log_msg("bb_rmdir(path=\"%s\")\n",
 	    path);
-    //bb_fullpath(fpath, path);
     CLIENT * clnt = createclient();
     struct rmdir_IDL * new_rmdir = (struct rmdir_IDL*)malloc(sizeof(struct rmdir_IDL));
-    new_rmdir->path = path;
+    new_rmdir->path = (char*)malloc(sizeof(char) * strlen(path));
+    strncpy(new_rmdir->path, path, strlen(path));
     int result;
     int * p = &result;
     p = rmdir_10(new_rmdir, clnt);
     destroyclient(clnt);
-    //return log_syscall("mkdir", mkdir(fpath, mode), 0);                                                        
+    free(new_rmdir->path);
     free(new_rmdir);
     return *p;
-    //return log_syscall("rmdir", rmdir(fpath), 0);
-}
+    }
 
 /** Create a symbolic link */
 // The parameters here are a little bit confusing, but do correspond

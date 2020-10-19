@@ -8,7 +8,7 @@ struct timespec_IDL{
 struct stat_IDL{
 	       uint32_t     st_dev;         /* ID of device containing file */
                uint32_t     st_ino;         /* Inode number */
-               uint32_t    st_mode;        /* File type and mode */
+               long    st_mode;        /* File type and mode */
                uint32_t   st_nlink;       /* Number of hard links */
                uint32_t     st_uid;         /* User ID of owner */
                uint32_t     st_gid;         /* Group ID of owner */
@@ -42,48 +42,65 @@ struct fuse_file_info_IDL{
 };
 
 struct getattr_IDL{
-       char *path;
-       struct stat_IDL *statbuf;
+       string path<PATH_MAX>;
+       uint32_t     st_dev;         /* ID of device containing file */
+               uint32_t     st_ino;         /* Inode number */
+               long    st_mode;        /* File type and mode */
+               uint32_t   st_nlink;       /* Number of hard links */
+               uint32_t     st_uid;         /* User ID of owner */
+               uint32_t     st_gid;         /* Group ID of owner */
+               uint32_t     st_rdev;        /* Device ID (if special file) */
+               uint32_t     st_size;        /* Total size, in bytes */
+               uint32_t st_blksize;     /* Block size for filesystem I/O */
+               uint32_t  st_blocks;      /* Number of 512B blocks allocated */
+
+               /* Since Linux 2.6, the kernel supports nanosecond                                                 
+                  precision for the following timestamp fields.                                                   
+                  For the details before Linux 2.6, see NOTES. */
+
+               uint32_t st_atim;  /* Time of last access */
+               uint32_t st_mtim;  /* Time of last modification */
+               uint32_t st_ctim;
 };
 
 struct mkdir_IDL{
-       char *path;
+       string path<PATH_MAX>;
        uint32_t mode;
 };
 
 struct rmdir_IDL{
-       char *path;
+       string path<PATH_MAX>;
 };
 
 struct open_IDL{
-       char *path;
+       string path<PATH_MAX>;
        struct fuse_file_info_IDL *fi;
 };
 
 struct read_IDL{
-       char *path;
-       char *buf;
+       string path<PATH_MAX>;
+       string buf<>;
        uint32_t size;
        uint32_t offset;
        struct fuse_file_info_IDL * fi;
 };
 
 struct write_IDL{
-       char *path;
-       char *buf;
+       string path<PATH_MAX>;
+       string buf<>;
        uint32_t size;
        uint32_t offset;
        struct fuse_file_info_IDL * fi;
 };
 
 struct opendir_IDL{
-       char *path;
+       string path<PATH_MAX>;
        struct fuse_file_info_IDL *fi;
 };
 
 struct readdir_IDL{
-       char *path;
-       char  *buf;
+       string path<PATH_MAX>;
+       string buf<>;
        uint32_t offset;
        struct fuse_file_info_IDL *fi;
 };

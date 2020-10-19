@@ -31,22 +31,25 @@ getattr_10_svc(getattr_IDL *argp, struct svc_req *rqstp)
 {
 	static int  result;
 	struct stat * statbuf = (struct stat*)malloc(sizeof(struct stat));
-	chdir(rootpath);
-	result = lstat(argp->path, statbuf);
-	argp->statbuf->st_dev = statbuf->st_dev;
-	argp->statbuf->st_ino = statbuf->st_ino;
-	argp->statbuf->st_mode = statbuf->st_mode;
-	argp->statbuf->st_nlink = statbuf->st_nlink;
-	argp->statbuf->st_uid = statbuf->st_uid;
-	argp->statbuf->st_gid = statbuf->st_gid;
-	argp->statbuf->st_rdev = statbuf->st_rdev;
-	argp->statbuf->st_size = statbuf->st_size;
-	argp->statbuf->st_blksize = statbuf->st_blksize;
-	argp->statbuf->st_blocks = statbuf->st_blocks;
-	argp->statbuf->st_atim.tv_sec = statbuf->st_atime;
-	argp->statbuf->st_mtim.tv_sec = statbuf->st_mtime;
-	argp->statbuf->st_ctim.tv_sec = statbuf->st_ctime;
-	
+	char fpath[PATH_MAX];
+	getfullpath(fpath, argp->path);
+	printf("full path is %s\n", fpath);
+	result = lstat(fpath, statbuf);
+	argp->st_dev = statbuf->st_dev;
+	argp->st_ino = statbuf->st_ino;
+	argp->st_mode = statbuf->st_mode;
+	argp->st_nlink = statbuf->st_nlink;
+	argp->st_uid = statbuf->st_uid;
+	argp->st_gid = statbuf->st_gid;
+	argp->st_rdev = statbuf->st_rdev;
+	argp->st_size = statbuf->st_size;
+	argp->st_blksize = statbuf->st_blksize;
+	argp->st_blocks = statbuf->st_blocks;
+	argp->st_atim = statbuf->st_atime;
+	argp->st_mtim = statbuf->st_mtime;
+	argp->st_ctim = statbuf->st_ctime;
+	printf("server mode is %3o\n", statbuf->st_mode);
+	printf("mode sent back is %3lo\n", argp->st_mode);
 	/*
 	 * insert server code here
 	 */
@@ -60,11 +63,12 @@ mkdir_10_svc(mkdir_IDL *argp, struct svc_req *rqstp)
 	static int result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
-	printf("%s\n", argp->path);
+	printf("argp->path is: %s\n", argp->path);
+	//printf("argp->path_p is: %s\n", *argp->path_p);
 	printf("%s, mode is %3o\n", fpath, argp->mode);
 	//uint32_t fmode = argp->mode & 0777;
         result = mkdir(fpath, argp->mode);
-	printf("%d\n", result);
+	printf("mkdir result is: %d\n", result);
 	/*
 	 * insert server code here
 	 */
