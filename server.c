@@ -6,24 +6,65 @@
 
 #include "IDL.h"
 #include <stdio.h>
+#include <ctype.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <libgen.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+const char * rootpath = "/home/localadmin/finalproject/bbfs_server/serverpoint";
+
+static void * getfullpath(char fpath[PATH_MAX], const char * path){
+  strcpy(fpath, rootpath);
+  strncat(fpath, path, PATH_MAX);
+}
 
 int *
 getattr_10_svc(getattr_IDL *argp, struct svc_req *rqstp)
 {
 	static int  result;
-
+	struct stat * statbuf = (struct stat*)malloc(sizeof(struct stat));
+	chdir(rootpath);
+	result = lstat(argp->path, statbuf);
+	argp->statbuf->st_dev = statbuf->st_dev;
+	argp->statbuf->st_ino = statbuf->st_ino;
+	argp->statbuf->st_mode = statbuf->st_mode;
+	argp->statbuf->st_nlink = statbuf->st_nlink;
+	argp->statbuf->st_uid = statbuf->st_uid;
+	argp->statbuf->st_gid = statbuf->st_gid;
+	argp->statbuf->st_rdev = statbuf->st_rdev;
+	argp->statbuf->st_size = statbuf->st_size;
+	argp->statbuf->st_blksize = statbuf->st_blksize;
+	argp->statbuf->st_blocks = statbuf->st_blocks;
+	argp->statbuf->st_atim.tv_sec = statbuf->st_atime;
+	argp->statbuf->st_mtim.tv_sec = statbuf->st_mtime;
+	argp->statbuf->st_ctim.tv_sec = statbuf->st_ctime;
+	
 	/*
 	 * insert server code here
 	 */
-
+	free(statbuf);
 	return &result;
 }
 
 int *
 mkdir_10_svc(mkdir_IDL *argp, struct svc_req *rqstp)
 {
-	static int  result;
-
+	static int result;
+	char fpath[PATH_MAX];
+	getfullpath(fpath, argp->path);
+	printf("%s\n", argp->path);
+	printf("%s, mode is %3o\n", fpath, argp->mode);
+	//uint32_t fmode = argp->mode & 0777;
+        result = mkdir(fpath, argp->mode);
+	printf("%d\n", result);
 	/*
 	 * insert server code here
 	 */
@@ -35,11 +76,15 @@ int *
 rmdir_10_svc(rmdir_IDL *argp, struct svc_req *rqstp)
 {
 	static int  result;
-
+	char fpath[PATH_MAX];
+        getfullpath(fpath, argp->path);
+        printf("remove %s\n", fpath);
+        //uint32_t fmode = argp->mode & 0777;                                                                    
+        result = rmdir(fpath);
+        printf("result is %d\n", result);
 	/*
 	 * insert server code here
 	 */
-
 	return &result;
 }
 

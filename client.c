@@ -52,6 +52,20 @@ const char * host = "localhost";
 //  have the mountpoint.  I'll save it away early on in main(), and then
 //  whenever I need a path for something I'll call this to construct
 //  it.
+CLIENT * createclient() {
+    CLIENT * clnt;
+    clnt = clnt_create (host, NFS_FUSE, NFS_FUSE_VERS, "udp");
+    if (clnt == NULL) {
+        clnt_pcreateerror (host);
+        exit (1);
+    }
+    return clnt;
+}
+
+void destroyclient(CLIENT * clnt){
+  clnt_destroy(clnt);
+}
+
 static void bb_fullpath(char fpath[PATH_MAX], const char *path)
 {
     strcpy(fpath, BB_DATA->rootdir);
@@ -73,19 +87,53 @@ static void bb_fullpath(char fpath[PATH_MAX], const char *path)
  * ignored.  The 'st_ino' field is ignored except if the 'use_ino'
  * mount option is given.
  */
-int bb_getattr(const char *path, struct stat *statbuf)
+/*int bb_getattr(const char *path, struct stat *statbuf)
 {
     int retstat;
     char fpath[PATH_MAX];
     
     log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
 	  path, statbuf);
+    //bb_fullpath(fpath, path);
+
+    //retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
+    CLIENT * clnt = createclient();
+    int result;
+    int * p = &result;
+    struct getattr_IDL * new_getattr = (struct getattr_IDL*)malloc(sizeof(struct getattr_IDL));
+    new_getattr->path = path;
+    p = getattr_10(new_getattr, clnt);
+    statbuf->st_dev = new_getattr->statbuf->st_dev;
+    statbuf->st_ino = new_getattr->statbuf->st_ino;
+    statbuf->st_mode = new_getattr->statbuf->st_mode;
+    statbuf->st_nlink = new_getattr->statbuf->st_nlink;
+    statbuf->st_uid = new_getattr->statbuf->st_uid;
+    statbuf->st_gid = new_getattr->statbuf->st_gid;
+    statbuf->st_rdev = new_getattr->statbuf->st_rdev;
+    statbuf->st_size = new_getattr->statbuf->st_size;
+    statbuf->st_blksize = new_getattr->statbuf->st_blksize;
+    statbuf->st_blocks = new_getattr->statbuf->st_blocks;
+    statbuf->st_atime = new_getattr->statbuf->st_atim.tv_sec;
+    statbuf->st_mtime = new_getattr->statbuf->st_mtim.tv_sec;
+    statbuf->st_ctime = new_getattr->statbuf->st_ctim.tv_sec;
+    log_stat(statbuf);
+    destroy(clnt);
+    return *p;
+    }*/
+
+int bb_getattr(const char *path, struct stat *statbuf)
+{
+    int retstat;
+    char fpath[PATH_MAX];
+
+    log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
+          path, statbuf);
     bb_fullpath(fpath, path);
 
     retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
-    
+
     log_stat(statbuf);
-    
+
     return retstat;
 }
 
@@ -160,9 +208,18 @@ int bb_mkdir(const char *path, mode_t mode)
     
     log_msg("\nbb_mkdir(path=\"%s\", mode=0%3o)\n",
 	    path, mode);
-    bb_fullpath(fpath, path);
-
-    return log_syscall("mkdir", mkdir(fpath, mode), 0);
+    //bb_fullpath(fpath, path);
+    CLIENT * clnt = createclient();
+    struct mkdir_IDL * new_mkdir = (struct mkdir_IDL*)malloc(sizeof(struct mkdir_IDL));
+    new_mkdir->path = path;
+    new_mkdir->mode = mode;
+    int result;                                                                                                 
+    int * p = &result;
+    p = mkdir_10(new_mkdir, clnt);
+    destroyclient(clnt);
+    //return log_syscall("mkdir", mkdir(fpath, mode), 0);
+    free(new_mkdir);
+    return *p;
 }
 
 /** Remove a file */
@@ -184,9 +241,18 @@ int bb_rmdir(const char *path)
     
     log_msg("bb_rmdir(path=\"%s\")\n",
 	    path);
-    bb_fullpath(fpath, path);
-
-    return log_syscall("rmdir", rmdir(fpath), 0);
+    //bb_fullpath(fpath, path);
+    CLIENT * clnt = createclient();
+    struct rmdir_IDL * new_rmdir = (struct rmdir_IDL*)malloc(sizeof(struct rmdir_IDL));
+    new_rmdir->path = path;
+    int result;
+    int * p = &result;
+    p = rmdir_10(new_rmdir, clnt);
+    destroyclient(clnt);
+    //return log_syscall("mkdir", mkdir(fpath, mode), 0);                                                        
+    free(new_rmdir);
+    return *p;
+    //return log_syscall("rmdir", rmdir(fpath), 0);
 }
 
 /** Create a symbolic link */

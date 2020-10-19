@@ -1,0 +1,411 @@
+
+bb_init()
+    conn:
+    proto_major = 7
+    proto_minor = 26
+    async_read = 1
+    max_write = 131072
+    max_readahead = 131072
+    capable = 00000ffb
+    want = 00000010
+    max_background = 0
+    congestion_threshold = 0
+    context:
+    fuse = 8ab296d0
+    uid = 0
+    gid = 0
+    pid = 0
+    private_data = 8ab283c0
+    logfile = 8ab272f0
+    rootdir = /home/localadmin/finalproject/bbfs_client/fakeroot
+    umask = 00000
+
+bb_getattr(path="/", statbuf=0x7e821c00)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978801
+    st_mode = 040775
+    st_nlink = 3
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8cf03d
+    st_mtime = 0x5f8cf03b
+    st_ctime = 0x5f8cf03b
+
+bb_getattr(path="/", statbuf=0x7f022c00)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978801
+    st_mode = 040775
+    st_nlink = 3
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8cf03d
+    st_mtime = 0x5f8cf03b
+    st_ctime = 0x5f8cf03b
+
+bb_access(path="/", mask=01)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+
+bb_opendir(path="/", fi=0x7f022c20)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    opendir returned 0x0x7f1678002010
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f1678002010
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x7e821c00)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978801
+    st_mode = 040775
+    st_nlink = 3
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8cf03d
+    st_mtime = 0x5f8cf03b
+    st_ctime = 0x5f8cf03b
+
+bb_readdir(path="/", buf=0x78001f90, filler=0x7fa51d00, offset=0, fi=0x7f022c20)
+    readdir returned 0x0x7f1678002040
+calling filler with name fakeroot.txt
+calling filler with name ..
+calling filler with name toberm
+calling filler with name .
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f1678002010
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f1678002010
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/fakeroot.txt", statbuf=0x7e821c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/fakeroot.txt", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/fakeroot.txt"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978804
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 20
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8cd5cc
+    st_mtime = 0x5f8cd5cc
+    st_ctime = 0x5f8cd5cc
+
+bb_getattr(path="/toberm", statbuf=0x7f022c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/toberm", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/toberm"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978805
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8cf03b
+    st_mtime = 0x5f8cf03b
+    st_ctime = 0x5f8cf03b
+
+bb_releasedir(path="/", fi=0x7f022c30)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f1678002010
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f1678002010
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/toserver", statbuf=0x7e821c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/toserver", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/toserver"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_mkdir(path="/toserver", mode=0775)
+
+bb_getattr(path="/", statbuf=0x7e821c00)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978801
+    st_mode = 040775
+    st_nlink = 3
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8cf03d
+    st_mtime = 0x5f8cf03b
+    st_ctime = 0x5f8cf03b
+
+bb_getattr(path="/.git", statbuf=0x7f022c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/.git", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_getattr(path="/.git", statbuf=0x7e821c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/.git", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_opendir(path="/", fi=0x7f022c20)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    opendir returned 0x0x7f167800a610
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f167800a610
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/", statbuf=0x7e821c00)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978801
+    st_mode = 040775
+    st_nlink = 3
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8cf03d
+    st_mtime = 0x5f8cf03b
+    st_ctime = 0x5f8cf03b
+
+bb_readdir(path="/", buf=0x78006e20, filler=0x7fa51d00, offset=0, fi=0x7f022c20)
+    readdir returned 0x0x7f167800a640
+calling filler with name fakeroot.txt
+calling filler with name ..
+calling filler with name toberm
+calling filler with name .
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f167800a610
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f167800a610
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/fakeroot.txt", statbuf=0x7e821c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/fakeroot.txt", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/fakeroot.txt"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978804
+    st_mode = 0100664
+    st_nlink = 1
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 20
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8cd5cc
+    st_mtime = 0x5f8cd5cc
+    st_ctime = 0x5f8cd5cc
+
+bb_getattr(path="/.gitignore", statbuf=0x7f022c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/.gitignore", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_getattr(path="/toberm", statbuf=0x7e821c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/toberm", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/toberm"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978805
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8cfb52
+    st_mtime = 0x5f8cf03b
+    st_ctime = 0x5f8cf03b
+
+bb_getattr(path="/toberm/.git", statbuf=0x7f022c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/toberm/.git", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/toberm/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_getattr(path="/toberm/.git", statbuf=0x7e821c30)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/toberm/.git", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/toberm/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    si:
+    st_dev = 0
+    st_ino = 0
+    st_mode = 00
+    st_nlink = 0
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 0
+    st_blksize = 0
+    st_blocks = 0
+    st_atime = 0x00000000
+    st_mtime = 0x00000000
+    st_ctime = 0x00000000
+
+bb_opendir(path="/toberm", fi=0x7f022c20)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/toberm", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/toberm"
+    opendir returned 0x0x7f1678012650
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f1678012650
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/toberm", buf=0x78006ea0, filler=0x7fa51d00, offset=0, fi=0x7e821c20)
+    readdir returned 0x0x7f1678012680
+calling filler with name ..
+calling filler with name .
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f1678012650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f1678012650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/toberm", fi=0x7e821c30)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f1678012650
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f1678012650
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x7f022c30)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f167800a610
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f167800a610
+    lock_owner = 0x0000000000000000

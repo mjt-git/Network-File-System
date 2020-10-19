@@ -11,83 +11,49 @@ bb_init()
     max_background = 0
     congestion_threshold = 0
     context:
-    fuse = 70902750
+    fuse = 419696d0
     uid = 0
     gid = 0
     pid = 0
-    private_data = 709013c0
-    logfile = 709002f0
-    rootdir = /home/localadmin/mx/try_finalproject/bbfs_client/fakeroot
+    private_data = 419683c0
+    logfile = 419672f0
+    rootdir = /home/localadmin/finalproject/bbfs_client/fakeroot
     umask = 00000
 
-bb_getattr(path="/.git", statbuf=0x89fdbc30)
-    bb_fullpath:  rootdir = "/home/localadmin/mx/try_finalproject/bbfs_client/fakeroot", path = "/.git", fpath = "/home/localadmin/mx/try_finalproject/bbfs_client/fakeroot/.git"
-    lstat returned -1
-    ERROR lstat: No such file or directory
+bb_getattr(path="/", statbuf=0x04af9c00)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    lstat returned 0
     si:
-    st_dev = 0
-    st_ino = 0
-    st_mode = 00
-    st_nlink = 0
-    st_uid = 0
-    st_gid = 0
+    st_dev = 2050
+    st_ino = 1978801
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
     st_rdev = 0
-    st_size = 0
-    st_blksize = 0
-    st_blocks = 0
-    st_atime = 0x00000000
-    st_mtime = 0x00000000
-    st_ctime = 0x00000000
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8c5537
+    st_mtime = 0x5f8c4bbc
+    st_ctime = 0x5f8c4ffa
 
-bb_getattr(path="/.git", statbuf=0x897dac30)
-    bb_fullpath:  rootdir = "/home/localadmin/mx/try_finalproject/bbfs_client/fakeroot", path = "/.git", fpath = "/home/localadmin/mx/try_finalproject/bbfs_client/fakeroot/.git"
-    lstat returned -1
-    ERROR lstat: No such file or directory
+bb_getattr(path="/", statbuf=0xffffec00)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    lstat returned 0
     si:
-    st_dev = 0
-    st_ino = 0
-    st_mode = 00
-    st_nlink = 0
-    st_uid = 0
-    st_gid = 0
+    st_dev = 2050
+    st_ino = 1978801
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
     st_rdev = 0
-    st_size = 0
-    st_blksize = 0
-    st_blocks = 0
-    st_atime = 0x00000000
-    st_mtime = 0x00000000
-    st_ctime = 0x00000000
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8c5537
+    st_mtime = 0x5f8c4bbc
+    st_ctime = 0x5f8c4ffa
 
-bb_opendir(path="/", fi=0x89fdbc20)
-    bb_fullpath:  rootdir = "/home/localadmin/mx/try_finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/mx/try_finalproject/bbfs_client/fakeroot/"
-    opendir returned 0x(nil)
-    ERROR bb_opendir opendir: No such file or directory
-    fi:
-    flags = 0x00018800
-    fh_old = 0x00000000
-    writepage = 0
-    direct_io = 0
-    keep_cache = 0
-    fh = 0x0000000000000000
-    lock_owner = 0x0000000000000000
-
-bb_getattr(path="/", statbuf=0x897dac00)
-    bb_fullpath:  rootdir = "/home/localadmin/mx/try_finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/mx/try_finalproject/bbfs_client/fakeroot/"
-    lstat returned -1
-    ERROR lstat: No such file or directory
-    si:
-    st_dev = 0
-    st_ino = 0
-    st_mode = 00
-    st_nlink = 0
-    st_uid = 0
-    st_gid = 0
-    st_rdev = 0
-    st_size = 0
-    st_blksize = 0
-    st_blocks = 0
-    st_atime = 0x00000000
-    st_mtime = 0x00000000
-    st_ctime = 0x00000000
-
-bb_destroy(userdata=0x709013c0)
+bb_destroy(userdata=0x419683c0)
