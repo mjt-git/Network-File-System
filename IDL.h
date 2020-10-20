@@ -122,6 +122,17 @@ struct readdir_IDL {
 	char *path;
 	char *buf;
 	uint32_t offset;
+	int flags;
+	int writepage;
+	int direct_io;
+	int keep_cache;
+	int flush;
+	int nonseekable;
+	int cache_readdir;
+	int padding;
+	uint64_t fh;
+	uint64_t lock_owner;
+	uint32_t poll_events;
 };
 typedef struct readdir_IDL readdir_IDL;
 

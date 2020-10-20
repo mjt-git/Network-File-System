@@ -5,24 +5,24 @@ struct timespec_IDL{
 
 struct stat_IDL{
 	       uint32_t     st_dev;         /* ID of device containing file */
-               uint32_t     st_ino;         /* Inode number */
-               long    st_mode;        /* File type and mode */
-               uint32_t   st_nlink;       /* Number of hard links */
-               uint32_t     st_uid;         /* User ID of owner */
-               uint32_t     st_gid;         /* Group ID of owner */
-               uint32_t     st_rdev;        /* Device ID (if special file) */
-               uint32_t     st_size;        /* Total size, in bytes */
-               uint32_t st_blksize;     /* Block size for filesystem I/O */
-               uint32_t  st_blocks;      /* Number of 512B blocks allocated */
+         uint32_t     st_ino;         /* Inode number */
+         long         st_mode;        /* File type and mode */
+         uint32_t     st_nlink;       /* Number of hard links */
+         uint32_t     st_uid;         /* User ID of owner */
+         uint32_t     st_gid;         /* Group ID of owner */
+         uint32_t     st_rdev;        /* Device ID (if special file) */
+         uint32_t     st_size;        /* Total size, in bytes */
+         uint32_t     st_blksize;     /* Block size for filesystem I/O */
+         uint32_t     st_blocks;      /* Number of 512B blocks allocated */
 
-               /* Since Linux 2.6, the kernel supports nanosecond
-                  precision for the following timestamp fields.
-                  For the details before Linux 2.6, see NOTES. */
+         /* Since Linux 2.6, the kernel supports nanosecond
+            precision for the following timestamp fields.
+            For the details before Linux 2.6, see NOTES. */
 
-               struct timespec_IDL st_atim;  /* Time of last access */
-               struct timespec_IDL st_mtim;  /* Time of last modification */
-               struct timespec_IDL st_ctim;  /* Time of last status change */
-           };
+         struct timespec_IDL st_atim;  /* Time of last access */
+         struct timespec_IDL st_mtim;  /* Time of last modification */
+         struct timespec_IDL st_ctim;  /* Time of last status change */
+};
 
 
 struct fuse_file_info_IDL{
@@ -102,9 +102,21 @@ struct opendir_ret_IDL{
 };
 
 struct readdir_IDL{
-       string path<PATH_MAX>;
-       string buf<>;
-       uint32_t offset;
+  string path<PATH_MAX>;
+  string buf<>;
+  uint32_t offset;
+
+  int flags;
+  int  writepage;
+  int  direct_io;
+  int  keep_cache;
+  int  flush;
+  int  nonseekable;
+  int  cache_readdir;
+  int  padding;
+  uint64_t  fh;
+  uint64_t  lock_owner;
+  uint32_t  poll_events;
 };
 
 struct access_IDL{
@@ -117,11 +129,11 @@ program NFS_FUSE{
 		struct getattr_IDL GETATTR(struct getattr_IDL)=1;
 		int MKDIR(mkdir_IDL)=2;
 		int RMDIR(rmdir_IDL)=3;     
-        	int OPEN(open_IDL)=4;
+  	int OPEN(open_IDL)=4;
 		struct read_IDL READ(read_IDL)=5;     
-        	int WRITE(write_IDL)=6;
-                struct opendir_ret_IDL OPENDIR(opendir_IDL)=7;
-                int READDIR(readdir_IDL)=8;
+  	int WRITE(write_IDL)=6;
+    struct opendir_ret_IDL OPENDIR(opendir_IDL)=7;
+    int READDIR(readdir_IDL)=8;
 		void HELLOTEST()=9;
     int ACCESS(access_IDL)=10;
 	} = 1000;

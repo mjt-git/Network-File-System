@@ -295,11 +295,122 @@ xdr_readdir_IDL (XDR *xdrs, readdir_IDL *objp)
 {
 	register int32_t *buf;
 
+
+	if (xdrs->x_op == XDR_ENCODE) {
+		 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
+			 return FALSE;
+		 if (!xdr_string (xdrs, &objp->buf, ~0))
+			 return FALSE;
+		 if (!xdr_uint32_t (xdrs, &objp->offset))
+			 return FALSE;
+		buf = XDR_INLINE (xdrs, 8 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL) {
+			 if (!xdr_int (xdrs, &objp->flags))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->writepage))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->direct_io))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->keep_cache))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->flush))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->nonseekable))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->cache_readdir))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->padding))
+				 return FALSE;
+
+		} else {
+		IXDR_PUT_LONG(buf, objp->flags);
+		IXDR_PUT_LONG(buf, objp->writepage);
+		IXDR_PUT_LONG(buf, objp->direct_io);
+		IXDR_PUT_LONG(buf, objp->keep_cache);
+		IXDR_PUT_LONG(buf, objp->flush);
+		IXDR_PUT_LONG(buf, objp->nonseekable);
+		IXDR_PUT_LONG(buf, objp->cache_readdir);
+		IXDR_PUT_LONG(buf, objp->padding);
+		}
+		 if (!xdr_uint64_t (xdrs, &objp->fh))
+			 return FALSE;
+		 if (!xdr_uint64_t (xdrs, &objp->lock_owner))
+			 return FALSE;
+		 if (!xdr_uint32_t (xdrs, &objp->poll_events))
+			 return FALSE;
+		return TRUE;
+	} else if (xdrs->x_op == XDR_DECODE) {
+		 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
+			 return FALSE;
+		 if (!xdr_string (xdrs, &objp->buf, ~0))
+			 return FALSE;
+		 if (!xdr_uint32_t (xdrs, &objp->offset))
+			 return FALSE;
+		buf = XDR_INLINE (xdrs, 8 * BYTES_PER_XDR_UNIT);
+		if (buf == NULL) {
+			 if (!xdr_int (xdrs, &objp->flags))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->writepage))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->direct_io))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->keep_cache))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->flush))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->nonseekable))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->cache_readdir))
+				 return FALSE;
+			 if (!xdr_int (xdrs, &objp->padding))
+				 return FALSE;
+
+		} else {
+		objp->flags = IXDR_GET_LONG(buf);
+		objp->writepage = IXDR_GET_LONG(buf);
+		objp->direct_io = IXDR_GET_LONG(buf);
+		objp->keep_cache = IXDR_GET_LONG(buf);
+		objp->flush = IXDR_GET_LONG(buf);
+		objp->nonseekable = IXDR_GET_LONG(buf);
+		objp->cache_readdir = IXDR_GET_LONG(buf);
+		objp->padding = IXDR_GET_LONG(buf);
+		}
+		 if (!xdr_uint64_t (xdrs, &objp->fh))
+			 return FALSE;
+		 if (!xdr_uint64_t (xdrs, &objp->lock_owner))
+			 return FALSE;
+		 if (!xdr_uint32_t (xdrs, &objp->poll_events))
+			 return FALSE;
+	 return TRUE;
+	}
+
 	 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
 		 return FALSE;
 	 if (!xdr_string (xdrs, &objp->buf, ~0))
 		 return FALSE;
 	 if (!xdr_uint32_t (xdrs, &objp->offset))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->flags))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->writepage))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->direct_io))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->keep_cache))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->flush))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->nonseekable))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->cache_readdir))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->padding))
+		 return FALSE;
+	 if (!xdr_uint64_t (xdrs, &objp->fh))
+		 return FALSE;
+	 if (!xdr_uint64_t (xdrs, &objp->lock_owner))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->poll_events))
 		 return FALSE;
 	return TRUE;
 }

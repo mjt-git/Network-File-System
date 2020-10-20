@@ -130,7 +130,7 @@ int bb_getattr(const char *path, struct stat *statbuf)
     char fpath[PATH_MAX];
     
     log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
-	  path, statbuf);
+      path, statbuf);
     if(strcmp(path, "/") == 0) {
         log_msg("\n\ninside strcmp!!!!!!!!!!\n\n");
         return bb_getattr_original(path, statbuf);
@@ -176,6 +176,8 @@ int bb_getattr(const char *path, struct stat *statbuf)
     destroyclient(clnt);
     return result->res;
 }
+
+
 
 /** Read the target of a symbolic link
  *
@@ -732,7 +734,7 @@ int bb_opendir(const char *path, struct fuse_file_info *fi)
  * Introduced in version 2.3
  */
 
-int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
+int bb_readdir_original(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
 	       struct fuse_file_info *fi)
 {
     int retstat = 0;
@@ -772,6 +774,37 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
     return retstat;
 }
 
+int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
+           struct fuse_file_info *fi)
+{
+    log_msg("\nbb_readdir(path=\"%s\", buf=0x%08x, filler=0x%08x, offset=%lld, fi=0x%08x)\n",
+        path, buf, filler, offset, fi);
+
+    CLIENT * clnt = createclient();
+    struct readdir_IDL *new_readdir = (struct readdir_IDL*)malloc(sizeof(struct  readdir_IDL));
+    new_readdir -> path = path;
+    new_readdir -> buf = buf;
+    new_readdir -> offset = offset;
+
+    new_readdir -> flags = fi->flags;
+    new_readdir -> writepage = fi->writepage;
+    new_readdir -> direct_io = fi->direct_io;
+    new_readdir -> keep_cache = fi->keep_cache;
+    new_readdir -> flush = fi->flush;
+    new_readdir -> nonseekable = fi->nonseekable;
+    new_readdir -> padding = fi->padding;
+    log_msg("fi->fh=%ld\n",fi->fh);
+    new_readdir -> fh = fi->fh;
+    log_msg("new_readdir->fh=%ld\n",new_readdir->fh);
+
+    new_readdir -> lock_owner = fi->lock_owner;
+    
+    int *retstat_p;
+    retstat_p = (int *)readdir_1000(new_readdir, clnt);
+    destroyclient(clnt);
+    free(new_readdir);    
+    return *retstat_p;
+}
 /** Release directory
  *
  * Introduced in version 2.3
@@ -930,6 +963,7 @@ int bb_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
  * This method is called instead of the getattr() method if the
  * file information is available.
  *
+
  * Currently this is only called after the create() method if that
  * is implemented (see above).  Later it may be called for
  * invocations of fstat() too.

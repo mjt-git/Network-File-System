@@ -20,6 +20,30 @@ bb_init()
     rootdir = /home/localadmin/finalproject/bbfs_client/fakeroot
     umask = 00000
 
+bb_getattr(path="/", statbuf=0x06e9ec00)
+
+
+inside strcmp!!!!!!!!!!
+
+
+bb_getattr(path="/", statbuf=0x06e9ec00)
+    bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
+    lstat returned 0
+    si:
+    st_dev = 2050
+    st_ino = 1978801
+    st_mode = 040775
+    st_nlink = 2
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f8ecc2d
+    st_mtime = 0x5f8d5a09
+    st_ctime = 0x5f8d5a09
+
 bb_getattr(path="/", statbuf=0x0669dc00)
 
 
@@ -40,20 +64,20 @@ bb_getattr(path="/", statbuf=0x0669dc00)
     st_size = 4096
     st_blksize = 4096
     st_blocks = 8
-    st_atime = 0x5f8d5a0d
+    st_atime = 0x5f8ecc2d
     st_mtime = 0x5f8d5a09
     st_ctime = 0x5f8d5a09
 
 bb_access(path="/", mask=01)
 
 bb_opendir(path="/", fi=0x0669dc20)
-pRes->res: 789950688pRes->isvalid: 1    fi:
+pRes->res: 86225920pRes->isvalid: 1    fi:
     flags = 0x00018800
     fh_old = 0x00000000
     writepage = 0
     direct_io = 0
     keep_cache = 0
-    fh = 0x000000002f15b0e0
+    fh = 0x000000000523b400
     lock_owner = 0x0000000000000000
 
 bb_getattr(path="/", statbuf=0x06e9ec00)
@@ -76,8 +100,10 @@ bb_getattr(path="/", statbuf=0x06e9ec00)
     st_size = 4096
     st_blksize = 4096
     st_blocks = 8
-    st_atime = 0x5f8d5a0d
+    st_atime = 0x5f8ecc2d
     st_mtime = 0x5f8d5a09
     st_ctime = 0x5f8d5a09
 
-bb_readdir(path="/", buf=0x0590ebd0, filler=0x04e43d00, offset=0, fi=0x0669dc20)
+bb_readdir(path="/", buf=0x0590edd0, filler=0x04e43d00, offset=0, fi=0x0669dc20)
+fi->fh=86225920
+new_readdir->fh=86225920

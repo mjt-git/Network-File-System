@@ -4,6 +4,8 @@
  * as a guideline for developing your own functions.
  */
 
+#define _FILE_OFFSET_BITS  64
+
 #include "IDL.h"
 #include <stdio.h>
 #include <ctype.h>
@@ -19,8 +21,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <sys/xattr.h>
+#include  <fuse.h>
 
 const char * rootpath = "/home/localadmin/finalproject/bbfs_server/serverpoint";
+
+// typedef int(* 	fuse_fill_dir_t) (void *buf, const char *name, const struct stat *stbuf, off_t off, enum fuse_fill_dir_flags flags);
 
 static void * getfullpath(char fpath[PATH_MAX], const char * path){
   strcpy(fpath, rootpath);
@@ -193,13 +199,42 @@ opendir_1000_svc(opendir_IDL *argp, struct svc_req *rqstp)
 int *
 readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
 {
-	static int  result;
+	printf("[readdir_1000_svc]: start\n");
+	const char * path = argp -> path;
+	char * buf = argp -> buf;
+	off_t offset = argp -> offset;
 
-	/*
-	 * insert server code here
-	 */
+	static int retstat = 0;
+	DIR *dp;
+    struct dirent *de;
 
-	return &result;
+	dp = (DIR *) (uintptr_t) argp->fh;
+
+	printf("arg->fh=%ld\n",argp->fh);
+	//syscall readdir
+	de = readdir(dp);
+	printf("after readdir call\n");
+	if (de == 0) {
+        // retstat = log_error("bb_readdir readdir");
+        printf("error: readdir ");
+        return &retstat;
+    }
+    printf("before declare filler\n");
+    fuse_fill_dir_t filler;
+    printf("after declare filler\n");
+
+    printf("*****de->d_d_name=%s\n",de->d_name);
+
+	do {
+        if (filler(buf, de->d_name, NULL, 0) != 0) {
+            printf("calling filler with name %s\n", de->d_name);
+            retstat=-ENOMEM;
+            return  &retstat;
+        }
+    } while ((de = readdir(dp)) != NULL);
+
+    printf("[readdir_1000_svc]: end with retstat=%d\n",retstat);
+	return &retstat;
 }
 
 void *
