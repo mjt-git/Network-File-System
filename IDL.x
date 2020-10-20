@@ -94,14 +94,22 @@ struct write_IDL{
 
 struct opendir_IDL{
        string path<PATH_MAX>;
-       struct fuse_file_info_IDL *fi;
+};
+
+struct opendir_ret_IDL{
+  int res;
+  int isvalid;
 };
 
 struct readdir_IDL{
        string path<PATH_MAX>;
        string buf<>;
        uint32_t offset;
-       struct fuse_file_info_IDL *fi;
+};
+
+struct access_IDL{
+  string path<PATH_MAX>;
+  int mask;
 };
 
 program NFS_FUSE{
@@ -112,8 +120,9 @@ program NFS_FUSE{
         	int OPEN(open_IDL)=4;
 		struct read_IDL READ(read_IDL)=5;     
         	int WRITE(write_IDL)=6;
-                int OPENDIR(opendir_IDL)=7;
+                struct opendir_ret_IDL OPENDIR(opendir_IDL)=7;
                 int READDIR(readdir_IDL)=8;
 		void HELLOTEST()=9;
-	} = 10;
+    int ACCESS(access_IDL)=10;
+	} = 1000;
 } = 123789456;

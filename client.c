@@ -150,7 +150,7 @@ int bb_getattr(const char *path, struct stat *statbuf)
     log_msg("strlen result: %u\n", strlen(path));
     log_msg("new_getattr->path: %s\n", new_getattr->path);
     log_msg("before getattr\n");
-    result = getattr_10(new_getattr, clnt);
+    result = getattr_1000(new_getattr, clnt);
     print_getattr_IDL(*result);
     log_msg("after getattr\n");
     // log_msg("mode recv is %3o\n", new_getattr->st_mode);
@@ -256,7 +256,7 @@ int bb_mkdir(const char *path, mode_t mode)
     new_mkdir->mode = mode;
     int result;                                                                                                 
     int * p = &result;
-    p = mkdir_10(new_mkdir, clnt);
+    p = (int*)mkdir_1000(new_mkdir, clnt);
     destroyclient(clnt);
     free(new_mkdir->path);
     free(new_mkdir);
@@ -288,7 +288,7 @@ int bb_rmdir(const char *path)
     strncpy(new_rmdir->path, path, strlen(path));
     int result;
     int * p = &result;
-    p = rmdir_10(new_rmdir, clnt);
+    p = rmdir_1000(new_rmdir, clnt);
     destroyclient(clnt);
     free(new_rmdir->path);
     free(new_rmdir);
@@ -402,13 +402,11 @@ int bb_utime(const char *path, struct utimbuf *ubuf)
 int bb_open(const char *path, struct fuse_file_info *fi)
 {
     int retstat = 0;
-    int fd;
-    int * p = &fd;
+    int * p;
     char fpath[PATH_MAX];
     
     log_msg("\nbb_open(path\"%s\", fi=0x%08x)\n",
 	    path, fi);
-    //bb_fullpath(fpath, path);
 
     CLIENT * clnt = createclient();
     // if the open call succeeds, my retstat is the file descriptor,
@@ -419,14 +417,16 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     newopen->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
     strncpy(newopen->path, path, strlen(path) + 1);
     newopen->flags = fi->flags;
-    p = open_10(newopen, clnt);
+    p = open_1000(newopen, clnt);
+    log_msg("open_10 return value *p: %d", *p);
     if (*p < 0)
-	retstat = log_error("open");
+	   retstat = log_error("open");
 	
-    fi->fh = fd;
+    fi->fh = *p;
 
     log_fi(fi);
     destroyclient(clnt);
+    free(newopen->path);
     free(newopen);
     return *p;
 }
@@ -463,7 +463,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     newread->offset = offset;
     newread->fh = fi->fh;
     struct read_IDL * result;
-    result = read_10(newread, clnt);
+    result = read_1000(newread, clnt);
     strncpy(buf, result->buf, strlen(result->buf) + 1);
     log_fi(fi);
     free(newread->path);
@@ -685,26 +685,29 @@ int bb_removexattr(const char *path, const char *name)
  */
 int bb_opendir(const char *path, struct fuse_file_info *fi)
 {
-    DIR *dp;
-    int retstat = 0;
-    char fpath[PATH_MAX];
-    
     log_msg("\nbb_opendir(path=\"%s\", fi=0x%08x)\n",
 	  path, fi);
-    bb_fullpath(fpath, path);
 
-    // since opendir returns a pointer, takes some custom handling of
-    // return status.
-    dp = opendir(fpath);
-    log_msg("    opendir returned 0x%p\n", dp);
-    if (dp == NULL)
-	retstat = log_error("bb_opendir opendir");
-    
-    fi->fh = (intptr_t) dp;
-    
+    CLIENT * clnt = createclient();
+    opendir_IDL * new_opendir = (opendir_IDL *)malloc(sizeof(opendir_IDL));
+    new_opendir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_opendir->path, path, strlen(path));
+    new_opendir->path[strlen(path)] = '\0';
+
+    opendir_ret_IDL * pRes;   // field of isvalid determine if opendir call on server side is successful, 1 -> success; 0 ->fail
+    pRes = (opendir_ret_IDL *)opendir_1000(new_opendir, clnt);
+    log_msg("pRes->res: %d", pRes->res);
+    log_msg("pRes->isvalid: %d", pRes->isvalid);
+
+    fi->fh = pRes->res;
     log_fi(fi);
-    
-    return retstat;
+    if(pRes->isvalid == 0) {
+        int retstat = log_error("bb_opendir opendir");
+        return retstat;
+    }
+    return 0;
+
+  
 }
 
 /** Read directory
@@ -748,8 +751,8 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
     de = readdir(dp);
     log_msg("    readdir returned 0x%p\n", de);
     if (de == 0) {
-	retstat = log_error("bb_readdir readdir");
-	return retstat;
+    	retstat = log_error("bb_readdir readdir");
+    	return retstat;
     }
 
     // This will copy the entire directory into the buffer.  The loop exits
@@ -757,11 +760,11 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
     // returns something non-zero.  The first case just means I've
     // read the whole directory; the second means the buffer is full.
     do {
-	log_msg("calling filler with name %s\n", de->d_name);
-	if (filler(buf, de->d_name, NULL, 0) != 0) {
-	    log_msg("    ERROR bb_readdir filler:  buffer full");
-	    return -ENOMEM;
-	}
+    	log_msg("calling filler with name %s\n", de->d_name);
+    	if (filler(buf, de->d_name, NULL, 0) != 0) {
+    	    log_msg("    ERROR bb_readdir filler:  buffer full");
+    	    return -ENOMEM;
+    	}
     } while ((de = readdir(dp)) != NULL);
     
     log_fi(fi);
@@ -857,20 +860,26 @@ void bb_destroy(void *userdata)
  * Introduced in version 2.5
  */
 int bb_access(const char *path, int mask)
-{
-    int retstat = 0;
-    char fpath[PATH_MAX];
-   
+{  
     log_msg("\nbb_access(path=\"%s\", mask=0%o)\n",
 	    path, mask);
-    bb_fullpath(fpath, path);
+
+    CLIENT * clnt = createclient();
+    int * pRes;
+    access_IDL * new_access = (access_IDL *)malloc(sizeof(access_IDL));
+    new_access->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_access->path, path, strlen(path));
+    new_access->path[strlen(path)] = '\0';
+    new_access->mask = mask;
+
+    pRes = (int*)access_1000(new_access, clnt);
     
-    retstat = access(fpath, mask);
-    
-    if (retstat < 0)
-	retstat = log_error("bb_access access");
-    
-    return retstat;
+    if (*pRes < 0){
+	   log_error("bb_access access");
+    }
+    free(new_access->path);
+    free(new_access);
+    return *pRes;
 }
 
 /**
@@ -1008,7 +1017,7 @@ void test_hello() {
         clnt_pcreateerror (host);
         exit (1);
     }
-    hellotest_10(NULL, clnt);
+    hellotest_1000(NULL, clnt);
     clnt_destroy (clnt);
 }
 
