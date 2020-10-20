@@ -76,6 +76,43 @@ static void bb_fullpath(char fpath[PATH_MAX], const char *path)
 	    BB_DATA->rootdir, path, fpath);
 }
 
+int bb_getattr_original(const char *path, struct stat *statbuf){
+    int retstat;
+    char fpath[PATH_MAX];
+
+    log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
+          path, statbuf);
+    bb_fullpath(fpath, path);
+
+    retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
+
+    log_stat(statbuf);
+
+    return retstat;
+}
+
+void print_getattr_IDL(getattr_IDL res) {
+    printf("\n");
+    printf("************************\n");
+    printf("result.res: %d\n", res.res);
+    printf("result.path: %s\n", res.path);
+    printf("result.st_dev: %u\n", res.st_dev);
+    printf("result.st_ino: %u\n", res.st_ino);
+    printf("result.st_mode: %ld\n", res.st_mode);
+    printf("result.st_nlink: %u\n", res.st_nlink);
+    printf("result.st_uid: %u\n", res.st_uid);
+    printf("result.st_gid: %u\n", res.st_gid);
+    printf("result.st_rdev: %u\n", res.st_rdev);
+    printf("result.st_size: %u\n", res.st_size);
+    printf("result.st_blksize: %u\n", res.st_blksize);
+    printf("result.st_blocks: %u\n", res.st_blocks);
+    printf("result.st_atim: %u\n", res.st_atim);
+    printf("result.st_mtim: %u\n", res.st_mtim);
+    printf("result.st_ctim: %u\n", res.st_ctim);
+    printf("************************\n");
+    printf("\n");
+}
+
 ///////////////////////////////////////////////////////////
 //
 // Prototypes for all these functions, and the C-style comments,
@@ -94,56 +131,51 @@ int bb_getattr(const char *path, struct stat *statbuf)
     
     log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
 	  path, statbuf);
-    //bb_fullpath(fpath, path);
+    if(strcmp(path, "/") == 0) {
+        log_msg("\n\ninside strcmp!!!!!!!!!!\n\n");
+        return bb_getattr_original(path, statbuf);
+    }
 
-    //retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
     log_msg("before create client\n");
     CLIENT * clnt = createclient();
     log_msg("after create client\n");
-    int result;
-    int * p = &result;
-    struct getattr_IDL * new_getattr = (struct getattr_IDL*)malloc(sizeof(struct getattr_IDL));
-    new_getattr->path = (char*)malloc(sizeof(char) * strlen(path));
-    //new_getattr->statbuf = (struct stat_IDL*)malloc(sizeof(struct stat_IDL));
+    
+    getattr_IDL * result;
+    getattr_IDL * new_getattr = (struct getattr_IDL*)malloc(sizeof(struct getattr_IDL));
+    new_getattr->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+
     strncpy(new_getattr->path, path, strlen(path));
+    new_getattr->path[strlen(path)] = '\0';
+    log_msg("original path: %s\n", path);
+    log_msg("strlen result: %u\n", strlen(path));
+    log_msg("new_getattr->path: %s\n", new_getattr->path);
     log_msg("before getattr\n");
-    p = getattr_10(new_getattr, clnt);
+    result = getattr_10(new_getattr, clnt);
+    print_getattr_IDL(*result);
     log_msg("after getattr\n");
-    log_msg("mode recv is %3o\n", new_getattr->st_mode);
-    statbuf->st_dev = new_getattr->st_dev;
-    statbuf->st_ino = new_getattr->st_ino;
-    statbuf->st_mode = new_getattr->st_mode;
-    statbuf->st_nlink = new_getattr->st_nlink;
-    statbuf->st_uid = new_getattr->st_uid;
-    statbuf->st_gid = new_getattr->st_gid;
-    statbuf->st_rdev = new_getattr->st_rdev;
-    statbuf->st_size = new_getattr->st_size;
-    statbuf->st_blksize = new_getattr->st_blksize;
-    statbuf->st_blocks = new_getattr->st_blocks;
-    statbuf->st_atime = new_getattr->st_atim;
-    statbuf->st_mtime = new_getattr->st_mtim;
-    statbuf->st_ctime = new_getattr->st_ctim;
+    // log_msg("mode recv is %3o\n", new_getattr->st_mode);
+    log_msg("result.res: %d\n", result->res);
+    statbuf->st_dev = result->st_dev;
+    statbuf->st_ino = result->st_ino;
+    statbuf->st_mode = result->st_mode;
+    statbuf->st_nlink = result->st_nlink;
+    statbuf->st_uid = result->st_uid;
+    statbuf->st_gid = result->st_gid;
+    statbuf->st_rdev = result->st_rdev;
+    statbuf->st_size = result->st_size;
+    statbuf->st_blksize = result->st_blksize;
+    statbuf->st_blocks = result->st_blocks;
+    statbuf->st_atime = result->st_atim;
+    statbuf->st_mtime = result->st_mtim;
+    statbuf->st_ctime = result->st_ctim;
     log_msg("mode returned is %3o\n", statbuf->st_mode);
+
+    free(new_getattr->path);
+    free(new_getattr);
     log_stat(statbuf);
     destroyclient(clnt);
-    return *p;
-    }
-
-/*int bb_getattr(const char *path, struct stat *statbuf)
-{
-    int retstat;
-    char fpath[PATH_MAX];
-
-    log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
-          path, statbuf);
-    bb_fullpath(fpath, path);
-
-    retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
-
-    log_stat(statbuf);
-
-    return retstat;
-    }*/
+    return result->res;
+}
 
 /** Read the target of a symbolic link
  *
@@ -218,7 +250,7 @@ int bb_mkdir(const char *path, mode_t mode)
 	    path, mode);
     CLIENT * clnt = createclient();
     struct mkdir_IDL * new_mkdir = (struct mkdir_IDL*)malloc(sizeof(struct mkdir_IDL));
-    new_mkdir->path = (char*)malloc(sizeof(char) * strlen(path));
+    new_mkdir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
     strncpy(new_mkdir->path, path, strlen(path));
     log_msg("path sent %s\n", new_mkdir->path);
     new_mkdir->mode = mode;
@@ -252,7 +284,7 @@ int bb_rmdir(const char *path)
 	    path);
     CLIENT * clnt = createclient();
     struct rmdir_IDL * new_rmdir = (struct rmdir_IDL*)malloc(sizeof(struct rmdir_IDL));
-    new_rmdir->path = (char*)malloc(sizeof(char) * strlen(path));
+    new_rmdir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
     strncpy(new_rmdir->path, path, strlen(path));
     int result;
     int * p = &result;
@@ -371,24 +403,32 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 {
     int retstat = 0;
     int fd;
+    int * p = &fd;
     char fpath[PATH_MAX];
     
     log_msg("\nbb_open(path\"%s\", fi=0x%08x)\n",
 	    path, fi);
-    bb_fullpath(fpath, path);
-    
+    //bb_fullpath(fpath, path);
+
+    CLIENT * clnt = createclient();
     // if the open call succeeds, my retstat is the file descriptor,
     // else it's -errno.  I'm making sure that in that case the saved
     // file descriptor is exactly -1.
-    fd = log_syscall("open", open(fpath, fi->flags), 0);
-    if (fd < 0)
+    //fd = log_syscall("open", open(fpath, fi->flags), 0);
+    struct open_IDL * newopen = (struct open_IDL*)malloc(sizeof(struct open_IDL));
+    newopen->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(newopen->path, path, strlen(path) + 1);
+    newopen->flags = fi->flags;
+    p = open_10(newopen, clnt);
+    if (*p < 0)
 	retstat = log_error("open");
 	
     fi->fh = fd;
 
     log_fi(fi);
-    
-    return retstat;
+    destroyclient(clnt);
+    free(newopen);
+    return *p;
 }
 
 /** Read data from an open file
@@ -414,9 +454,23 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi);
     // no need to get fpath on this one, since I work from fi->fh not the path
+    CLIENT * clnt = createclient();
+    struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
+    newread->path = (char*)malloc((sizeof(char)) * (strlen(path) + 1));
+    strncpy(newread->path, path, strlen(path) + 1);
+    newread->buf = buf;
+    newread->size = size;
+    newread->offset = offset;
+    newread->fh = fi->fh;
+    struct read_IDL * result;
+    result = read_10(newread, clnt);
+    strncpy(buf, result->buf, strlen(result->buf) + 1);
     log_fi(fi);
-
-    return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
+    free(newread->path);
+    free(newread);
+    destroyclient(clnt);
+    //return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
+    return result->res;
 }
 
 /** Write data to an open file

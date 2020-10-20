@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 const char * rootpath = "/home/localadmin/finalproject/bbfs_server/serverpoint";
 
@@ -26,33 +27,70 @@ static void * getfullpath(char fpath[PATH_MAX], const char * path){
   strncat(fpath, path, PATH_MAX);
 }
 
-int *
+void print_getattr_IDL(getattr_IDL res) {
+	printf("\n");
+	printf("************************\n");
+	printf("result.res: %d\n", res.res);
+	printf("result.path: %s\n", res.path);
+	printf("result.st_dev: %u\n", res.st_dev);
+	printf("result.st_ino: %u\n", res.st_ino);
+	printf("result.st_mode: %ld\n", res.st_mode);
+	printf("result.st_nlink: %u\n", res.st_nlink);
+	printf("result.st_uid: %u\n", res.st_uid);
+	printf("result.st_gid: %u\n", res.st_gid);
+	printf("result.st_rdev: %u\n", res.st_rdev);
+	printf("result.st_size: %u\n", res.st_size);
+	printf("result.st_blksize: %u\n", res.st_blksize);
+	printf("result.st_blocks: %u\n", res.st_blocks);
+	printf("result.st_atim: %u\n", res.st_atim);
+	printf("result.st_mtim: %u\n", res.st_mtim);
+	printf("result.st_ctim: %u\n", res.st_ctim);
+	printf("************************\n");
+	printf("\n");
+}
+
+void print_function_name(const char * name) {
+	printf("\n*******************\n");
+	printf("INSIDE %s\n", name);
+	printf("\n*******************\n");
+}
+
+getattr_IDL *
 getattr_10_svc(getattr_IDL *argp, struct svc_req *rqstp)
 {
-	static int  result;
+	print_function_name("getattr_10_svc");
+
+	static getattr_IDL result;
+	int res;
 	struct stat * statbuf = (struct stat*)malloc(sizeof(struct stat));
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
+	printf("argp->path: %s\n", argp->path);
 	printf("full path is %s\n", fpath);
-	result = lstat(fpath, statbuf);
-	argp->st_dev = statbuf->st_dev;
-	argp->st_ino = statbuf->st_ino;
-	argp->st_mode = statbuf->st_mode;
-	argp->st_nlink = statbuf->st_nlink;
-	argp->st_uid = statbuf->st_uid;
-	argp->st_gid = statbuf->st_gid;
-	argp->st_rdev = statbuf->st_rdev;
-	argp->st_size = statbuf->st_size;
-	argp->st_blksize = statbuf->st_blksize;
-	argp->st_blocks = statbuf->st_blocks;
-	argp->st_atim = statbuf->st_atime;
-	argp->st_mtim = statbuf->st_mtime;
-	argp->st_ctim = statbuf->st_ctime;
-	printf("server mode is %3o\n", statbuf->st_mode);
-	printf("mode sent back is %3lo\n", argp->st_mode);
-	/*
-	 * insert server code here
-	 */
+	res = lstat(fpath, statbuf);
+
+	result.path = "xx";
+	if(res == 0){
+	  result.res = res;
+	}
+	else{
+	  result.res = -errno;}
+	result.st_dev = statbuf->st_dev;
+	result.st_ino = statbuf->st_ino;
+	result.st_mode = statbuf->st_mode;
+	result.st_nlink = statbuf->st_nlink;
+	result.st_uid = statbuf->st_uid;
+	result.st_gid = statbuf->st_gid;
+	result.st_rdev = statbuf->st_rdev;
+	result.st_size = statbuf->st_size;
+	result.st_blksize = statbuf->st_blksize;
+	result.st_blocks = statbuf->st_blocks;
+	result.st_atim = statbuf->st_atime;
+	result.st_mtim = statbuf->st_mtime;
+	result.st_ctim = statbuf->st_ctime;
+	
+	print_getattr_IDL(result);
+
 	free(statbuf);
 	return &result;
 }
@@ -60,6 +98,8 @@ getattr_10_svc(getattr_IDL *argp, struct svc_req *rqstp)
 int *
 mkdir_10_svc(mkdir_IDL *argp, struct svc_req *rqstp)
 {
+	print_function_name("mkdir_10_svc");
+
 	static int result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
@@ -69,16 +109,15 @@ mkdir_10_svc(mkdir_IDL *argp, struct svc_req *rqstp)
 	//uint32_t fmode = argp->mode & 0777;
         result = mkdir(fpath, argp->mode);
 	printf("mkdir result is: %d\n", result);
-	/*
-	 * insert server code here
-	 */
-
+	
 	return &result;
 }
 
 int *
 rmdir_10_svc(rmdir_IDL *argp, struct svc_req *rqstp)
 {
+	print_function_name("rmdir_10_svc");
+	
 	static int  result;
 	char fpath[PATH_MAX];
         getfullpath(fpath, argp->path);
@@ -86,9 +125,7 @@ rmdir_10_svc(rmdir_IDL *argp, struct svc_req *rqstp)
         //uint32_t fmode = argp->mode & 0777;                                                                    
         result = rmdir(fpath);
         printf("result is %d\n", result);
-	/*
-	 * insert server code here
-	 */
+
 	return &result;
 }
 
@@ -96,7 +133,9 @@ int *
 open_10_svc(open_IDL *argp, struct svc_req *rqstp)
 {
 	static int  result;
-
+	char fpath[PATH_MAX];
+	getfullpath(fpath, argp->path);
+	result = open(fpath, argp->flags);	
 	/*
 	 * insert server code here
 	 */
@@ -104,16 +143,23 @@ open_10_svc(open_IDL *argp, struct svc_req *rqstp)
 	return &result;
 }
 
-int *
+struct read_IDL*
 read_10_svc(read_IDL *argp, struct svc_req *rqstp)
 {
 	static int  result;
-
+	char fpath[PATH_MAX];
+	getfullpath(fpath, argp->path);
+	char * buf;
+	result = pread(argp->fh, buf, argp->size, argp->offset);
+	static read_IDL res;
+	res.path = "xx";
+	strncpy(res.buf, buf, strlen(buf) + 1);
+	
 	/*
 	 * insert server code here
 	 */
 
-	return &result;
+	return &res;
 }
 
 int *
