@@ -172,24 +172,24 @@ open_1000_svc(open_IDL *argp, struct svc_req *rqstp)
 	return &result;
 }
 
-struct read_IDL*
+struct read_ret_IDL *
 read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 {
-	static int  result;
-	char fpath[PATH_MAX];
-	getfullpath(fpath, argp->path);
-	char * buf;
-	result = pread(argp->fh, buf, argp->size, argp->offset);
-	static read_IDL res;
-	res.path = "xx";
-	res.res = result;
-	strncpy(res.buf, buf, strlen(buf) + 1);
-	
-	/*
-	 * insert server code here
-	 */
+	print_function_name("read_1000_svc");
+	static struct read_ret_IDL result;
 
-	return &res;
+	printf("argp->fh: %d\n", argp->fh);
+	printf("argp->size: %u\n", argp->size);
+	printf("argp->offset: %d\n", argp->offset);
+
+	char * buf = (char*)malloc(sizeof(char) * argp->size);
+	result.count = pread(argp->fh, buf, argp->size, argp->offset);
+	printf("result.count: %d\n", result.count);
+	memcpy(result.buf, buf, argp->size);
+
+	printf("buf readed: \n%s\n", result.buf);
+	
+	return &result;
 }
 
 struct write_IDL*

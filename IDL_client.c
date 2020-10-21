@@ -19,7 +19,7 @@ nfs_fuse_1000(char *host)
 	rmdir_IDL  rmdir_1000_arg;
 	int  *result_4;
 	open_IDL  open_1000_arg;
-	struct read_IDL  *result_5;
+	struct read_ret_IDL  *result_5;
 	read_IDL  read_1000_arg;
 	struct write_IDL  *result_6;
 	write_IDL  write_1000_arg;
@@ -63,7 +63,7 @@ nfs_fuse_1000(char *host)
 		clnt_perror (clnt, "call failed");
 	}
 	result_5 = read_1000(&read_1000_arg, clnt);
-	if (result_5 == (struct read_IDL *) NULL) {
+	if (result_5 == (struct read_ret_IDL *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 	result_6 = write_1000(&write_1000_arg, clnt);

@@ -99,13 +99,14 @@ struct open_IDL{
 };
 
 struct read_IDL{
-       int res;
-       
-       string path<PATH_MAX>;
-       opaque buf[1024];
        uint32_t size;
        uint32_t offset;
-       uint32_t fh;
+       int fh;
+};
+
+struct read_ret_IDL {
+  int count;
+  opaque buf[4096];
 };
 
 struct write_IDL{
@@ -155,7 +156,7 @@ program NFS_FUSE{
 		int MKDIR(mkdir_IDL)=2;
 		int RMDIR(rmdir_IDL)=3;     
   	int OPEN(open_IDL)=4;
-		struct read_IDL READ(read_IDL)=5;     
+		struct read_ret_IDL READ(read_IDL)=5;     
   	struct write_IDL WRITE(write_IDL)=6;
     struct opendir_ret_IDL OPENDIR(opendir_IDL)=7;
     struct readdir_ret_IDL READDIR(readdir_IDL)=8;

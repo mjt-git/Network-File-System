@@ -54,10 +54,10 @@ open_1000_svc(open_IDL *argp, struct svc_req *rqstp)
 	return &result;
 }
 
-struct read_IDL *
+struct read_ret_IDL *
 read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 {
-	static struct read_IDL  result;
+	static struct read_ret_IDL  result;
 
 	/*
 	 * insert server code here

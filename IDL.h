@@ -112,14 +112,17 @@ struct open_IDL {
 typedef struct open_IDL open_IDL;
 
 struct read_IDL {
-	int res;
-	char *path;
-	char buf[1024];
 	uint32_t size;
 	uint32_t offset;
-	uint32_t fh;
+	int fh;
 };
 typedef struct read_IDL read_IDL;
+
+struct read_ret_IDL {
+	int count;
+	char buf[4096];
+};
+typedef struct read_ret_IDL read_ret_IDL;
 
 struct write_IDL {
 	char *path;
@@ -187,8 +190,8 @@ extern  int * rmdir_1000_svc(rmdir_IDL *, struct svc_req *);
 extern  int * open_1000(open_IDL *, CLIENT *);
 extern  int * open_1000_svc(open_IDL *, struct svc_req *);
 #define READ 5
-extern  struct read_IDL * read_1000(read_IDL *, CLIENT *);
-extern  struct read_IDL * read_1000_svc(read_IDL *, struct svc_req *);
+extern  struct read_ret_IDL * read_1000(read_IDL *, CLIENT *);
+extern  struct read_ret_IDL * read_1000_svc(read_IDL *, struct svc_req *);
 #define WRITE 6
 extern  struct write_IDL * write_1000(write_IDL *, CLIENT *);
 extern  struct write_IDL * write_1000_svc(write_IDL *, struct svc_req *);
@@ -229,8 +232,8 @@ extern  int * rmdir_1000_svc();
 extern  int * open_1000();
 extern  int * open_1000_svc();
 #define READ 5
-extern  struct read_IDL * read_1000();
-extern  struct read_IDL * read_1000_svc();
+extern  struct read_ret_IDL * read_1000();
+extern  struct read_ret_IDL * read_1000_svc();
 #define WRITE 6
 extern  struct write_IDL * write_1000();
 extern  struct write_IDL * write_1000_svc();
@@ -271,6 +274,7 @@ extern  bool_t xdr_mkdir_IDL (XDR *, mkdir_IDL*);
 extern  bool_t xdr_rmdir_IDL (XDR *, rmdir_IDL*);
 extern  bool_t xdr_open_IDL (XDR *, open_IDL*);
 extern  bool_t xdr_read_IDL (XDR *, read_IDL*);
+extern  bool_t xdr_read_ret_IDL (XDR *, read_ret_IDL*);
 extern  bool_t xdr_write_IDL (XDR *, write_IDL*);
 extern  bool_t xdr_opendir_IDL (XDR *, opendir_IDL*);
 extern  bool_t xdr_opendir_ret_IDL (XDR *, opendir_ret_IDL*);
@@ -291,6 +295,7 @@ extern bool_t xdr_mkdir_IDL ();
 extern bool_t xdr_rmdir_IDL ();
 extern bool_t xdr_open_IDL ();
 extern bool_t xdr_read_IDL ();
+extern bool_t xdr_read_ret_IDL ();
 extern bool_t xdr_write_IDL ();
 extern bool_t xdr_opendir_IDL ();
 extern bool_t xdr_opendir_ret_IDL ();

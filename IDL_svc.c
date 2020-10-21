@@ -68,7 +68,7 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 
 	case READ:
 		_xdr_argument = (xdrproc_t) xdr_read_IDL;
-		_xdr_result = (xdrproc_t) xdr_read_IDL;
+		_xdr_result = (xdrproc_t) xdr_read_ret_IDL;
 		local = (char *(*)(char *, struct svc_req *)) read_1000_svc;
 		break;
 

@@ -69,15 +69,15 @@ open_1000(open_IDL *argp, CLIENT *clnt)
 	return (&clnt_res);
 }
 
-struct read_IDL *
+struct read_ret_IDL *
 read_1000(read_IDL *argp, CLIENT *clnt)
 {
-	static struct read_IDL clnt_res;
+	static struct read_ret_IDL clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, READ,
 		(xdrproc_t) xdr_read_IDL, (caddr_t) argp,
-		(xdrproc_t) xdr_read_IDL, (caddr_t) &clnt_res,
+		(xdrproc_t) xdr_read_ret_IDL, (caddr_t) &clnt_res,
 		TIMEOUT) != RPC_SUCCESS) {
 		return (NULL);
 	}

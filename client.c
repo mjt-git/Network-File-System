@@ -445,37 +445,41 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 // returned by read.
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
-    int retstat = 0;
     size_t rest_len;
     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi);
-    // no need to get fpath on this one, since I work from fi->fh not the path
-    CLIENT * clnt = createclient();
-    struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
-    newread->path = (char*)malloc((sizeof(char)) * (strlen(path) + 1));
-    strncpy(newread->path, path, strlen(path) + 1);
-    newread->size = size <= 1024 ? size : 1024;
-    newread->offset = offset;
-    newread->fh = fi->fh;
-    struct read_IDL * result;
-    result = read_1000(newread, clnt);
-    strncpy(buf, result->buf, size <= 1024 ? size : 1024);
-    rest_len = size;
-    if(result->res < 0) {return result->res;}
-    while(rest_len > 1024){
-      rest_len -= 1024;
-      newread->size = rest_len <= 1024 ? rest_len : 1024;
-      newread->offset += 1024;
-      result = read_1000(newread, clnt);
-      if(result->res < 0){return result->res;}
-      strncat(buf, result->buf, rest_len <= 1024 ? rest_len : 1024);
+    int total_length = 0;
+
+    while(size > 0) {
+        CLIENT * clnt = createclient();
+        struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
+        newread->size = size <= 4096 ? size : 4096;
+        newread->offset = offset;
+        newread->fh = fi->fh;
+
+        struct read_ret_IDL * result;
+        result = read_1000(newread, clnt);
+        int length_readed = result->count;
+
+        log_msg("length_readed: %d\n", length_readed);
+        if(length_readed == 0) {
+            break;
+        }
+
+
+        memcpy(buf, result->buf, length_readed);
+        printf("current buf: \n%s\n", buf);
+
+        buf += length_readed;
+        offset += length_readed;
+        size -= length_readed;
+        total_length += length_readed;
+
+        free(newread);
+        destroyclient(clnt);
     }
-    log_fi(fi);
-    free(newread->path);
-    free(newread);
-    destroyclient(clnt);
-    //return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
-    return size;
+
+    return total_length;
 }
 
 /** Write data to an open file
