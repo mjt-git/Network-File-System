@@ -245,8 +245,10 @@ readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
     //static readdir_ret_IDL response;
     response.res = retstat;
     //memcpy(response.buf, buf, 65535);
-    memcpy(response.buf, buf, 65535);
+    //response.buf = (char*)malloc(sizeof(char) * length);
+    memmove(response.buf, buf, length);
     response.length = length;
+    printf("res buf is: %s\n", response.buf);
     return &response;
 }
 

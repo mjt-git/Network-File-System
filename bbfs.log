@@ -20,13 +20,13 @@ bb_init()
     rootdir = /home/localadmin/finalproject/bbfs_client/fakeroot
     umask = 00000
 
-bb_getattr(path="/", statbuf=0x0669dc00)
+bb_getattr(path="/", statbuf=0x06e9ec00)
 
 
 inside strcmp!!!!!!!!!!
 
 
-bb_getattr(path="/", statbuf=0x0669dc00)
+bb_getattr(path="/", statbuf=0x06e9ec00)
     bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
     lstat returned 0
     si:
@@ -44,13 +44,13 @@ bb_getattr(path="/", statbuf=0x0669dc00)
     st_mtime = 0x5f8d5a09
     st_ctime = 0x5f8d5a09
 
-bb_getattr(path="/", statbuf=0x06e9ec00)
+bb_getattr(path="/", statbuf=0x0669dc00)
 
 
 inside strcmp!!!!!!!!!!
 
 
-bb_getattr(path="/", statbuf=0x06e9ec00)
+bb_getattr(path="/", statbuf=0x0669dc00)
     bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
     lstat returned 0
     si:
@@ -70,7 +70,7 @@ bb_getattr(path="/", statbuf=0x06e9ec00)
 
 bb_access(path="/", mask=01)
 
-bb_opendir(path="/", fi=0x06e9ec20)
+bb_opendir(path="/", fi=0x0669dc20)
 pRes->res: 5pRes->isvalid: 1    fi:
     flags = 0x00018800
     fh_old = 0x00000000
@@ -80,13 +80,13 @@ pRes->res: 5pRes->isvalid: 1    fi:
     fh = 0x0000000000000005
     lock_owner = 0x0000000000000000
 
-bb_getattr(path="/", statbuf=0x0669dc00)
+bb_getattr(path="/", statbuf=0x06e9ec00)
 
 
 inside strcmp!!!!!!!!!!
 
 
-bb_getattr(path="/", statbuf=0x0669dc00)
+bb_getattr(path="/", statbuf=0x06e9ec00)
     bb_fullpath:  rootdir = "/home/localadmin/finalproject/bbfs_client/fakeroot", path = "/", fpath = "/home/localadmin/finalproject/bbfs_client/fakeroot/"
     lstat returned 0
     si:
@@ -104,6 +104,6 @@ bb_getattr(path="/", statbuf=0x0669dc00)
     st_mtime = 0x5f8d5a09
     st_ctime = 0x5f8d5a09
 
-bb_readdir(path="/", buf=0x0590edd0, filler=0x04e43d00, offset=0, fi=0x06e9ec20)
+bb_readdir(path="/", buf=0x0590edd0, filler=0x04e43d00, offset=0, fi=0x0669dc20)
 fi->fh=5
 new_readdir->fh=5

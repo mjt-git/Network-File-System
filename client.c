@@ -794,27 +794,15 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
     new_readdir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
     strncpy(new_readdir -> path, path, strlen(path));
     new_readdir->path[strlen(path)] = '\0';
-    //new_readdir -> buf = buf;
     new_readdir -> offset = offset;
-
-    //new_readdir -> flags = fi->flags;
-    //new_readdir -> writepage = fi->writepage;
-    //new_readdir -> direct_io = fi->direct_io;
-    //new_readdir -> keep_cache = fi->keep_cache;
-    //new_readdir -> flush = fi->flush;
-    //new_readdir -> nonseekable = fi->nonseekable;
-    //new_readdir -> padding = fi->padding;
     log_msg("fi->fh=%ld\n",fi->fh);
     new_readdir -> fh = fi->fh;
     log_msg("new_readdir->fh=%ld\n",new_readdir->fh);
 
-    //new_readdir -> lock_owner = fi->lock_owner;
-    
-    //int *retstat_p;
     struct readdir_ret_IDL * ans; 
     ans = (readdir_ret_IDL*)readdir_1000(new_readdir, clnt);
     //printf("ans buf is: %s\n",ans->buf);
-    memcpy(buf, (void*)ans->buf, 65535);
+    memmove(buf, (void*)ans->buf, 65535);
     destroyclient(clnt);
     free(new_readdir);    
     return ans->res;
