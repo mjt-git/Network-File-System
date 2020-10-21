@@ -137,6 +137,11 @@ struct access_IDL {
 };
 typedef struct access_IDL access_IDL;
 
+struct releasedir_IDL {
+	int fh;
+};
+typedef struct releasedir_IDL releasedir_IDL;
+
 #define NFS_FUSE 123789456
 #define NFS_FUSE_VERS 1000
 
@@ -171,6 +176,9 @@ extern  void * hellotest_1000_svc(void *, struct svc_req *);
 #define ACCESS 10
 extern  int * access_1000(access_IDL *, CLIENT *);
 extern  int * access_1000_svc(access_IDL *, struct svc_req *);
+#define RELEASEDIR 11
+extern  int * releasedir_1000(releasedir_IDL *, CLIENT *);
+extern  int * releasedir_1000_svc(releasedir_IDL *, struct svc_req *);
 extern int nfs_fuse_1000_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
@@ -204,6 +212,9 @@ extern  void * hellotest_1000_svc();
 #define ACCESS 10
 extern  int * access_1000();
 extern  int * access_1000_svc();
+#define RELEASEDIR 11
+extern  int * releasedir_1000();
+extern  int * releasedir_1000_svc();
 extern int nfs_fuse_1000_freeresult ();
 #endif /* K&R C */
 
@@ -224,6 +235,7 @@ extern  bool_t xdr_opendir_ret_IDL (XDR *, opendir_ret_IDL*);
 extern  bool_t xdr_readdir_IDL (XDR *, readdir_IDL*);
 extern  bool_t xdr_readdir_ret_IDL (XDR *, readdir_ret_IDL*);
 extern  bool_t xdr_access_IDL (XDR *, access_IDL*);
+extern  bool_t xdr_releasedir_IDL (XDR *, releasedir_IDL*);
 
 #else /* K&R C */
 extern bool_t xdr_timespec_IDL ();
@@ -240,6 +252,7 @@ extern bool_t xdr_opendir_ret_IDL ();
 extern bool_t xdr_readdir_IDL ();
 extern bool_t xdr_readdir_ret_IDL ();
 extern bool_t xdr_access_IDL ();
+extern bool_t xdr_releasedir_IDL ();
 
 #endif /* K&R C */
 

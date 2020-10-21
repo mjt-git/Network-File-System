@@ -119,6 +119,10 @@ struct access_IDL{
   int mask;
 };
 
+struct releasedir_IDL {
+  int fh;
+};
+
 program NFS_FUSE{
 	version NFS_FUSE_VERS{
 		struct getattr_IDL GETATTR(struct getattr_IDL)=1;
@@ -131,5 +135,6 @@ program NFS_FUSE{
     struct readdir_ret_IDL READDIR(readdir_IDL)=8;
 		void HELLOTEST()=9;
     int ACCESS(access_IDL)=10;
+    int RELEASEDIR(releasedir_IDL)=11;
 	} = 1000;
 } = 123789456;

@@ -648,7 +648,7 @@ int bb_releasedir(const char *path, struct fuse_file_info *fi)
     log_msg("\nbb_releasedir(path=\"%s\", fi=0x%08x)\n",
 	    path, fi);
     log_fi(fi);
-    
+
     closedir((DIR *) (uintptr_t) fi->fh);
     
     return retstat;

@@ -330,3 +330,13 @@ xdr_access_IDL (XDR *xdrs, access_IDL *objp)
 		 return FALSE;
 	return TRUE;
 }
+
+bool_t
+xdr_releasedir_IDL (XDR *xdrs, releasedir_IDL *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_int (xdrs, &objp->fh))
+		 return FALSE;
+	return TRUE;
+}

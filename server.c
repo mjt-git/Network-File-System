@@ -138,14 +138,16 @@ rmdir_1000_svc(rmdir_IDL *argp, struct svc_req *rqstp)
 int *
 open_1000_svc(open_IDL *argp, struct svc_req *rqstp)
 {
-	static int  result;
+	print_function_name("open_1000_svc");
+
+	static int result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
+	printf("fpath: %s\n", fpath);
+	printf("argp->flags: %d\n", argp->flags);
 	result = open(fpath, argp->flags);	
-	/*
-	 * insert server code here
-	 */
-
+	printf("open call result: %d\n", result);
+	
 	return &result;
 }
 
@@ -276,5 +278,18 @@ access_1000_svc(access_IDL *argp, struct svc_req *rqstp)
 
 	result = access(fpath, argp->mask);
 	printf("access function result: %d", result);
+	return &result;
+}
+
+int *
+releasedir_1000_svc(releasedir_IDL *argp, struct svc_req *rqstp)
+{
+	print_function_name("releasedir_1000_svc");
+	static int result = 0;
+
+	DIR * dp;
+	dp = fdopendir(argp->fh);
+	closedir(dp);
+
 	return &result;
 }

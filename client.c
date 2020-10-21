@@ -131,21 +131,15 @@ int bb_getattr(const char *path, struct stat *statbuf)
     
     log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
       path, statbuf);
-    if(strcmp(path, "/") == 0) {
-        log_msg("\n\ninside strcmp!!!!!!!!!!\n\n");
-        return bb_getattr_original(path, statbuf);
-    }
-
-    log_msg("before create client\n");
+    
     CLIENT * clnt = createclient();
-    log_msg("after create client\n");
     
     getattr_IDL * result;
     getattr_IDL * new_getattr = (struct getattr_IDL*)malloc(sizeof(struct getattr_IDL));
     new_getattr->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
-
     strncpy(new_getattr->path, path, strlen(path));
     new_getattr->path[strlen(path)] = '\0';
+
     log_msg("original path: %s\n", path);
     log_msg("strlen result: %u\n", strlen(path));
     log_msg("new_getattr->path: %s\n", new_getattr->path);
@@ -405,22 +399,22 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 {
     int retstat = 0;
     int * p;
-    char fpath[PATH_MAX];
     
     log_msg("\nbb_open(path\"%s\", fi=0x%08x)\n",
 	    path, fi);
 
     CLIENT * clnt = createclient();
-    // if the open call succeeds, my retstat is the file descriptor,
-    // else it's -errno.  I'm making sure that in that case the saved
-    // file descriptor is exactly -1.
-    //fd = log_syscall("open", open(fpath, fi->flags), 0);
+    
     struct open_IDL * newopen = (struct open_IDL*)malloc(sizeof(struct open_IDL));
     newopen->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
-    strncpy(newopen->path, path, strlen(path) + 1);
+    strncpy(newopen->path, path, strlen(path));
+    newopen->path[strlen(path)] = '\0';
     newopen->flags = fi->flags;
+
+    log_msg("newopen->flags: %d\n", newopen->flags);
+
     p = open_1000(newopen, clnt);
-    log_msg("open_10 return value *p: %d", *p);
+    log_msg("open_10 return value *p: %d\n", *p);
     if (*p < 0)
 	   retstat = log_error("open");
 	
@@ -817,15 +811,17 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
  */
 int bb_releasedir(const char *path, struct fuse_file_info *fi)
 {
-    int retstat = 0;
-    
     log_msg("\nbb_releasedir(path=\"%s\", fi=0x%08x)\n",
 	    path, fi);
     log_fi(fi);
-    
-    closedir((DIR *) (uintptr_t) fi->fh);
-    
-    return retstat;
+
+    CLIENT * clnt = createclient();
+    releasedir_IDL new_releasedir;
+    new_releasedir.fh = fi->fh;
+    int * pRes;
+    pRes = releasedir_1000(&new_releasedir, clnt);
+    destroyclient(clnt);
+    return *pRes;
 }
 
 /** Synchronize directory contents

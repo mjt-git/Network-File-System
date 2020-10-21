@@ -29,6 +29,7 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		opendir_IDL opendir_1000_arg;
 		readdir_IDL readdir_1000_arg;
 		access_IDL access_1000_arg;
+		releasedir_IDL releasedir_1000_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -97,6 +98,12 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		_xdr_argument = (xdrproc_t) xdr_access_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
 		local = (char *(*)(char *, struct svc_req *)) access_1000_svc;
+		break;
+
+	case RELEASEDIR:
+		_xdr_argument = (xdrproc_t) xdr_releasedir_IDL;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) releasedir_1000_svc;
 		break;
 
 	default:
