@@ -452,7 +452,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     int retstat = 0;
-    
+    size_t rest_len;
     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi);
     // no need to get fpath on this one, since I work from fi->fh not the path
@@ -460,19 +460,28 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
     newread->path = (char*)malloc((sizeof(char)) * (strlen(path) + 1));
     strncpy(newread->path, path, strlen(path) + 1);
-    newread->buf = buf;
-    newread->size = size;
+    newread->size = size <= 1024 ? size : 1024;
     newread->offset = offset;
     newread->fh = fi->fh;
     struct read_IDL * result;
     result = read_1000(newread, clnt);
-    strncpy(buf, result->buf, strlen(result->buf) + 1);
+    strncpy(buf, result->buf, size <= 1024 ? size : 1024);
+    rest_len = size;
+    if(result->res < 0) {return result->res;}
+    while(rest_len > 1024){
+      rest_len -= 1024;
+      newread->size = rest_len <= 1024 ? rest_len : 1024;
+      newread->offset += 1024;
+      result = read_1000(newread, clnt);
+      if(result->res < 0){return result->res;}
+      strncat(buf, result->buf, rest_len <= 1024 ? rest_len : 1024);
+    }
     log_fi(fi);
     free(newread->path);
     free(newread);
     destroyclient(clnt);
     //return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
-    return result->res;
+    return size;
 }
 
 /** Write data to an open file
@@ -782,28 +791,33 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
 
     CLIENT * clnt = createclient();
     struct readdir_IDL *new_readdir = (struct readdir_IDL*)malloc(sizeof(struct  readdir_IDL));
-    new_readdir -> path = path;
-    new_readdir -> buf = buf;
+    new_readdir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_readdir -> path, path, strlen(path));
+    new_readdir->path[strlen(path)] = '\0';
+    //new_readdir -> buf = buf;
     new_readdir -> offset = offset;
 
-    new_readdir -> flags = fi->flags;
-    new_readdir -> writepage = fi->writepage;
-    new_readdir -> direct_io = fi->direct_io;
-    new_readdir -> keep_cache = fi->keep_cache;
-    new_readdir -> flush = fi->flush;
-    new_readdir -> nonseekable = fi->nonseekable;
-    new_readdir -> padding = fi->padding;
+    //new_readdir -> flags = fi->flags;
+    //new_readdir -> writepage = fi->writepage;
+    //new_readdir -> direct_io = fi->direct_io;
+    //new_readdir -> keep_cache = fi->keep_cache;
+    //new_readdir -> flush = fi->flush;
+    //new_readdir -> nonseekable = fi->nonseekable;
+    //new_readdir -> padding = fi->padding;
     log_msg("fi->fh=%ld\n",fi->fh);
     new_readdir -> fh = fi->fh;
     log_msg("new_readdir->fh=%ld\n",new_readdir->fh);
 
-    new_readdir -> lock_owner = fi->lock_owner;
+    //new_readdir -> lock_owner = fi->lock_owner;
     
-    int *retstat_p;
-    retstat_p = (int *)readdir_1000(new_readdir, clnt);
+    //int *retstat_p;
+    struct readdir_ret_IDL * ans; 
+    ans = (readdir_ret_IDL*)readdir_1000(new_readdir, clnt);
+    //printf("ans buf is: %s\n",ans->buf);
+    memcpy(buf, (void*)ans->buf, 65535);
     destroyclient(clnt);
     free(new_readdir);    
-    return *retstat_p;
+    return ans->res;
 }
 /** Release directory
  *

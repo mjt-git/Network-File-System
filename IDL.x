@@ -1,3 +1,5 @@
+
+
 struct timespec_IDL{
        long tv_sec;
        long tv_nsec;
@@ -78,7 +80,7 @@ struct read_IDL{
        int res;
        
        string path<PATH_MAX>;
-       string buf<>;
+       opaque buf[1024];
        uint32_t size;
        uint32_t offset;
        uint32_t fh;
@@ -86,10 +88,10 @@ struct read_IDL{
 
 struct write_IDL{
        string path<PATH_MAX>;
-       string buf<>;
+       opaque buf[1024];
        uint32_t size;
        uint32_t offset;
-       struct fuse_file_info_IDL * fi;
+       uint32_t fh;
 };
 
 struct opendir_IDL{
@@ -103,20 +105,14 @@ struct opendir_ret_IDL{
 
 struct readdir_IDL{
   string path<PATH_MAX>;
-  string buf<>;
   uint32_t offset;
-
-  int flags;
-  int  writepage;
-  int  direct_io;
-  int  keep_cache;
-  int  flush;
-  int  nonseekable;
-  int  cache_readdir;
-  int  padding;
   uint64_t  fh;
-  uint64_t  lock_owner;
-  uint32_t  poll_events;
+};
+
+struct readdir_ret_IDL{
+       int res;
+       opaque buf[65535];
+       int length;
 };
 
 struct access_IDL{
@@ -131,9 +127,9 @@ program NFS_FUSE{
 		int RMDIR(rmdir_IDL)=3;     
   	int OPEN(open_IDL)=4;
 		struct read_IDL READ(read_IDL)=5;     
-  	int WRITE(write_IDL)=6;
+  	struct write_IDL WRITE(write_IDL)=6;
     struct opendir_ret_IDL OPENDIR(opendir_IDL)=7;
-    int READDIR(readdir_IDL)=8;
+    struct readdir_ret_IDL READDIR(readdir_IDL)=8;
 		void HELLOTEST()=9;
     int ACCESS(access_IDL)=10;
 	} = 1000;

@@ -159,6 +159,7 @@ read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 	result = pread(argp->fh, buf, argp->size, argp->offset);
 	static read_IDL res;
 	res.path = "xx";
+	res.res = result;
 	strncpy(res.buf, buf, strlen(buf) + 1);
 	
 	/*
@@ -168,16 +169,16 @@ read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 	return &res;
 }
 
-int *
+struct write_IDL*
 write_1000_svc(write_IDL *argp, struct svc_req *rqstp)
 {
 	static int  result;
-
+	static write_IDL res;
 	/*
 	 * insert server code here
 	 */
 
-	return &result;
+	return &res;
 }
 
 struct opendir_ret_IDL *
@@ -188,27 +189,29 @@ opendir_1000_svc(opendir_IDL *argp, struct svc_req *rqstp)
 	static struct opendir_ret_IDL result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
+	printf("full path is: %s\n", fpath);
 	DIR * dp;
 	dp = opendir(fpath);
 	result.isvalid = (dp == NULL) ? 0 : 1;   // 0 -> invalid; 1 -> valid
-	result.res = (intptr_t)dp;
-
+	result.res = dirfd(dp);
+	printf("is valid: %d; dp is %ld\n", result.isvalid, (intptr_t)dp);
 	return &result;
 }
 
-int *
+struct readdir_ret_IDL *
 readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
 {
 	printf("[readdir_1000_svc]: start\n");
 	const char * path = argp -> path;
-	char * buf = argp -> buf;
+	char * buf = (char*)malloc(sizeof(char) * 65535);
+	memset(buf, 0, 65535);
 	off_t offset = argp -> offset;
-
-	static int retstat = 0;
+	static readdir_ret_IDL response;
+	int retstat = 0;
 	DIR *dp;
     struct dirent *de;
 
-	dp = (DIR *) (uintptr_t) argp->fh;
+    dp = fdopendir(argp->fh);
 
 	printf("arg->fh=%ld\n",argp->fh);
 	//syscall readdir
@@ -217,24 +220,34 @@ readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
 	if (de == 0) {
         // retstat = log_error("bb_readdir readdir");
         printf("error: readdir ");
-        return &retstat;
+        return &response;
     }
     printf("before declare filler\n");
     fuse_fill_dir_t filler;
     printf("after declare filler\n");
 
     printf("*****de->d_d_name=%s\n",de->d_name);
-
-	do {
-        if (filler(buf, de->d_name, NULL, 0) != 0) {
+    int length = 0;
+    char * curr = buf;
+    do {
+      /*if (filler(buf, de->d_name, NULL, 0) != 0) {
             printf("calling filler with name %s\n", de->d_name);
             retstat=-ENOMEM;
-            return  &retstat;
-        }
+            return  &response;
+	    }*/
+      printf("calling filler with name %s\n", de->d_name);
+      strncpy(curr, de->d_name, strlen(de->d_name));
+      length += strlen(de->d_name) + 1;
+      curr += strlen(de->d_name) + 1;
     } while ((de = readdir(dp)) != NULL);
 
-    printf("[readdir_1000_svc]: end with retstat=%d\n",retstat);
-	return &retstat;
+    printf("[readdir_1000_svc]: end with retstat=%d, buf is: %s\n",retstat, buf);
+    //static readdir_ret_IDL response;
+    response.res = retstat;
+    //memcpy(response.buf, buf, 65535);
+    memcpy(response.buf, buf, 65535);
+    response.length = length;
+    return &response;
 }
 
 void *
