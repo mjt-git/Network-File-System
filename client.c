@@ -791,18 +791,22 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
 
     CLIENT * clnt = createclient();
     struct readdir_IDL *new_readdir = (struct readdir_IDL*)malloc(sizeof(struct  readdir_IDL));
-    new_readdir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
-    strncpy(new_readdir -> path, path, strlen(path));
-    new_readdir->path[strlen(path)] = '\0';
-    new_readdir -> offset = offset;
     log_msg("fi->fh=%ld\n",fi->fh);
     new_readdir -> fh = fi->fh;
     log_msg("new_readdir->fh=%ld\n",new_readdir->fh);
 
     struct readdir_ret_IDL * ans; 
     ans = (readdir_ret_IDL*)readdir_1000(new_readdir, clnt);
-    //printf("ans buf is: %s\n",ans->buf);
-    memmove(buf, (void*)ans->buf, 65535);
+    log_msg("ans count: %d\n", ans->count);
+    int offs = 0;
+    for(int i = 0; i < ans->count; i++){
+      if (filler(buf, ans->buf + offs, NULL, 0) != 0) {
+            log_msg("    ERROR bb_readdir filler:  buffer full");
+            return -ENOMEM;
+      }
+      log_msg("ans->buf + offs: %s\n", ans->buf + offs);
+      offs += strlen(ans->buf + offs) + 1;
+    }
     destroyclient(clnt);
     free(new_readdir);    
     return ans->res;

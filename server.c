@@ -202,53 +202,54 @@ struct readdir_ret_IDL *
 readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
 {
 	printf("[readdir_1000_svc]: start\n");
-	const char * path = argp -> path;
-	char * buf = (char*)malloc(sizeof(char) * 65535);
-	memset(buf, 0, 65535);
-	off_t offset = argp -> offset;
+	void * buf = (void*)malloc(sizeof(char) * 65535);
+	// 	memset(buf, 0, 65535);
 	static readdir_ret_IDL response;
 	int retstat = 0;
 	DIR *dp;
-    struct dirent *de;
+	struct dirent *de;
 
-    dp = fdopendir(argp->fh);
+	dp = fdopendir(argp->fh);
 
 	printf("arg->fh=%ld\n",argp->fh);
 	//syscall readdir
 	de = readdir(dp);
 	printf("after readdir call\n");
-	if (de == 0) {
+    if (de == 0) {
         // retstat = log_error("bb_readdir readdir");
         printf("error: readdir ");
         return &response;
     }
-    printf("before declare filler\n");
-    fuse_fill_dir_t filler;
-    printf("after declare filler\n");
 
     printf("*****de->d_d_name=%s\n",de->d_name);
     int length = 0;
+    int count = 0;
     char * curr = buf;
     do {
-      /*if (filler(buf, de->d_name, NULL, 0) != 0) {
-            printf("calling filler with name %s\n", de->d_name);
-            retstat=-ENOMEM;
-            return  &response;
-	    }*/
       printf("calling filler with name %s\n", de->d_name);
-      strncpy(curr, de->d_name, strlen(de->d_name));
+      memcpy(curr, de->d_name, strlen(de->d_name));
+      const char * zero = "\0";
+      memcpy(curr+strlen(de->d_name), zero, 1);
       length += strlen(de->d_name) + 1;
       curr += strlen(de->d_name) + 1;
+      count += 1;
     } while ((de = readdir(dp)) != NULL);
-
-    printf("[readdir_1000_svc]: end with retstat=%d, buf is: %s\n",retstat, buf);
-    //static readdir_ret_IDL response;
+    int off = 0;
+    for(int i = 0; i < count; i++){
+      printf("%s\n", (char*)(buf + off));
+      off += strlen(buf + off) + 1;
+    }
+    printf("[readdir_1000_svc]: end with retstat=%d, buf is: %p\n",retstat, buf);
     response.res = retstat;
-    //memcpy(response.buf, buf, 65535);
-    //response.buf = (char*)malloc(sizeof(char) * length);
     memmove(response.buf, buf, length);
     response.length = length;
-    printf("res buf is: %s\n", response.buf);
+    response.count = count;
+    off = 0;
+    for(int i = 0; i < count; i++){
+      printf("%s\n", (char*)(response.buf + off));
+      off += strlen(response.buf + off) + 1;
+    }
+    //printf("res buf is: %s\n", response.buf);
     return &response;
 }
 

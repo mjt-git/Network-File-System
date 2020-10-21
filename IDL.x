@@ -104,15 +104,14 @@ struct opendir_ret_IDL{
 };
 
 struct readdir_IDL{
-  string path<PATH_MAX>;
-  uint32_t offset;
   uint64_t  fh;
 };
 
 struct readdir_ret_IDL{
        int res;
-       opaque buf[65535];
+       opaque buf[1024];
        int length;
+       int count;
 };
 
 struct access_IDL{
