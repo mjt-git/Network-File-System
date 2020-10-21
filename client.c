@@ -424,7 +424,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     destroyclient(clnt);
     free(newopen->path);
     free(newopen);
-    return *p;
+    return retstat;
 }
 
 /** Read data from an open file
@@ -581,7 +581,14 @@ int bb_release(const char *path, struct fuse_file_info *fi)
 
     // We need to close the file.  Had we allocated any resources
     // (buffers etc) we'd need to free them here as well.
-    return log_syscall("close", close(fi->fh), 0);
+    CLIENT * clnt = createclient();
+    release_IDL new_release;
+    new_release.fh = fi->fh;
+    int * pRes;
+    pRes = release_1000(&new_release, clnt);
+    log_msg("close function result: %d\n", *pRes);
+    destroyclient(clnt);
+    return *pRes;
 }
 
 /** Synchronize file contents
@@ -914,6 +921,7 @@ int bb_access(const char *path, int mask)
     }
     free(new_access->path);
     free(new_access);
+    destroyclient(clnt);
     return *pRes;
 }
 
@@ -986,12 +994,33 @@ int bb_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *f
     // underlying root directory instead of doing the fgetattr().
     if (!strcmp(path, "/"))
 	return bb_getattr(path, statbuf);
+
+    CLIENT * clnt = createclient();
+    fgetattr_IDL new_fgetattr;
+    new_fgetattr.fh = fi->fh;
+    fgetattr_ret_IDL * result = (fgetattr_ret_IDL *)fgetattr_1000(&new_fgetattr, clnt);
+
+    retstat = result->res;
+    if (retstat < 0){
+        retstat = log_error("bb_fgetattr fstat");    
+    }
     
-    retstat = fstat(fi->fh, statbuf);
-    if (retstat < 0)
-	retstat = log_error("bb_fgetattr fstat");
-    
+    statbuf->st_dev = result->st_dev;
+    statbuf->st_ino = result->st_ino;
+    statbuf->st_mode = result->st_mode;
+    statbuf->st_nlink = result->st_nlink;
+    statbuf->st_uid = result->st_uid;
+    statbuf->st_gid = result->st_gid;
+    statbuf->st_rdev = result->st_rdev;
+    statbuf->st_size = result->st_size;
+    statbuf->st_blksize = result->st_blksize;
+    statbuf->st_blocks = result->st_blocks;
+    statbuf->st_atime = result->st_atim;
+    statbuf->st_mtime = result->st_mtim;
+    statbuf->st_ctime = result->st_ctim;
+
     log_stat(statbuf);
+    destroyclient(clnt);
     
     return retstat;
 }

@@ -197,6 +197,52 @@ xdr_getattr_IDL (XDR *xdrs, getattr_IDL *objp)
 }
 
 bool_t
+xdr_fgetattr_IDL (XDR *xdrs, fgetattr_IDL *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_int (xdrs, &objp->fh))
+		 return FALSE;
+	return TRUE;
+}
+
+bool_t
+xdr_fgetattr_ret_IDL (XDR *xdrs, fgetattr_ret_IDL *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_int (xdrs, &objp->res))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_dev))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_ino))
+		 return FALSE;
+	 if (!xdr_long (xdrs, &objp->st_mode))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_nlink))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_uid))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_gid))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_rdev))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_size))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_blksize))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_blocks))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_atim))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_mtim))
+		 return FALSE;
+	 if (!xdr_uint32_t (xdrs, &objp->st_ctim))
+		 return FALSE;
+	return TRUE;
+}
+
+bool_t
 xdr_mkdir_IDL (XDR *xdrs, mkdir_IDL *objp)
 {
 	register int32_t *buf;
@@ -333,6 +379,16 @@ xdr_access_IDL (XDR *xdrs, access_IDL *objp)
 
 bool_t
 xdr_releasedir_IDL (XDR *xdrs, releasedir_IDL *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_int (xdrs, &objp->fh))
+		 return FALSE;
+	return TRUE;
+}
+
+bool_t
+xdr_release_IDL (XDR *xdrs, release_IDL *objp)
 {
 	register int32_t *buf;
 

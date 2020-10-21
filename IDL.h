@@ -71,6 +71,29 @@ struct getattr_IDL {
 };
 typedef struct getattr_IDL getattr_IDL;
 
+struct fgetattr_IDL {
+	int fh;
+};
+typedef struct fgetattr_IDL fgetattr_IDL;
+
+struct fgetattr_ret_IDL {
+	int res;
+	uint32_t st_dev;
+	uint32_t st_ino;
+	long st_mode;
+	uint32_t st_nlink;
+	uint32_t st_uid;
+	uint32_t st_gid;
+	uint32_t st_rdev;
+	uint32_t st_size;
+	uint32_t st_blksize;
+	uint32_t st_blocks;
+	uint32_t st_atim;
+	uint32_t st_mtim;
+	uint32_t st_ctim;
+};
+typedef struct fgetattr_ret_IDL fgetattr_ret_IDL;
+
 struct mkdir_IDL {
 	char *path;
 	uint32_t mode;
@@ -142,6 +165,11 @@ struct releasedir_IDL {
 };
 typedef struct releasedir_IDL releasedir_IDL;
 
+struct release_IDL {
+	int fh;
+};
+typedef struct release_IDL release_IDL;
+
 #define NFS_FUSE 123789456
 #define NFS_FUSE_VERS 1000
 
@@ -179,6 +207,12 @@ extern  int * access_1000_svc(access_IDL *, struct svc_req *);
 #define RELEASEDIR 11
 extern  int * releasedir_1000(releasedir_IDL *, CLIENT *);
 extern  int * releasedir_1000_svc(releasedir_IDL *, struct svc_req *);
+#define RELEASE 12
+extern  int * release_1000(release_IDL *, CLIENT *);
+extern  int * release_1000_svc(release_IDL *, struct svc_req *);
+#define FGETATTR 13
+extern  struct fgetattr_ret_IDL * fgetattr_1000(fgetattr_IDL *, CLIENT *);
+extern  struct fgetattr_ret_IDL * fgetattr_1000_svc(fgetattr_IDL *, struct svc_req *);
 extern int nfs_fuse_1000_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
@@ -215,6 +249,12 @@ extern  int * access_1000_svc();
 #define RELEASEDIR 11
 extern  int * releasedir_1000();
 extern  int * releasedir_1000_svc();
+#define RELEASE 12
+extern  int * release_1000();
+extern  int * release_1000_svc();
+#define FGETATTR 13
+extern  struct fgetattr_ret_IDL * fgetattr_1000();
+extern  struct fgetattr_ret_IDL * fgetattr_1000_svc();
 extern int nfs_fuse_1000_freeresult ();
 #endif /* K&R C */
 
@@ -225,6 +265,8 @@ extern  bool_t xdr_timespec_IDL (XDR *, timespec_IDL*);
 extern  bool_t xdr_stat_IDL (XDR *, stat_IDL*);
 extern  bool_t xdr_fuse_file_info_IDL (XDR *, fuse_file_info_IDL*);
 extern  bool_t xdr_getattr_IDL (XDR *, getattr_IDL*);
+extern  bool_t xdr_fgetattr_IDL (XDR *, fgetattr_IDL*);
+extern  bool_t xdr_fgetattr_ret_IDL (XDR *, fgetattr_ret_IDL*);
 extern  bool_t xdr_mkdir_IDL (XDR *, mkdir_IDL*);
 extern  bool_t xdr_rmdir_IDL (XDR *, rmdir_IDL*);
 extern  bool_t xdr_open_IDL (XDR *, open_IDL*);
@@ -236,12 +278,15 @@ extern  bool_t xdr_readdir_IDL (XDR *, readdir_IDL*);
 extern  bool_t xdr_readdir_ret_IDL (XDR *, readdir_ret_IDL*);
 extern  bool_t xdr_access_IDL (XDR *, access_IDL*);
 extern  bool_t xdr_releasedir_IDL (XDR *, releasedir_IDL*);
+extern  bool_t xdr_release_IDL (XDR *, release_IDL*);
 
 #else /* K&R C */
 extern bool_t xdr_timespec_IDL ();
 extern bool_t xdr_stat_IDL ();
 extern bool_t xdr_fuse_file_info_IDL ();
 extern bool_t xdr_getattr_IDL ();
+extern bool_t xdr_fgetattr_IDL ();
+extern bool_t xdr_fgetattr_ret_IDL ();
 extern bool_t xdr_mkdir_IDL ();
 extern bool_t xdr_rmdir_IDL ();
 extern bool_t xdr_open_IDL ();
@@ -253,6 +298,7 @@ extern bool_t xdr_readdir_IDL ();
 extern bool_t xdr_readdir_ret_IDL ();
 extern bool_t xdr_access_IDL ();
 extern bool_t xdr_releasedir_IDL ();
+extern bool_t xdr_release_IDL ();
 
 #endif /* K&R C */
 

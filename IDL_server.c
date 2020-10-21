@@ -137,3 +137,27 @@ releasedir_1000_svc(releasedir_IDL *argp, struct svc_req *rqstp)
 
 	return &result;
 }
+
+int *
+release_1000_svc(release_IDL *argp, struct svc_req *rqstp)
+{
+	static int  result;
+
+	/*
+	 * insert server code here
+	 */
+
+	return &result;
+}
+
+struct fgetattr_ret_IDL *
+fgetattr_1000_svc(fgetattr_IDL *argp, struct svc_req *rqstp)
+{
+	static struct fgetattr_ret_IDL  result;
+
+	/*
+	 * insert server code here
+	 */
+
+	return &result;
+}

@@ -173,3 +173,33 @@ releasedir_1000(releasedir_IDL *argp, CLIENT *clnt)
 	}
 	return (&clnt_res);
 }
+
+int *
+release_1000(release_IDL *argp, CLIENT *clnt)
+{
+	static int clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call (clnt, RELEASE,
+		(xdrproc_t) xdr_release_IDL, (caddr_t) argp,
+		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
+		TIMEOUT) != RPC_SUCCESS) {
+		return (NULL);
+	}
+	return (&clnt_res);
+}
+
+struct fgetattr_ret_IDL *
+fgetattr_1000(fgetattr_IDL *argp, CLIENT *clnt)
+{
+	static struct fgetattr_ret_IDL clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call (clnt, FGETATTR,
+		(xdrproc_t) xdr_fgetattr_IDL, (caddr_t) argp,
+		(xdrproc_t) xdr_fgetattr_ret_IDL, (caddr_t) &clnt_res,
+		TIMEOUT) != RPC_SUCCESS) {
+		return (NULL);
+	}
+	return (&clnt_res);
+}

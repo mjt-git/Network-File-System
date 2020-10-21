@@ -62,6 +62,28 @@ struct getattr_IDL{
       uint32_t st_ctim;
 };
 
+struct fgetattr_IDL {
+  int fh;
+};
+
+struct fgetattr_ret_IDL {
+  int res;
+  uint32_t     st_dev;         /* ID of device containing file */
+  uint32_t     st_ino;         /* Inode number */
+  long        st_mode;        /* File type and mode */
+  uint32_t   st_nlink;       /* Number of hard links */
+  uint32_t     st_uid;         /* User ID of owner */
+  uint32_t     st_gid;         /* Group ID of owner */
+  uint32_t    st_rdev;        /* Device ID (if special file) */
+  uint32_t    st_size;        /* Total size, in bytes */
+  uint32_t st_blksize;     /* Block size for filesystem I/O */
+  uint32_t  st_blocks;      /* Number of 512B blocks allocated */
+
+  uint32_t st_atim;  /* Time of last access */
+  uint32_t st_mtim;  /* Time of last modification */
+  uint32_t st_ctim;
+};
+
 struct mkdir_IDL{
        string path<PATH_MAX>;
        uint32_t mode;
@@ -123,6 +145,10 @@ struct releasedir_IDL {
   int fh;
 };
 
+struct release_IDL {
+  int fh;  
+};
+
 program NFS_FUSE{
 	version NFS_FUSE_VERS{
 		struct getattr_IDL GETATTR(struct getattr_IDL)=1;
@@ -136,5 +162,7 @@ program NFS_FUSE{
 		void HELLOTEST()=9;
     int ACCESS(access_IDL)=10;
     int RELEASEDIR(releasedir_IDL)=11;
+    int RELEASE(release_IDL)=12;
+    struct fgetattr_ret_IDL FGETATTR(fgetattr_IDL)=13;
 	} = 1000;
 } = 123789456;

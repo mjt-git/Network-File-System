@@ -33,6 +33,10 @@ nfs_fuse_1000(char *host)
 	access_IDL  access_1000_arg;
 	int  *result_11;
 	releasedir_IDL  releasedir_1000_arg;
+	int  *result_12;
+	release_IDL  release_1000_arg;
+	struct fgetattr_ret_IDL  *result_13;
+	fgetattr_IDL  fgetattr_1000_arg;
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, NFS_FUSE, NFS_FUSE_VERS, "udp");
@@ -84,6 +88,14 @@ nfs_fuse_1000(char *host)
 	}
 	result_11 = releasedir_1000(&releasedir_1000_arg, clnt);
 	if (result_11 == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+	result_12 = release_1000(&release_1000_arg, clnt);
+	if (result_12 == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+	result_13 = fgetattr_1000(&fgetattr_1000_arg, clnt);
+	if (result_13 == (struct fgetattr_ret_IDL *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 #ifndef	DEBUG

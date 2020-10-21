@@ -55,6 +55,27 @@ void print_getattr_IDL(getattr_IDL res) {
 	printf("\n");
 }
 
+void print_fgetattr_ret_IDL(fgetattr_ret_IDL res) {
+	printf("\n");
+	printf("************************\n");
+	printf("result.res: %d\n", res.res);
+	printf("result.st_dev: %u\n", res.st_dev);
+	printf("result.st_ino: %u\n", res.st_ino);
+	printf("result.st_mode: %ld\n", res.st_mode);
+	printf("result.st_nlink: %u\n", res.st_nlink);
+	printf("result.st_uid: %u\n", res.st_uid);
+	printf("result.st_gid: %u\n", res.st_gid);
+	printf("result.st_rdev: %u\n", res.st_rdev);
+	printf("result.st_size: %u\n", res.st_size);
+	printf("result.st_blksize: %u\n", res.st_blksize);
+	printf("result.st_blocks: %u\n", res.st_blocks);
+	printf("result.st_atim: %u\n", res.st_atim);
+	printf("result.st_mtim: %u\n", res.st_mtim);
+	printf("result.st_ctim: %u\n", res.st_ctim);
+	printf("************************\n");
+	printf("\n");
+}
+
 void print_function_name(const char * name) {
 	printf("\n*******************\n");
 	printf("INSIDE %s\n", name);
@@ -291,5 +312,45 @@ releasedir_1000_svc(releasedir_IDL *argp, struct svc_req *rqstp)
 	dp = fdopendir(argp->fh);
 	closedir(dp);
 
+	return &result;
+}
+
+int *
+release_1000_svc(release_IDL *argp, struct svc_req *rqstp)
+{
+	print_function_name("release_1000_svc");
+	static int result;
+
+	result = close(argp->fh);
+	printf("close function result: %d\n", result);
+
+	return &result;
+}
+
+struct fgetattr_ret_IDL *
+fgetattr_1000_svc(fgetattr_IDL *argp, struct svc_req *rqstp)
+{
+	static struct fgetattr_ret_IDL result;
+
+	struct stat * statbuf = (struct stat *)malloc(sizeof(struct stat));
+	result.res = fstat(argp->fh, statbuf);
+
+	result.st_dev = statbuf->st_dev;
+	result.st_ino = statbuf->st_ino;
+	result.st_mode = statbuf->st_mode;
+	result.st_nlink = statbuf->st_nlink;
+	result.st_uid = statbuf->st_uid;
+	result.st_gid = statbuf->st_gid;
+	result.st_rdev = statbuf->st_rdev;
+	result.st_size = statbuf->st_size;
+	result.st_blksize = statbuf->st_blksize;
+	result.st_blocks = statbuf->st_blocks;
+	result.st_atim = statbuf->st_atime;
+	result.st_mtim = statbuf->st_mtime;
+	result.st_ctim = statbuf->st_ctime;
+
+	print_fgetattr_ret_IDL(result);
+
+	free(statbuf);
 	return &result;
 }
