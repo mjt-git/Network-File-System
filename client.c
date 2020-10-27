@@ -282,6 +282,7 @@ int bb_rmdir(const char *path)
     struct rmdir_IDL * new_rmdir = (struct rmdir_IDL*)malloc(sizeof(struct rmdir_IDL));
     new_rmdir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
     strncpy(new_rmdir->path, path, strlen(path));
+    new_rmdir->path[strlen(path)] = '\0';
     int result;
     int * p = &result;
     p = rmdir_1000(new_rmdir, clnt);

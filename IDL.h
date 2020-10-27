@@ -126,12 +126,17 @@ typedef struct read_ret_IDL read_ret_IDL;
 
 struct write_IDL {
 	char *path;
-	char buf[1024];
+	char buf[4096];
 	uint32_t size;
 	uint32_t offset;
 	uint32_t fh;
 };
 typedef struct write_IDL write_IDL;
+
+struct write_ret_IDL {
+	int res;
+};
+typedef struct write_ret_IDL write_ret_IDL;
 
 struct opendir_IDL {
 	char *path;
@@ -276,6 +281,7 @@ extern  bool_t xdr_open_IDL (XDR *, open_IDL*);
 extern  bool_t xdr_read_IDL (XDR *, read_IDL*);
 extern  bool_t xdr_read_ret_IDL (XDR *, read_ret_IDL*);
 extern  bool_t xdr_write_IDL (XDR *, write_IDL*);
+extern  bool_t xdr_write_ret_IDL (XDR *, write_ret_IDL*);
 extern  bool_t xdr_opendir_IDL (XDR *, opendir_IDL*);
 extern  bool_t xdr_opendir_ret_IDL (XDR *, opendir_ret_IDL*);
 extern  bool_t xdr_readdir_IDL (XDR *, readdir_IDL*);
@@ -297,6 +303,7 @@ extern bool_t xdr_open_IDL ();
 extern bool_t xdr_read_IDL ();
 extern bool_t xdr_read_ret_IDL ();
 extern bool_t xdr_write_IDL ();
+extern bool_t xdr_write_ret_IDL ();
 extern bool_t xdr_opendir_IDL ();
 extern bool_t xdr_opendir_ret_IDL ();
 extern bool_t xdr_readdir_IDL ();

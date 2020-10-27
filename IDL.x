@@ -111,10 +111,14 @@ struct read_ret_IDL {
 
 struct write_IDL{
        string path<PATH_MAX>;
-       opaque buf[1024];
+       opaque buf[4096];
        uint32_t size;
        uint32_t offset;
        uint32_t fh;
+};
+
+struct write_ret_IDL{
+       int res;
 };
 
 struct opendir_IDL{

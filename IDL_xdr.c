@@ -311,13 +311,23 @@ xdr_write_IDL (XDR *xdrs, write_IDL *objp)
 	int i;
 	 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
 		 return FALSE;
-	 if (!xdr_opaque (xdrs, objp->buf, 1024))
+	 if (!xdr_opaque (xdrs, objp->buf, 4096))
 		 return FALSE;
 	 if (!xdr_uint32_t (xdrs, &objp->size))
 		 return FALSE;
 	 if (!xdr_uint32_t (xdrs, &objp->offset))
 		 return FALSE;
 	 if (!xdr_uint32_t (xdrs, &objp->fh))
+		 return FALSE;
+	return TRUE;
+}
+
+bool_t
+xdr_write_ret_IDL (XDR *xdrs, write_ret_IDL *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_int (xdrs, &objp->res))
 		 return FALSE;
 	return TRUE;
 }
