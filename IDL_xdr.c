@@ -412,3 +412,17 @@ xdr_release_IDL (XDR *xdrs, release_IDL *objp)
 		 return FALSE;
 	return TRUE;
 }
+
+bool_t
+xdr_mknod_IDL (XDR *xdrs, mknod_IDL *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->mode))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->dev))
+		 return FALSE;
+	return TRUE;
+}

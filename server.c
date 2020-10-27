@@ -354,3 +354,31 @@ fgetattr_1000_svc(fgetattr_IDL *argp, struct svc_req *rqstp)
 	free(statbuf);
 	return &result;
 }
+
+int *
+mknod_1000_svc(mknod_IDL *argp, struct svc_req *rqstp)
+{
+	print_function_name("mknod_1000_svc");
+	static int result;
+
+	char fpath[PATH_MAX];
+	getfullpath(fpath, argp->path);
+	int mode = argp->mode;
+	int dev = argp->dev;
+
+	if (S_ISREG(mode)) {
+		result = open(fpath, O_CREAT | O_EXCL | O_WRONLY, mode);
+		if (result >= 0){
+		    result = close(result);
+		}
+    } else {
+		if (S_ISFIFO(mode)) {
+			result = mkfifo(fpath, mode);
+		}
+		else {
+			result = mknod(fpath, mode, dev);
+		}
+    }
+
+	return &result;
+}

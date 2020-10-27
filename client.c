@@ -19,7 +19,8 @@
   filesystem semantics on top of any other existing structure.  It
   simply reports the requests that come in, and passes them to an
   underlying filesystem.  The information is saved in a logfile named
-  bbfs.log, in the directory from which you run bbfs.
+  bbfs.log, in the directory from whichStore!566
+   you run bbfs.
 */
 #define _FILE_OFFSET_BITS  64
 #include "params.h"
@@ -212,29 +213,31 @@ int bb_readlink(const char *path, char *link, size_t size)
 // shouldn't that comment be "if" there is no.... ?
 int bb_mknod(const char *path, mode_t mode, dev_t dev)
 {
-    int retstat;
-    char fpath[PATH_MAX];
-    
     log_msg("\nbb_mknod(path=\"%s\", mode=0%3o, dev=%lld)\n",
 	  path, mode, dev);
-    bb_fullpath(fpath, path);
     
     // On Linux this could just be 'mknod(path, mode, dev)' but this
     // tries to be be more portable by honoring the quote in the Linux
     // mknod man page stating the only portable use of mknod() is to
     // make a fifo, but saying it should never actually be used for
     // that.
-    if (S_ISREG(mode)) {
-	retstat = log_syscall("open", open(fpath, O_CREAT | O_EXCL | O_WRONLY, mode), 0);
-	if (retstat >= 0)
-	    retstat = log_syscall("close", close(retstat), 0);
-    } else
-	if (S_ISFIFO(mode))
-	    retstat = log_syscall("mkfifo", mkfifo(fpath, mode), 0);
-	else
-	    retstat = log_syscall("mknod", mknod(fpath, mode, dev), 0);
     
-    return retstat;
+    CLIENT * clnt = createclient();
+    mknod_IDL * new_mknod = (mknod_IDL *)malloc(sizeof(mknod_IDL));
+    new_mknod->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_mknod->path, path, strlen(path));
+    new_mknod->path[strlen(path)] = '\0';
+    new_mknod->mode = mode;
+    new_mknod->dev = dev;
+
+    int * pRes;
+    pRes = mknod_1000(new_mknod, clnt);
+
+    free(new_mknod->path);
+    free(new_mknod);
+    destroyclient(clnt);
+
+    return *pRes;
 }
 
 /** Create a directory */

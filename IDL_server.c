@@ -161,3 +161,15 @@ fgetattr_1000_svc(fgetattr_IDL *argp, struct svc_req *rqstp)
 
 	return &result;
 }
+
+int *
+mknod_1000_svc(mknod_IDL *argp, struct svc_req *rqstp)
+{
+	static int  result;
+
+	/*
+	 * insert server code here
+	 */
+
+	return &result;
+}

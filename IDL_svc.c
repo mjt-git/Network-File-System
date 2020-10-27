@@ -32,6 +32,7 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		releasedir_IDL releasedir_1000_arg;
 		release_IDL release_1000_arg;
 		fgetattr_IDL fgetattr_1000_arg;
+		mknod_IDL mknod_1000_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -118,6 +119,12 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		_xdr_argument = (xdrproc_t) xdr_fgetattr_IDL;
 		_xdr_result = (xdrproc_t) xdr_fgetattr_ret_IDL;
 		local = (char *(*)(char *, struct svc_req *)) fgetattr_1000_svc;
+		break;
+
+	case MKNOD:
+		_xdr_argument = (xdrproc_t) xdr_mknod_IDL;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) mknod_1000_svc;
 		break;
 
 	default:

@@ -154,6 +154,12 @@ struct release_IDL {
   int fh;  
 };
 
+struct mknod_IDL {
+  string path<PATH_MAX>;
+  int mode;
+  int dev;
+};
+
 program NFS_FUSE{
 	version NFS_FUSE_VERS{
 		struct getattr_IDL GETATTR(struct getattr_IDL)=1;
@@ -169,5 +175,6 @@ program NFS_FUSE{
     int RELEASEDIR(releasedir_IDL)=11;
     int RELEASE(release_IDL)=12;
     struct fgetattr_ret_IDL FGETATTR(fgetattr_IDL)=13;
+    int MKNOD(mknod_IDL)=14;
 	} = 1000;
 } = 123789456;
