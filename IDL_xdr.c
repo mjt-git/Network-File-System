@@ -426,3 +426,15 @@ xdr_mknod_IDL (XDR *xdrs, mknod_IDL *objp)
 		 return FALSE;
 	return TRUE;
 }
+
+bool_t
+xdr_truncate_IDL (XDR *xdrs, truncate_IDL *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->newsize))
+		 return FALSE;
+	return TRUE;
+}

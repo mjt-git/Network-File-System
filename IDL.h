@@ -185,6 +185,12 @@ struct mknod_IDL {
 };
 typedef struct mknod_IDL mknod_IDL;
 
+struct truncate_IDL {
+	char *path;
+	int newsize;
+};
+typedef struct truncate_IDL truncate_IDL;
+
 #define NFS_FUSE 123789456
 #define NFS_FUSE_VERS 1000
 
@@ -205,8 +211,8 @@ extern  int * open_1000_svc(open_IDL *, struct svc_req *);
 extern  struct read_ret_IDL * read_1000(read_IDL *, CLIENT *);
 extern  struct read_ret_IDL * read_1000_svc(read_IDL *, struct svc_req *);
 #define WRITE 6
-extern  struct write_IDL * write_1000(write_IDL *, CLIENT *);
-extern  struct write_IDL * write_1000_svc(write_IDL *, struct svc_req *);
+extern  int * write_1000(write_IDL *, CLIENT *);
+extern  int * write_1000_svc(write_IDL *, struct svc_req *);
 #define OPENDIR 7
 extern  struct opendir_ret_IDL * opendir_1000(opendir_IDL *, CLIENT *);
 extern  struct opendir_ret_IDL * opendir_1000_svc(opendir_IDL *, struct svc_req *);
@@ -231,6 +237,9 @@ extern  struct fgetattr_ret_IDL * fgetattr_1000_svc(fgetattr_IDL *, struct svc_r
 #define MKNOD 14
 extern  int * mknod_1000(mknod_IDL *, CLIENT *);
 extern  int * mknod_1000_svc(mknod_IDL *, struct svc_req *);
+#define TRUNCATE 15
+extern  int * truncate_1000(truncate_IDL *, CLIENT *);
+extern  int * truncate_1000_svc(truncate_IDL *, struct svc_req *);
 extern int nfs_fuse_1000_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
@@ -250,8 +259,8 @@ extern  int * open_1000_svc();
 extern  struct read_ret_IDL * read_1000();
 extern  struct read_ret_IDL * read_1000_svc();
 #define WRITE 6
-extern  struct write_IDL * write_1000();
-extern  struct write_IDL * write_1000_svc();
+extern  int * write_1000();
+extern  int * write_1000_svc();
 #define OPENDIR 7
 extern  struct opendir_ret_IDL * opendir_1000();
 extern  struct opendir_ret_IDL * opendir_1000_svc();
@@ -276,6 +285,9 @@ extern  struct fgetattr_ret_IDL * fgetattr_1000_svc();
 #define MKNOD 14
 extern  int * mknod_1000();
 extern  int * mknod_1000_svc();
+#define TRUNCATE 15
+extern  int * truncate_1000();
+extern  int * truncate_1000_svc();
 extern int nfs_fuse_1000_freeresult ();
 #endif /* K&R C */
 
@@ -303,6 +315,7 @@ extern  bool_t xdr_access_IDL (XDR *, access_IDL*);
 extern  bool_t xdr_releasedir_IDL (XDR *, releasedir_IDL*);
 extern  bool_t xdr_release_IDL (XDR *, release_IDL*);
 extern  bool_t xdr_mknod_IDL (XDR *, mknod_IDL*);
+extern  bool_t xdr_truncate_IDL (XDR *, truncate_IDL*);
 
 #else /* K&R C */
 extern bool_t xdr_timespec_IDL ();
@@ -326,6 +339,7 @@ extern bool_t xdr_access_IDL ();
 extern bool_t xdr_releasedir_IDL ();
 extern bool_t xdr_release_IDL ();
 extern bool_t xdr_mknod_IDL ();
+extern bool_t xdr_truncate_IDL ();
 
 #endif /* K&R C */
 

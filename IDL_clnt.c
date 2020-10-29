@@ -84,15 +84,15 @@ read_1000(read_IDL *argp, CLIENT *clnt)
 	return (&clnt_res);
 }
 
-struct write_IDL *
+int *
 write_1000(write_IDL *argp, CLIENT *clnt)
 {
-	static struct write_IDL clnt_res;
+	static int clnt_res;
 
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, WRITE,
 		(xdrproc_t) xdr_write_IDL, (caddr_t) argp,
-		(xdrproc_t) xdr_write_IDL, (caddr_t) &clnt_res,
+		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
 		TIMEOUT) != RPC_SUCCESS) {
 		return (NULL);
 	}
@@ -212,6 +212,21 @@ mknod_1000(mknod_IDL *argp, CLIENT *clnt)
 	memset((char *)&clnt_res, 0, sizeof(clnt_res));
 	if (clnt_call (clnt, MKNOD,
 		(xdrproc_t) xdr_mknod_IDL, (caddr_t) argp,
+		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
+		TIMEOUT) != RPC_SUCCESS) {
+		return (NULL);
+	}
+	return (&clnt_res);
+}
+
+int *
+truncate_1000(truncate_IDL *argp, CLIENT *clnt)
+{
+	static int clnt_res;
+
+	memset((char *)&clnt_res, 0, sizeof(clnt_res));
+	if (clnt_call (clnt, TRUNCATE,
+		(xdrproc_t) xdr_truncate_IDL, (caddr_t) argp,
 		(xdrproc_t) xdr_int, (caddr_t) &clnt_res,
 		TIMEOUT) != RPC_SUCCESS) {
 		return (NULL);

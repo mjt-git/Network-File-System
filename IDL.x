@@ -160,21 +160,28 @@ struct mknod_IDL {
   int dev;
 };
 
+struct truncate_IDL{
+  string path<PATH_MAX>;
+  int newsize;
+};
+
 program NFS_FUSE{
 	version NFS_FUSE_VERS{
 		struct getattr_IDL GETATTR(struct getattr_IDL)=1;
 		int MKDIR(mkdir_IDL)=2;
 		int RMDIR(rmdir_IDL)=3;     
-  	int OPEN(open_IDL)=4;
+  		int OPEN(open_IDL)=4;
 		struct read_ret_IDL READ(read_IDL)=5;     
-  	struct write_IDL WRITE(write_IDL)=6;
-    struct opendir_ret_IDL OPENDIR(opendir_IDL)=7;
-    struct readdir_ret_IDL READDIR(readdir_IDL)=8;
+  		int WRITE(write_IDL)=6;
+    		struct opendir_ret_IDL OPENDIR(opendir_IDL)=7;
+    		struct readdir_ret_IDL READDIR(readdir_IDL)=8;
 		void HELLOTEST()=9;
-    int ACCESS(access_IDL)=10;
-    int RELEASEDIR(releasedir_IDL)=11;
-    int RELEASE(release_IDL)=12;
-    struct fgetattr_ret_IDL FGETATTR(fgetattr_IDL)=13;
-    int MKNOD(mknod_IDL)=14;
+    		int ACCESS(access_IDL)=10;
+    		int RELEASEDIR(releasedir_IDL)=11;
+    		int RELEASE(release_IDL)=12;
+    		struct fgetattr_ret_IDL FGETATTR(fgetattr_IDL)=13;
+    		int MKNOD(mknod_IDL)=14;
+		int TRUNCATE(truncate_IDL)=15;
 	} = 1000;
+	
 } = 123789456;

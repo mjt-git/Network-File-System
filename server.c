@@ -24,7 +24,7 @@
 #include <sys/xattr.h>
 #include  <fuse.h>
 
-const char * rootpath = "/home/localadmin/finalproject/bbfs_server/serverpoint";
+const char * rootpath = "/home/localadmin/finalproject/serverpoint";
 
 // typedef int(* 	fuse_fill_dir_t) (void *buf, const char *name, const struct stat *stbuf, off_t off, enum fuse_fill_dir_flags flags);
 
@@ -192,16 +192,18 @@ read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 	return &result;
 }
 
-struct write_IDL*
+int *
 write_1000_svc(write_IDL *argp, struct svc_req *rqstp)
 {
+  print_function_name("write_1000_svc");
 	static int  result;
-	static write_IDL res;
+	//static write_IDL res;
 	/*
 	 * insert server code here
 	 */
-
-	return &res;
+	printf("to be written: %s\n", argp->buf);
+	result = pwrite(argp->fh, argp->buf, argp->size, argp->offset);
+	return &result;
 }
 
 struct opendir_ret_IDL *
@@ -381,4 +383,14 @@ mknod_1000_svc(mknod_IDL *argp, struct svc_req *rqstp)
     }
 
 	return &result;
+}
+
+int *
+truncate_1000_svc(truncate_IDL * argp, struct svc_req *rqstp){
+  static int result;
+  char fpath[PATH_MAX];
+  getfullpath(fpath, argp->path);
+  int newsize = argp->newsize;
+  result = truncate(fpath, newsize);
+  return &result;
 }

@@ -368,12 +368,19 @@ int bb_chown(const char *path, uid_t uid, gid_t gid)
 int bb_truncate(const char *path, off_t newsize)
 {
     char fpath[PATH_MAX];
-    
+    int * result;
     log_msg("\nbb_truncate(path=\"%s\", newsize=%lld)\n",
 	    path, newsize);
-    bb_fullpath(fpath, path);
-
-    return log_syscall("truncate", truncate(fpath, newsize), 0);
+    //bb_fullpath(fpath, path);
+    struct truncate_IDL * newtruncate = (struct truncate_IDL * )malloc(sizeof(truncate_IDL));
+    newtruncate->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(newtruncate->path, path, strlen(path));
+    newtruncate->path[strlen(path)] = '\0';
+    newtruncate->newsize = newsize;
+    CLIENT * clnt = createclient();
+    result = truncate_1000(newtruncate, clnt);
+    return *result;
+    //return log_syscall("truncate", truncate(fpath, newsize), 0);
 }
 
 /** Change the access and/or modification times of a file */
@@ -499,15 +506,32 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 int bb_write(const char *path, const char *buf, size_t size, off_t offset,
 	     struct fuse_file_info *fi)
 {
-    int retstat = 0;
-    
+    size_t rest_len;
+    int total_length = 0;
     log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi
 	    );
-    // no need to get fpath on this one, since I work from fi->fh not the path
-    log_fi(fi);
+    // no need to get fpath on this one, since I work from fi->fh not the
+    while(size > 0){
+      CLIENT * clnt = createclient();
+      struct write_IDL * newwrite = (struct write_IDL*)malloc(sizeof(struct write_IDL));
+      newwrite->size = size <= 4096 ? size : 4096;
+      newwrite->offset = offset;
+      newwrite->fh = fi->fh;
+      //newwrite->buf = (char*)malloc(sizeof(char) * newwrite->size);
+      memset(newwrite->buf, '\0', newwrite->size);
+      memcpy(newwrite->buf, buf, newwrite->size);
+      int * single_length;
+      single_length = write_1000(newwrite, clnt);
 
-    return log_syscall("pwrite", pwrite(fi->fh, buf, size, offset), 0);
+      total_length += *single_length;
+      size -= newwrite->size;
+      offset += newwrite->offset;
+      free(newwrite->buf);
+      free(newwrite);
+      destroyclient(clnt);
+    }
+    return total_length;
 }
 
 /** Get file system statistics
@@ -1125,7 +1149,7 @@ int main(int argc, char *argv[])
     // start with a hyphen (this will break if you actually have a
     // rootpoint or mountpoint whose name starts with a hyphen, but so
     // will a zillion other programs)
-    if ((argc < 3) || (argv[argc-2][0] == '-') || (argv[argc-1][0] == '-'))
+    if ((argc < 2) || (argv[argc-2][0] == '-') || (argv[argc-1][0] == '-'))
 	bb_usage();
 
     bb_data = malloc(sizeof(struct bb_state));
@@ -1136,10 +1160,10 @@ int main(int argc, char *argv[])
 
     // Pull the rootdir out of the argument list and save it in my
     // internal data
-    bb_data->rootdir = realpath(argv[argc-2], NULL);
-    argv[argc-2] = argv[argc-1];
-    argv[argc-1] = NULL;
-    argc--;
+    //bb_data->rootdir = realpath(argv[argc-2], NULL);
+    //argv[argc-2] = argv[argc-1];
+    //argv[argc-1] = NULL;
+    //argc--;
     
     bb_data->logfile = log_open();
     

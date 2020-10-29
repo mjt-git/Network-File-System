@@ -66,10 +66,10 @@ read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 	return &result;
 }
 
-struct write_IDL *
+int *
 write_1000_svc(write_IDL *argp, struct svc_req *rqstp)
 {
-	static struct write_IDL  result;
+	static int  result;
 
 	/*
 	 * insert server code here
@@ -164,6 +164,18 @@ fgetattr_1000_svc(fgetattr_IDL *argp, struct svc_req *rqstp)
 
 int *
 mknod_1000_svc(mknod_IDL *argp, struct svc_req *rqstp)
+{
+	static int  result;
+
+	/*
+	 * insert server code here
+	 */
+
+	return &result;
+}
+
+int *
+truncate_1000_svc(truncate_IDL *argp, struct svc_req *rqstp)
 {
 	static int  result;
 

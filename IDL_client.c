@@ -21,7 +21,7 @@ nfs_fuse_1000(char *host)
 	open_IDL  open_1000_arg;
 	struct read_ret_IDL  *result_5;
 	read_IDL  read_1000_arg;
-	struct write_IDL  *result_6;
+	int  *result_6;
 	write_IDL  write_1000_arg;
 	struct opendir_ret_IDL  *result_7;
 	opendir_IDL  opendir_1000_arg;
@@ -39,6 +39,8 @@ nfs_fuse_1000(char *host)
 	fgetattr_IDL  fgetattr_1000_arg;
 	int  *result_14;
 	mknod_IDL  mknod_1000_arg;
+	int  *result_15;
+	truncate_IDL  truncate_1000_arg;
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, NFS_FUSE, NFS_FUSE_VERS, "udp");
@@ -69,7 +71,7 @@ nfs_fuse_1000(char *host)
 		clnt_perror (clnt, "call failed");
 	}
 	result_6 = write_1000(&write_1000_arg, clnt);
-	if (result_6 == (struct write_IDL *) NULL) {
+	if (result_6 == (int *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 	result_7 = opendir_1000(&opendir_1000_arg, clnt);
@@ -102,6 +104,10 @@ nfs_fuse_1000(char *host)
 	}
 	result_14 = mknod_1000(&mknod_1000_arg, clnt);
 	if (result_14 == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+	result_15 = truncate_1000(&truncate_1000_arg, clnt);
+	if (result_15 == (int *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 #ifndef	DEBUG
