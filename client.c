@@ -1102,8 +1102,8 @@ struct fuse_operations bb_oper = {
 
 void bb_usage()
 {
-    fprintf(stderr, "usage:  bbfs [FUSE and mount options] rootDir mountPoint\n");
-    abort();
+    fprintf(stderr, "usage:  ./NFS_client <mount directory>\n");
+    exit(1);
 }
 
 // test rpc hello
