@@ -46,7 +46,7 @@
 #include "log.h"
 
 // CONST variables
-const char * host = "localhost";
+const char * host = "10.148.54.199";
 
 //  All the paths I see are relative to the root of the mounted
 //  filesystem.  In order to get to the underlying filesystem, I need to

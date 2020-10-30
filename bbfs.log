@@ -11,16 +11,16 @@ bb_init()
     max_background = 0
     congestion_threshold = 0
     context:
-    fuse = 1e864710
+    fuse = 990516e0
     uid = 0
     gid = 0
     pid = 0
-    private_data = 1e8643c0
-    logfile = 1e8632f0
-    rootdir = p«ŒÉ
+    private_data = 99051310
+    logfile = 990502f0
+    rootdir = p‹n†
     umask = 00000
 
-bb_getattr(path="/", statbuf=0x8b2bbc00)
+bb_getattr(path="/", statbuf=0x8f979c00)
 original path: /
 strlen result: 1
 new_getattr->path: /
@@ -43,16 +43,16 @@ mode returned is 40775
     st_mtime = 0x5f9a7477
     st_ctime = 0x5f9a7509
 
-bb_getattr(path="/", statbuf=0x8babcc00)
-original path: /
-strlen result: 1
-new_getattr->path: /
+bb_getattr(path="/.git", statbuf=0x9017ac30)
+original path: /.git
+strlen result: 5
+new_getattr->path: /.git
 before getattr
 after getattr
-result.res: 0
+result.res: -2
 mode returned is 40775
     si:
-    st_dev = 2050
+    st_dev = 0
     st_ino = 1841790
     st_mode = 040775
     st_nlink = 3
@@ -66,9 +66,30 @@ mode returned is 40775
     st_mtime = 0x5f9a7477
     st_ctime = 0x5f9a7509
 
-bb_access(path="/", mask=01)
+bb_getattr(path="/.git", statbuf=0x8f979c30)
+original path: /.git
+strlen result: 5
+new_getattr->path: /.git
+before getattr
+after getattr
+result.res: -2
+mode returned is 40775
+    si:
+    st_dev = 0
+    st_ino = 1841790
+    st_mode = 040775
+    st_nlink = 3
+    st_uid = 1000
+    st_gid = 1000
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f9c10b7
+    st_mtime = 0x5f9a7477
+    st_ctime = 0x5f9a7509
 
-bb_opendir(path="/", fi=0x8babcc20)
+bb_opendir(path="/", fi=0x9017ac20)
 pRes->res: 5pRes->isvalid: 1    fi:
     flags = 0x00018800
     fh_old = 0x00000000
@@ -78,7 +99,7 @@ pRes->res: 5pRes->isvalid: 1    fi:
     fh = 0x0000000000000005
     lock_owner = 0x0000000000000000
 
-bb_getattr(path="/", statbuf=0x8b2bbc00)
+bb_getattr(path="/", statbuf=0x8f979c00)
 original path: /
 strlen result: 1
 new_getattr->path: /
@@ -101,7 +122,7 @@ mode returned is 40775
     st_mtime = 0x5f9a7477
     st_ctime = 0x5f9a7509
 
-bb_readdir(path="/", buf=0x84002210, filler=0x8c4ebd00, offset=0, fi=0x8babcc20)
+bb_readdir(path="/", buf=0x88002210, filler=0x90ba9d00, offset=0, fi=0x9017ac20)
 fi->fh=5
 new_readdir->fh=5
 ans count: 6
@@ -112,7 +133,7 @@ ans->buf + offs: bbb.txt
 ans->buf + offs: aaa.txt
 ans->buf + offs: .
 
-bb_getattr(path="/tt", statbuf=0x8b2bbc30)
+bb_getattr(path="/tt", statbuf=0x8f979c30)
 original path: /tt
 strlen result: 3
 new_getattr->path: /tt
@@ -135,7 +156,103 @@ mode returned is 40755
     st_mtime = 0x5f985b60
     st_ctime = 0x5f985b60
 
-bb_getattr(path="/cc.txt", statbuf=0x8babcc30)
+bb_getattr(path="/.gitignore", statbuf=0x9017ac30)
+original path: /.gitignore
+strlen result: 11
+new_getattr->path: /.gitignore
+before getattr
+after getattr
+result.res: -2
+mode returned is 40755
+    si:
+    st_dev = 0
+    st_ino = 1835128
+    st_mode = 040755
+    st_nlink = 2
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f9c10b7
+    st_mtime = 0x5f985b60
+    st_ctime = 0x5f985b60
+
+bb_getattr(path="/tt/.git", statbuf=0x8f979c30)
+original path: /tt/.git
+strlen result: 8
+new_getattr->path: /tt/.git
+before getattr
+after getattr
+result.res: -2
+mode returned is 40755
+    si:
+    st_dev = 0
+    st_ino = 1835128
+    st_mode = 040755
+    st_nlink = 2
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f9c10b7
+    st_mtime = 0x5f985b60
+    st_ctime = 0x5f985b60
+
+bb_getattr(path="/tt/.git", statbuf=0x9017ac30)
+original path: /tt/.git
+strlen result: 8
+new_getattr->path: /tt/.git
+before getattr
+after getattr
+result.res: -2
+mode returned is 40755
+    si:
+    st_dev = 0
+    st_ino = 1835128
+    st_mode = 040755
+    st_nlink = 2
+    st_uid = 0
+    st_gid = 0
+    st_rdev = 0
+    st_size = 4096
+    st_blksize = 4096
+    st_blocks = 8
+    st_atime = 0x5f9c10b7
+    st_mtime = 0x5f985b60
+    st_ctime = 0x5f985b60
+
+bb_opendir(path="/tt", fi=0x8f979c20)
+pRes->res: 6pRes->isvalid: 1    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/tt", buf=0x800012d0, filler=0x90ba9d00, offset=0, fi=0x9017ac20)
+fi->fh=6
+new_readdir->fh=6
+ans count: 2
+ans->buf + offs: ..
+ans->buf + offs: .
+
+bb_releasedir(path="/tt", fi=0x9017ac30)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_getattr(path="/cc.txt", statbuf=0x8f979c30)
 original path: /cc.txt
 strlen result: 7
 new_getattr->path: /cc.txt
@@ -154,11 +271,11 @@ mode returned is 100644
     st_size = 0
     st_blksize = 4096
     st_blocks = 0
-    st_atime = 0x5f9a6fe0
+    st_atime = 0x5f9c1172
     st_mtime = 0x5f986165
     st_ctime = 0x5f986165
 
-bb_getattr(path="/bbb.txt", statbuf=0x8b2bbc30)
+bb_getattr(path="/bbb.txt", statbuf=0x8f178c30)
 original path: /bbb.txt
 strlen result: 8
 new_getattr->path: /bbb.txt
@@ -177,11 +294,11 @@ mode returned is 100664
     st_size = 31
     st_blksize = 4096
     st_blocks = 8
-    st_atime = 0x5f9a6fde
+    st_atime = 0x5f9c1170
     st_mtime = 0x5f904106
     st_ctime = 0x5f904106
 
-bb_getattr(path="/aaa.txt", statbuf=0x8babcc30)
+bb_getattr(path="/aaa.txt", statbuf=0x9017ac30)
 original path: /aaa.txt
 strlen result: 8
 new_getattr->path: /aaa.txt
@@ -200,11 +317,11 @@ mode returned is 100664
     st_size = 59
     st_blksize = 4096
     st_blocks = 8
-    st_atime = 0x5f9a7477
+    st_atime = 0x5f9c116c
     st_mtime = 0x5f9a7477
     st_ctime = 0x5f9a7477
 
-bb_releasedir(path="/", fi=0x8babcc30)
+bb_releasedir(path="/", fi=0x8f178c30)
     fi:
     flags = 0x00000000
     fh_old = 0x00000005
@@ -213,32 +330,3 @@ bb_releasedir(path="/", fi=0x8babcc30)
     keep_cache = 0
     fh = 0x0000000000000005
     lock_owner = 0x0000000000000000
-
-bb_getattr(path="/", statbuf=0x8b2bbc00)
-original path: /
-strlen result: 1
-new_getattr->path: /
-before getattr
-after getattr
-result.res: 0
-mode returned is 40775
-    si:
-    st_dev = 2050
-    st_ino = 1841790
-    st_mode = 040775
-    st_nlink = 3
-    st_uid = 1000
-    st_gid = 1000
-    st_rdev = 0
-    st_size = 4096
-    st_blksize = 4096
-    st_blocks = 8
-    st_atime = 0x5f9c10b7
-    st_mtime = 0x5f9a7477
-    st_ctime = 0x5f9a7509
-
-bb_getattr(path="/", statbuf=0x8babcc00)
-original path: /
-strlen result: 1
-new_getattr->path: /
-before getattr
