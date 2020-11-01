@@ -408,3 +408,67 @@ unlink_1000_svc(unlink_IDL * argp, struct svc_req *rqstp){
 	printf("result=%d\n",result);
 	return &result;
 }
+
+struct utime_ret_IDL *
+utime_1000_svc(utime_IDL *argp, struct svc_req *rqstp)
+{
+	print_function_name("utime_1000_svc");
+	static struct utime_ret_IDL result;
+
+	char fpath[PATH_MAX];
+	getfullpath(fpath,argp->path);
+	struct utimbuf * ubuf = (struct utimbuf * )malloc(sizeof(struct utimbuf));
+
+	int res = utime(fpath, ubuf);
+	result.actime = ubuf->actime;
+	result.modtime = ubuf->modtime;
+	result.res = (res == 0) ? 0 : -errno;
+
+	free(ubuf);
+	return &result;
+}
+
+int *
+rename_1000_svc(rename_IDL *argp, struct svc_req *rqstp)
+{
+	static int result;
+
+	char fpath[PATH_MAX];
+	getfullpath(fpath,argp->path);
+	char newfpath[PATH_MAX];
+	getfullpath(newfpath,argp->newpath);
+
+	int res = rename(fpath, newfpath);
+	result = (res == 0) ? 0 : -errno;
+
+	return &result;
+}
+
+int *
+chmod_1000_svc(chmod_IDL *argp, struct svc_req *rqstp)
+{
+	static int result;
+
+	char fpath[PATH_MAX];
+	getfullpath(fpath,argp->path);
+
+	int res = chmod(fpath, argp->mode);
+	result = (res == 0) ? 0 : -errno;
+
+	return &result;
+}
+
+
+int *
+chown_1000_svc(chown_IDL *argp, struct svc_req *rqstp)
+{
+	static int result;
+
+	char fpath[PATH_MAX];
+	getfullpath(fpath,argp->path);
+
+	int res = chown(fpath, argp->uid, argp->gid);
+	result = (res == 0) ? 0 : -errno;
+
+	return &result;
+}

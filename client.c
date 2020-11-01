@@ -77,21 +77,6 @@ static void bb_fullpath(char fpath[PATH_MAX], const char *path)
 	    BB_DATA->rootdir, path, fpath);
 }
 
-int bb_getattr_original(const char *path, struct stat *statbuf){
-    int retstat;
-    char fpath[PATH_MAX];
-
-    log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
-          path, statbuf);
-    bb_fullpath(fpath, path);
-
-    retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
-
-    log_stat(statbuf);
-
-    return retstat;
-}
-
 void print_getattr_IDL(getattr_IDL res) {
     printf("\n");
     printf("************************\n");
@@ -252,6 +237,7 @@ int bb_mkdir(const char *path, mode_t mode)
     struct mkdir_IDL * new_mkdir = (struct mkdir_IDL*)malloc(sizeof(struct mkdir_IDL));
     new_mkdir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
     strncpy(new_mkdir->path, path, strlen(path));
+    new_mkdir->path[strlen(path)] = '\0';
     log_msg("path sent %s\n", new_mkdir->path);
     new_mkdir->mode = mode;
     int result;                                                                                                 
@@ -332,15 +318,25 @@ int bb_symlink(const char *path, const char *link)
 // both path and newpath are fs-relative
 int bb_rename(const char *path, const char *newpath)
 {
-    char fpath[PATH_MAX];
-    char fnewpath[PATH_MAX];
-    
-    log_msg("\nbb_rename(fpath=\"%s\", newpath=\"%s\")\n",
-	    path, newpath);
-    bb_fullpath(fpath, path);
-    bb_fullpath(fnewpath, newpath);
+    log_msg("\nbb_rename(fpath=\"%s\", newpath=\"%s\")\n", path, newpath);
+    CLIENT * clnt = createclient();
+    int * result;
 
-    return log_syscall("rename", rename(fpath, fnewpath), 0);
+    rename_IDL * new_rename = (rename_IDL *)malloc(sizeof(rename_IDL));
+    new_rename->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_rename->path, path, strlen(path));
+    new_rename->path[strlen(path)] = '\0';
+
+    new_rename->newpath = (char*)malloc(sizeof(char) * (strlen(newpath) + 1));
+    strncpy(new_rename->newpath, newpath, strlen(newpath));
+    new_rename->newpath[strlen(newpath)] = '\0';
+
+    result = rename_1000(new_rename, clnt);
+    destroyclient(clnt);
+    free(new_rename->newpath);
+    free(new_rename->path);
+    free(new_rename);
+    return *result;
 }
 
 /** Create a hard link to a file */
@@ -359,26 +355,44 @@ int bb_link(const char *path, const char *newpath)
 /** Change the permission bits of a file */
 int bb_chmod(const char *path, mode_t mode)
 {
-    char fpath[PATH_MAX];
-    
-    log_msg("\nbb_chmod(fpath=\"%s\", mode=0%03o)\n",
-	    path, mode);
-    bb_fullpath(fpath, path);
+    log_msg("\nbb_chmod(fpath=\"%s\", mode=0%03o)\n", path, mode);
+    CLIENT * clnt = createclient();
+    int * result;
 
-    return log_syscall("chmod", chmod(fpath, mode), 0);
+    chmod_IDL * new_chmod = (chmod_IDL *)malloc(sizeof(chmod_IDL));
+    new_chmod->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_chmod->path, path, strlen(path));
+    new_chmod->path[strlen(path)] = '\0';
+    new_chmod->mode = mode;
+
+    result = chmod_1000(new_chmod, clnt);
+    destroyclient(clnt);
+    free(new_chmod->path);
+    free(new_chmod);
+
+    return *result;
 }
 
 /** Change the owner and group of a file */
 int bb_chown(const char *path, uid_t uid, gid_t gid)
-  
 {
-    char fpath[PATH_MAX];
-    
-    log_msg("\nbb_chown(path=\"%s\", uid=%d, gid=%d)\n",
-	    path, uid, gid);
-    bb_fullpath(fpath, path);
+    log_msg("\nbb_chown(path=\"%s\", uid=%d, gid=%d)\n", path, uid, gid);
+    CLIENT * clnt = createclient();
+    int * result;
 
-    return log_syscall("chown", chown(fpath, uid, gid), 0);
+    chown_IDL * new_chown = (chown_IDL *)malloc(sizeof(chown_IDL));
+    new_chown->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_chown->path, path, strlen(path));
+    new_chown->path[strlen(path)] = '\0';
+    new_chown->uid = uid;
+    new_chown->gid = gid;
+
+    result = chown_1000(new_chown, clnt);
+    destroyclient(clnt);
+    free(new_chown->path);
+    free(new_chown);
+
+    return *result;
 }
 
 /** Change the size of a file */
@@ -396,6 +410,9 @@ int bb_truncate(const char *path, off_t newsize)
     newtruncate->newsize = newsize;
     CLIENT * clnt = createclient();
     result = truncate_1000(newtruncate, clnt);
+    destroyclient(clnt);
+    free(newtruncate->path);
+    free(newtruncate);
     return *result;
     //return log_syscall("truncate", truncate(fpath, newsize), 0);
 }
@@ -404,13 +421,24 @@ int bb_truncate(const char *path, off_t newsize)
 /* note -- I'll want to change this as soon as 2.6 is in debian testing */
 int bb_utime(const char *path, struct utimbuf *ubuf)
 {
-    char fpath[PATH_MAX];
-    
-    log_msg("\nbb_utime(path=\"%s\", ubuf=0x%08x)\n",
-	    path, ubuf);
-    bb_fullpath(fpath, path);
+    log_msg("\nbb_utime(path=\"%s\", ubuf=0x%08x)\n", path, ubuf);
+    utime_ret_IDL * result;
+    CLIENT * clnt = createclient();
 
-    return log_syscall("utime", utime(fpath, ubuf), 0);
+    utime_IDL * new_utime = (utime_IDL *)malloc(sizeof(utime_IDL));
+    new_utime->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_utime->path, path, strlen(path));
+    new_utime->path[strlen(path)] = '\0';
+
+    result = (utime_ret_IDL *)utime_1000(new_utime, clnt);
+    ubuf->actime = result->actime;
+    ubuf->modtime = result->modtime;
+
+    free(new_utime->path);
+    free(new_utime);
+    destroyclient(clnt);
+
+    return result->res;
 }
 
 /** File open operation
@@ -798,46 +826,6 @@ int bb_opendir(const char *path, struct fuse_file_info *fi)
  * Introduced in version 2.3
  */
 
-int bb_readdir_original(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
-	       struct fuse_file_info *fi)
-{
-    int retstat = 0;
-    DIR *dp;
-    struct dirent *de;
-    
-    log_msg("\nbb_readdir(path=\"%s\", buf=0x%08x, filler=0x%08x, offset=%lld, fi=0x%08x)\n",
-	    path, buf, filler, offset, fi);
-    // once again, no need for fullpath -- but note that I need to cast fi->fh
-    dp = (DIR *) (uintptr_t) fi->fh;
-
-    // Every directory contains at least two entries: . and ..  If my
-    // first call to the system readdir() returns NULL I've got an
-    // error; near as I can tell, that's the only condition under
-    // which I can get an error from readdir()
-    de = readdir(dp);
-    log_msg("    readdir returned 0x%p\n", de);
-    if (de == 0) {
-    	retstat = log_error("bb_readdir readdir");
-    	return retstat;
-    }
-
-    // This will copy the entire directory into the buffer.  The loop exits
-    // when either the system readdir() returns NULL, or filler()
-    // returns something non-zero.  The first case just means I've
-    // read the whole directory; the second means the buffer is full.
-    do {
-    	log_msg("calling filler with name %s\n", de->d_name);
-    	if (filler(buf, de->d_name, NULL, 0) != 0) {
-    	    log_msg("    ERROR bb_readdir filler:  buffer full");
-    	    return -ENOMEM;
-    	}
-    } while ((de = readdir(dp)) != NULL);
-    
-    log_fi(fi);
-    
-    return retstat;
-}
-
 int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
            struct fuse_file_info *fi)
 {
@@ -1124,7 +1112,7 @@ struct fuse_operations bb_oper = {
 
 void bb_usage()
 {
-    fprintf(stderr, "usage:  ./NFS_client <mount directory>\n");
+    fprintf(stderr, "usage:  ./NFS_client [options] <mount directory>\n");
     exit(1);
 }
 
@@ -1171,13 +1159,16 @@ int main(int argc, char *argv[])
     // start with a hyphen (this will break if you actually have a
     // rootpoint or mountpoint whose name starts with a hyphen, but so
     // will a zillion other programs)
-    if ((argc < 2) || (argv[argc-2][0] == '-') || (argv[argc-1][0] == '-'))
-	bb_usage();
+
+    if (argc < 2 || (argv[argc-1][0] == '-')) {
+        bb_usage();    
+        abort();
+    }
 
     bb_data = malloc(sizeof(struct bb_state));
     if (bb_data == NULL) {
-	perror("main calloc");
-	abort();
+    	perror("main calloc");
+    	abort();
     }
 
     // Pull the rootdir out of the argument list and save it in my

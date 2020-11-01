@@ -168,6 +168,32 @@ struct unlink_IDL{
   string path<PATH_MAX>;
 };
 
+struct utime_IDL {
+  string path<PATH_MAX>;
+};
+
+struct utime_ret_IDL {
+  uint32_t actime;
+  uint32_t modtime;
+  int res;
+};
+
+struct rename_IDL {
+  string path<PATH_MAX>;
+  string newpath<PATH_MAX>;
+};
+
+struct chmod_IDL {
+  string path<PATH_MAX>;
+  uint32_t mode;
+};
+
+struct chown_IDL {
+  string path<PATH_MAX>;
+  uint32_t uid;
+  uint32_t gid;
+};
+
 program NFS_FUSE{
 	version NFS_FUSE_VERS{
 		struct getattr_IDL GETATTR(struct getattr_IDL)=1;
@@ -186,6 +212,10 @@ program NFS_FUSE{
 		int MKNOD(mknod_IDL)=14;
 		int TRUNCATE(truncate_IDL)=15;
     int UNLINK(unlink_IDL)=16;
+    struct utime_ret_IDL UTIME(utime_IDL)=17;
+    int RENAME(rename_IDL)=18;
+    int CHMOD(chmod_IDL)=19;
+    int CHOWN(chown_IDL)=20;
 	} = 1000;
 	
 } = 123789456;
