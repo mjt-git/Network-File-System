@@ -125,7 +125,6 @@ struct read_ret_IDL {
 typedef struct read_ret_IDL read_ret_IDL;
 
 struct write_IDL {
-	char *path;
 	char buf[4096];
 	uint32_t size;
 	uint32_t offset;
@@ -191,6 +190,11 @@ struct truncate_IDL {
 };
 typedef struct truncate_IDL truncate_IDL;
 
+struct unlink_IDL {
+	char *path;
+};
+typedef struct unlink_IDL unlink_IDL;
+
 #define NFS_FUSE 123789456
 #define NFS_FUSE_VERS 1000
 
@@ -240,6 +244,9 @@ extern  int * mknod_1000_svc(mknod_IDL *, struct svc_req *);
 #define TRUNCATE 15
 extern  int * truncate_1000(truncate_IDL *, CLIENT *);
 extern  int * truncate_1000_svc(truncate_IDL *, struct svc_req *);
+#define UNLINK 16
+extern  int * unlink_1000(unlink_IDL *, CLIENT *);
+extern  int * unlink_1000_svc(unlink_IDL *, struct svc_req *);
 extern int nfs_fuse_1000_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
@@ -288,6 +295,9 @@ extern  int * mknod_1000_svc();
 #define TRUNCATE 15
 extern  int * truncate_1000();
 extern  int * truncate_1000_svc();
+#define UNLINK 16
+extern  int * unlink_1000();
+extern  int * unlink_1000_svc();
 extern int nfs_fuse_1000_freeresult ();
 #endif /* K&R C */
 
@@ -316,6 +326,7 @@ extern  bool_t xdr_releasedir_IDL (XDR *, releasedir_IDL*);
 extern  bool_t xdr_release_IDL (XDR *, release_IDL*);
 extern  bool_t xdr_mknod_IDL (XDR *, mknod_IDL*);
 extern  bool_t xdr_truncate_IDL (XDR *, truncate_IDL*);
+extern  bool_t xdr_unlink_IDL (XDR *, unlink_IDL*);
 
 #else /* K&R C */
 extern bool_t xdr_timespec_IDL ();
@@ -340,6 +351,7 @@ extern bool_t xdr_releasedir_IDL ();
 extern bool_t xdr_release_IDL ();
 extern bool_t xdr_mknod_IDL ();
 extern bool_t xdr_truncate_IDL ();
+extern bool_t xdr_unlink_IDL ();
 
 #endif /* K&R C */
 

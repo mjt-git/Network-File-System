@@ -34,6 +34,7 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		fgetattr_IDL fgetattr_1000_arg;
 		mknod_IDL mknod_1000_arg;
 		truncate_IDL truncate_1000_arg;
+		unlink_IDL unlink_1000_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -132,6 +133,12 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		_xdr_argument = (xdrproc_t) xdr_truncate_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
 		local = (char *(*)(char *, struct svc_req *)) truncate_1000_svc;
+		break;
+
+	case UNLINK:
+		_xdr_argument = (xdrproc_t) xdr_unlink_IDL;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) unlink_1000_svc;
 		break;
 
 	default:

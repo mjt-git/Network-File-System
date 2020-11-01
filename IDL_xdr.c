@@ -309,8 +309,6 @@ xdr_write_IDL (XDR *xdrs, write_IDL *objp)
 	register int32_t *buf;
 
 	int i;
-	 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
-		 return FALSE;
 	 if (!xdr_opaque (xdrs, objp->buf, 4096))
 		 return FALSE;
 	 if (!xdr_uint32_t (xdrs, &objp->size))
@@ -435,6 +433,16 @@ xdr_truncate_IDL (XDR *xdrs, truncate_IDL *objp)
 	 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->newsize))
+		 return FALSE;
+	return TRUE;
+}
+
+bool_t
+xdr_unlink_IDL (XDR *xdrs, unlink_IDL *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
 		 return FALSE;
 	return TRUE;
 }

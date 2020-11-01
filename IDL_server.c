@@ -185,3 +185,15 @@ truncate_1000_svc(truncate_IDL *argp, struct svc_req *rqstp)
 
 	return &result;
 }
+
+int *
+unlink_1000_svc(unlink_IDL *argp, struct svc_req *rqstp)
+{
+	static int  result;
+
+	/*
+	 * insert server code here
+	 */
+
+	return &result;
+}

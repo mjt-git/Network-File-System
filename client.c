@@ -138,6 +138,7 @@ int bb_getattr(const char *path, struct stat *statbuf)
     getattr_IDL * result;
     getattr_IDL * new_getattr = (struct getattr_IDL*)malloc(sizeof(struct getattr_IDL));
     new_getattr->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    memset(new_getattr->path, '\0', strlen(path) + 1);
     strncpy(new_getattr->path, path, strlen(path));
     new_getattr->path[strlen(path)] = '\0';
 
@@ -264,11 +265,27 @@ int bb_mkdir(const char *path, mode_t mode)
 
 /** Remove a file */
 int bb_unlink(const char *path)
+{    
+    log_msg("bb_unlink(path=\"%s\")\n", path);
+    CLIENT * clnt = createclient();
+    struct unlink_IDL * new_unlink = (struct unlink_IDL*)malloc(sizeof(struct unlink_IDL));
+    new_unlink -> path =  (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_unlink->path, path, strlen(path));
+    printf("new_unlink->path=%s",new_unlink->path);
+    int * result = unlink_1000(new_unlink, clnt);
+    destroyclient(clnt);
+    free(new_unlink->path);
+    free(new_unlink);
+    return *result;
+}
+
+/** Remove a file */
+int bb_unlink_original(const char *path)
 {
     char fpath[PATH_MAX];
     
     log_msg("bb_unlink(path=\"%s\")\n",
-	    path);
+        path);
     bb_fullpath(fpath, path);
 
     return log_syscall("unlink", unlink(fpath), 0);
@@ -519,18 +536,23 @@ int bb_write(const char *path, const char *buf, size_t size, off_t offset,
       newwrite->offset = offset;
       newwrite->fh = fi->fh;
       //newwrite->buf = (char*)malloc(sizeof(char) * newwrite->size);
-      memset(newwrite->buf, '\0', newwrite->size);
+      memset(newwrite->buf, '\0', 4096);
       memcpy(newwrite->buf, buf, newwrite->size);
       int * single_length;
       single_length = write_1000(newwrite, clnt);
-
+      log_msg("single_length written is %d\n", *single_length);
       total_length += *single_length;
       size -= newwrite->size;
-      offset += newwrite->offset;
-      free(newwrite->buf);
+      log_msg("size - newwrite->size is: %d\n", size);
+      offset += newwrite->size;
+      buf += newwrite->size;
+      log_msg("before free");
+      //free(newwrite->buf);
       free(newwrite);
       destroyclient(clnt);
+      printf("end of loop\n");
     }
+    log_msg("total_length written is %d\n", total_length);
     return total_length;
 }
 

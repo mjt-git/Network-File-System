@@ -41,6 +41,8 @@ nfs_fuse_1000(char *host)
 	mknod_IDL  mknod_1000_arg;
 	int  *result_15;
 	truncate_IDL  truncate_1000_arg;
+	int  *result_16;
+	unlink_IDL  unlink_1000_arg;
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, NFS_FUSE, NFS_FUSE_VERS, "udp");
@@ -108,6 +110,10 @@ nfs_fuse_1000(char *host)
 	}
 	result_15 = truncate_1000(&truncate_1000_arg, clnt);
 	if (result_15 == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+	result_16 = unlink_1000(&unlink_1000_arg, clnt);
+	if (result_16 == (int *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 #ifndef	DEBUG

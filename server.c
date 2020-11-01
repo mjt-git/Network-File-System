@@ -202,7 +202,9 @@ write_1000_svc(write_IDL *argp, struct svc_req *rqstp)
 	 * insert server code here
 	 */
 	printf("to be written: %s\n", argp->buf);
+	printf("fh is %d\n", argp->fh);
 	result = pwrite(argp->fh, argp->buf, argp->size, argp->offset);
+	printf("pwrite return %d\n", result);
 	return &result;
 }
 
@@ -393,4 +395,16 @@ truncate_1000_svc(truncate_IDL * argp, struct svc_req *rqstp){
   int newsize = argp->newsize;
   result = truncate(fpath, newsize);
   return &result;
+}
+
+int *
+unlink_1000_svc(unlink_IDL * argp, struct svc_req *rqstp){
+	print_function_name("unlink_1000_svc");
+	static int result;
+	char fpath[PATH_MAX];
+	getfullpath(fpath,argp->path);
+	printf("fpath=%s\n",fpath);
+	result = unlink(fpath);
+	printf("result=%d\n",result);
+	return &result;
 }
