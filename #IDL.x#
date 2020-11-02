@@ -41,12 +41,10 @@ struct fuse_file_info_IDL{
        uint32_t poll_events;
 };
 
-struct getattr_IDL {
-  string path<PATH_MAX>;
-};
-
-struct getattr_ret_IDL{
+struct getattr_IDL{
       int res;   
+
+      string path<PATH_MAX>;
 
       uint32_t     st_dev;         /* ID of device containing file */
       uint32_t     st_ino;         /* Inode number */
@@ -198,7 +196,7 @@ struct chown_IDL {
 
 program NFS_FUSE{
 	version NFS_FUSE_VERS{
-		struct getattr_ret_IDL GETATTR(struct getattr_IDL)=1;
+		struct getattr_IDL GETATTR(struct getattr_IDL)=1;
 		int MKDIR(mkdir_IDL)=2;
 		int RMDIR(rmdir_IDL)=3;     
   	int OPEN(open_IDL)=4;

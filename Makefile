@@ -3,7 +3,7 @@ all : IDL_target NFS_client NFS_server
 IDL_target: IDL.x
 	rpcgen -a -C IDL.x
 
-NFS_client: IDL_clnt.c client.c IDL_xdr.c log.c
+NFS_client: IDL_clnt.c cache.c client.c IDL_xdr.c log.c
 	gcc -g3 -o NFS_client $^ `pkg-config fuse --cflags --libs`
 
 NFS_server: server.c IDL_svc.c IDL_xdr.c

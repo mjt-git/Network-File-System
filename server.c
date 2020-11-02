@@ -33,11 +33,10 @@ static void * getfullpath(char fpath[PATH_MAX], const char * path){
   strncat(fpath, path, PATH_MAX);
 }
 
-void print_getattr_IDL(getattr_IDL res) {
+void print_getattr_IDL(getattr_ret_IDL res) {
 	printf("\n");
 	printf("************************\n");
 	printf("result.res: %d\n", res.res);
-	printf("result.path: %s\n", res.path);
 	printf("result.st_dev: %u\n", res.st_dev);
 	printf("result.st_ino: %u\n", res.st_ino);
 	printf("result.st_mode: %ld\n", res.st_mode);
@@ -82,12 +81,12 @@ void print_function_name(const char * name) {
 	printf("*******************\n");
 }
 
-getattr_IDL *
+getattr_ret_IDL *
 getattr_1000_svc(getattr_IDL *argp, struct svc_req *rqstp)
 {
 	print_function_name("getattr_10_svc");
 
-	static getattr_IDL result;
+	static getattr_ret_IDL result;
 	int res;
 	struct stat * statbuf = (struct stat*)malloc(sizeof(struct stat));
 	char fpath[PATH_MAX];
@@ -96,7 +95,6 @@ getattr_1000_svc(getattr_IDL *argp, struct svc_req *rqstp)
 	printf("full path is %s\n", fpath);
 	res = lstat(fpath, statbuf);
 
-	result.path = "xx";
 	if(res == 0){
 	  result.res = res;
 	} else{
@@ -195,12 +193,9 @@ read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 int *
 write_1000_svc(write_IDL *argp, struct svc_req *rqstp)
 {
-  print_function_name("write_1000_svc");
+  	print_function_name("write_1000_svc");
 	static int  result;
-	//static write_IDL res;
-	/*
-	 * insert server code here
-	 */
+	
 	printf("to be written: %s\n", argp->buf);
 	printf("fh is %d\n", argp->fh);
 	result = pwrite(argp->fh, argp->buf, argp->size, argp->offset);

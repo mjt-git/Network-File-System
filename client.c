@@ -44,15 +44,18 @@
 #endif
 
 #include "log.h"
-
+#include "cache.h"
 // CONST variables
 const char * host = "10.148.54.199";
-
 //  All the paths I see are relative to the root of the mounted
 //  filesystem.  In order to get to the underlying filesystem, I need to
 //  have the mountpoint.  I'll save it away early on in main(), and then
-//  whenever I need a path for something I'll call this to construct
+//  whenever I need a path for something I'll call this to constructd
 //  it.
+struct cachelist cachlist;
+struct cachelist * calist = & cachlist;
+
+
 CLIENT * createclient() {
     CLIENT * clnt;
     clnt = clnt_create (host, NFS_FUSE, NFS_FUSE_VERS, "udp");
@@ -77,11 +80,10 @@ static void bb_fullpath(char fpath[PATH_MAX], const char *path)
 	    BB_DATA->rootdir, path, fpath);
 }
 
-void print_getattr_IDL(getattr_IDL res) {
+void print_getattr_IDL(getattr_ret_IDL res) {
     printf("\n");
     printf("************************\n");
     printf("result.res: %d\n", res.res);
-    printf("result.path: %s\n", res.path);
     printf("result.st_dev: %u\n", res.st_dev);
     printf("result.st_ino: %u\n", res.st_ino);
     printf("result.st_mode: %ld\n", res.st_mode);
@@ -120,22 +122,21 @@ int bb_getattr(const char *path, struct stat *statbuf)
     
     CLIENT * clnt = createclient();
     
-    getattr_IDL * result;
+    getattr_ret_IDL * result;
     getattr_IDL * new_getattr = (struct getattr_IDL*)malloc(sizeof(struct getattr_IDL));
     new_getattr->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
-    memset(new_getattr->path, '\0', strlen(path) + 1);
     strncpy(new_getattr->path, path, strlen(path));
     new_getattr->path[strlen(path)] = '\0';
 
-    log_msg("original path: %s\n", path);
-    log_msg("strlen result: %u\n", strlen(path));
-    log_msg("new_getattr->path: %s\n", new_getattr->path);
+    // log_msg("original path: %s\n", path);
+    // log_msg("strlen result: %u\n", strlen(path));
+    // log_msg("new_getattr->path: %s\n", new_getattr->path);
     log_msg("before getattr\n");
     result = getattr_1000(new_getattr, clnt);
     print_getattr_IDL(*result);
     log_msg("after getattr\n");
     // log_msg("mode recv is %3o\n", new_getattr->st_mode);
-    log_msg("result.res: %d\n", result->res);
+    log_msg("result.st_dev: %d\n", result->st_dev);
     statbuf->st_dev = result->st_dev;
     statbuf->st_ino = result->st_ino;
     statbuf->st_mode = result->st_mode;
@@ -507,32 +508,79 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     int total_length = 0;
 
     while(size > 0) {
-        CLIENT * clnt = createclient();
-        struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
-        newread->size = size <= 4096 ? size : 4096;
-        newread->offset = offset;
-        newread->fh = fi->fh;
-
-        struct read_ret_IDL * result;
-        result = read_1000(newread, clnt);
-        int length_readed = result->count;
-
-        log_msg("length_readed: %d\n", length_readed);
-        if(length_readed == 0) {
-            break;
-        }
-
-
-        memcpy(buf, result->buf, length_readed);
-        printf("current buf: \n%s\n", buf);
-
-        buf += length_readed;
-        offset += length_readed;
-        size -= length_readed;
-        total_length += length_readed;
-
-        free(newread);
-        destroyclient(clnt);
+        struct stat *statbuf = (struct stat*)malloc(sizeof(struct stat));
+        bb_getattr(path, statbuf);
+        log_msg("\npresent stat->mtime is %d\n", statbuf->st_mtime);
+    	struct cache * curr = calist->head;
+    	struct cache * prev = NULL;
+    	int find_cache = 0;//0 = no cache; 1 = valid cache; 2 = invalid cache
+    	size_t this_size = size <= 4096 ? size : 4096;
+    	while(curr != NULL){
+          log_msg("curr cache: size is %ld, offset is %ld, path is %s\n", curr->size, curr->offset, curr->path);
+          log_msg("requested content: size is %ld, offset is %ld, path is %s\n", this_size, offset, path);
+    	  if(strncmp(path, curr->path, strlen(path) + 1) == 0 && curr->size == this_size && curr->offset == offset){
+    	    if(curr->mtime == statbuf->st_mtime){
+    	      find_cache = 1;
+    	      break;
+    	    }
+    	    else{
+    	      find_cache = 2;
+    	      break;
+    	    }
+    	  }
+    	  prev = curr;
+    	  curr = curr->next;
+    	}
+        log_msg("find cache state is %d\n", find_cache);
+    	if (find_cache == 0 || find_cache == 2){
+                CLIENT * clnt = createclient();
+                struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
+                newread->size = size <= 4096 ? size : 4096;
+                newread->offset = offset;
+                newread->fh = fi->fh;
+                struct read_ret_IDL * result;
+                result = read_1000(newread, clnt);
+                int length_readed = result->count;
+                log_msg("length_readed: %d\n", length_readed);
+                if(length_readed == 0) {
+                    break;
+                }
+                memcpy(buf, result->buf, length_readed);
+                //log_msg("current buf: \n%s\n", buf);
+    	    if(find_cache == 0){//if cache miss, add a new one to cache list
+              log_msg("start add new cache");
+    	      struct cache * newcache = (struct cache *)malloc(sizeof(struct cache));
+    	      newcache->size = 4096;
+    	      newcache->offset = newread->offset;
+              newcache->next = NULL;
+              memset(newcache->path, '\0', PATH_MAX);
+    	      memcpy(newcache->path, path, strlen(path));
+    	      newcache->mtime = statbuf->st_mtime;
+              memset(newcache->buf, '\0', 4096);
+    	      memcpy(newcache->buf, result->buf, length_readed);
+              add_cache(calist, newcache);
+    	    }
+    	    else{//if cache invalid, update it
+    	      curr->mtime = statbuf->st_mtime;
+    	      //memcpy(curr->buf, result->buf, length_readed);
+    	      update_cache(calist, curr, prev, result->buf);
+    	    }
+            buf += this_size;
+            offset += this_size;
+            size -= this_size;
+            total_length += length_readed;
+            free(newread);
+            destroyclient(clnt);
+            }
+    	else{//if cache valid
+    	    log_msg("cache hit, return cached buf");
+    	    memcpy(buf, curr->buf, this_size);
+    	    update_cache(calist, curr, prev, NULL);
+            buf += this_size;
+            offset += this_size;
+            size -= this_size;
+            total_length += this_size;
+    	}
     }
 
     return total_length;
@@ -914,8 +962,8 @@ void *bb_init(struct fuse_conn_info *conn)
 {
     log_msg("\nbb_init()\n");
     
-    log_conn(conn);
-    log_fuse_context(fuse_get_context());
+    //log_conn(conn);
+    //log_fuse_context(fuse_get_context());
     
     return BB_DATA;
 }
@@ -1184,6 +1232,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "about to call fuse_main\n");
     fuse_stat = fuse_main(argc, argv, &bb_oper, bb_data);
     fprintf(stderr, "fuse_main returned %d\n", fuse_stat);
-    
+    //calist = (struct cachelist *)malloc(sizeof(struct cachelist));
+    create_cachelist(calist);
     return fuse_stat;
 }
