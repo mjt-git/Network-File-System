@@ -22,11 +22,14 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <sys/xattr.h>
-#include  <fuse.h>
+#include <fuse.h>
+#include <pthread.h>
+#include "file_record.h"
 
 const char * rootpath = "/home/localadmin/finalproject/serverpoint";
 
-// typedef int(* 	fuse_fill_dir_t) (void *buf, const char *name, const struct stat *stbuf, off_t off, enum fuse_fill_dir_flags flags);
+fileRecord fr;
+fileRecord * frP = &fr;
 
 static void * getfullpath(char fpath[PATH_MAX], const char * path){
   strcpy(fpath, rootpath);
