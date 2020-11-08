@@ -230,6 +230,12 @@ struct chown_IDL {
 };
 typedef struct chown_IDL chown_IDL;
 
+struct authenticate_IDL {
+	char password[128];
+	uint32_t hash;
+};
+typedef struct authenticate_IDL authenticate_IDL;
+
 #define NFS_FUSE 123789456
 #define NFS_FUSE_VERS 1000
 
@@ -294,6 +300,9 @@ extern  int * chmod_1000_svc(chmod_IDL *, struct svc_req *);
 #define CHOWN 20
 extern  int * chown_1000(chown_IDL *, CLIENT *);
 extern  int * chown_1000_svc(chown_IDL *, struct svc_req *);
+#define AUTHENTICATE 21
+extern  int * authenticate_1000(authenticate_IDL *, CLIENT *);
+extern  int * authenticate_1000_svc(authenticate_IDL *, struct svc_req *);
 extern int nfs_fuse_1000_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
@@ -357,6 +366,9 @@ extern  int * chmod_1000_svc();
 #define CHOWN 20
 extern  int * chown_1000();
 extern  int * chown_1000_svc();
+#define AUTHENTICATE 21
+extern  int * authenticate_1000();
+extern  int * authenticate_1000_svc();
 extern int nfs_fuse_1000_freeresult ();
 #endif /* K&R C */
 
@@ -392,6 +404,7 @@ extern  bool_t xdr_utime_ret_IDL (XDR *, utime_ret_IDL*);
 extern  bool_t xdr_rename_IDL (XDR *, rename_IDL*);
 extern  bool_t xdr_chmod_IDL (XDR *, chmod_IDL*);
 extern  bool_t xdr_chown_IDL (XDR *, chown_IDL*);
+extern  bool_t xdr_authenticate_IDL (XDR *, authenticate_IDL*);
 
 #else /* K&R C */
 extern bool_t xdr_timespec_IDL ();
@@ -423,6 +436,7 @@ extern bool_t xdr_utime_ret_IDL ();
 extern bool_t xdr_rename_IDL ();
 extern bool_t xdr_chmod_IDL ();
 extern bool_t xdr_chown_IDL ();
+extern bool_t xdr_authenticate_IDL ();
 
 #endif /* K&R C */
 

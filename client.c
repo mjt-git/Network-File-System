@@ -1176,14 +1176,62 @@ void test_hello() {
     clnt_destroy (clnt);
 }
 
+// BKDR Hash Function
+unsigned int BKDRHash(char *str)
+{
+    unsigned int seed = 131; // 31 131 1313 13131 131313 etc..
+    unsigned int hash = 0;
+ 
+    while (*str)
+    {
+        hash = hash * seed + (*str++);
+    }
+ 
+    return (hash & 0x7FFFFFFF);
+}
+
+
+int user_authenticate(){
+    char * password = (char *)malloc(sizeof(char)* 128); //128 == length of plain password
+    printf("Please type in the password given by NFS server:\n");
+    scanf("%s",password);
+    printf("plain_password is %s\n",password);
+    unsigned int hashvalue = BKDRHash(password);
+    printf("hash value is %d\n",hashvalue);
+
+    struct authenticate_IDL * new_authenticate = (struct authenticate_IDL *)malloc(sizeof(struct authenticate_IDL));
+    strncpy(new_authenticate->password, password,strlen(password));
+    printf("new_authenticate->password is %s\n",new_authenticate->password);
+    new_authenticate -> hash = hashvalue;
+    
+
+    CLIENT * clnt = clnt_create(host, NFS_FUSE, NFS_FUSE_VERS, "udp");
+    if(clnt==NULL){
+        clnt_pcreateerror (host);
+        exit (1);
+    }
+    printf("11111\n");
+    int * result = authenticate_1000(new_authenticate,clnt);
+    printf("22222\n");
+    clnt_destroy (clnt);
+    free(new_authenticate->password);
+    free(new_authenticate);
+     printf("33333\n");
+    return *result;
+}
+
 
 int main(int argc, char *argv[])
 {
     int fuse_stat;
     struct bb_state *bb_data;
-
     test_hello();
     fprintf(stderr, "test_hello called!!!!!!\n");
+
+    int auth_res=1;
+    while(auth_res==1){
+        auth_res = user_authenticate();
+    }
 
     // bbfs doesn't do any access checking on its own (the comment
     // blocks in fuse.h mention some of the functions that need

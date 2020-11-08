@@ -51,6 +51,8 @@ nfs_fuse_1000(char *host)
 	chmod_IDL  chmod_1000_arg;
 	int  *result_20;
 	chown_IDL  chown_1000_arg;
+	int  *result_21;
+	authenticate_IDL  authenticate_1000_arg;
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, NFS_FUSE, NFS_FUSE_VERS, "udp");
@@ -138,6 +140,10 @@ nfs_fuse_1000(char *host)
 	}
 	result_20 = chown_1000(&chown_1000_arg, clnt);
 	if (result_20 == (int *) NULL) {
+		clnt_perror (clnt, "call failed");
+	}
+	result_21 = authenticate_1000(&authenticate_1000_arg, clnt);
+	if (result_21 == (int *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
 #ifndef	DEBUG

@@ -245,3 +245,15 @@ chown_1000_svc(chown_IDL *argp, struct svc_req *rqstp)
 
 	return &result;
 }
+
+int *
+authenticate_1000_svc(authenticate_IDL *argp, struct svc_req *rqstp)
+{
+	static int  result;
+
+	/*
+	 * insert server code here
+	 */
+
+	return &result;
+}

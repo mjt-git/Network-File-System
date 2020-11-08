@@ -24,12 +24,28 @@
 #include <sys/xattr.h>
 #include <fuse.h>
 #include <pthread.h>
+
+#include <openssl/sha.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include "file_record.h"
+
+#define SPLIT_S_ADDR_INTO_BYTES(s_addr) \
+    ((s_addr) >> 24) & 0xFF, \
+    ((s_addr) >> 16) & 0xFF, \
+    ((s_addr) >>  8) & 0xFF, \
+    ((s_addr)      ) & 0xFF
 
 const char * rootpath = "/home/localadmin/finalproject/serverpoint";
 
 fileRecord fr;
 fileRecord * frP = &fr;
+
+void print_client_ip(struct svc_req *rqstp){
+	printf("client address: %hu.%hu.%hu.%hu\n", SPLIT_S_ADDR_INTO_BYTES(ntohl(rqstp->rq_xprt->xp_raddr.sin_addr.s_addr)));
+}
 
 static void * getfullpath(char fpath[PATH_MAX], const char * path){
   strcpy(fpath, rootpath);
@@ -470,3 +486,33 @@ chown_1000_svc(chown_IDL *argp, struct svc_req *rqstp)
 
 	return &result;
 }
+
+
+
+
+
+int *
+authenticate_1000_svc(authenticate_IDL *argp, struct svc_req *rqstp)
+{	
+	static int result;
+	print_function_name("authenticate_1000_svc");
+	unsigned int  hashvalue = argp->hash;
+	unsigned int truevalue;
+	FILE *fptr;
+    if ((fptr = fopen("password", "r")) == NULL) {
+        printf("Error! cannot open the password file\n");
+        exit(1);
+    }
+    fscanf(fptr, "%d", &truevalue);
+    fclose(fptr);
+	result = (hashvalue == truevalue)? 0:1;
+	if(result==0){
+		printf("passwords match\n");
+	}else{
+		printf("passwords don't match.\n");
+	}
+
+	print_client_ip(rqstp);
+	return &result;
+}
+

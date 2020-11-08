@@ -39,6 +39,7 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		rename_IDL rename_1000_arg;
 		chmod_IDL chmod_1000_arg;
 		chown_IDL chown_1000_arg;
+		authenticate_IDL authenticate_1000_arg;
 	} argument;
 	char *result;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -167,6 +168,12 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		_xdr_argument = (xdrproc_t) xdr_chown_IDL;
 		_xdr_result = (xdrproc_t) xdr_int;
 		local = (char *(*)(char *, struct svc_req *)) chown_1000_svc;
+		break;
+
+	case AUTHENTICATE:
+		_xdr_argument = (xdrproc_t) xdr_authenticate_IDL;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (char *(*)(char *, struct svc_req *)) authenticate_1000_svc;
 		break;
 
 	default:

@@ -196,6 +196,11 @@ struct chown_IDL {
   uint32_t gid;
 };
 
+struct authenticate_IDL{
+  char password[128];
+  uint32_t hash;
+};
+
 program NFS_FUSE{
 	version NFS_FUSE_VERS{
 		struct getattr_ret_IDL GETATTR(struct getattr_IDL)=1;
@@ -218,6 +223,7 @@ program NFS_FUSE{
     int RENAME(rename_IDL)=18;
     int CHMOD(chmod_IDL)=19;
     int CHOWN(chown_IDL)=20;
+    int AUTHENTICATE(authenticate_IDL)=21;
 	} = 1000;
 	
 } = 123789456;

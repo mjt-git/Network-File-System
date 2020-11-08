@@ -9,5 +9,8 @@ NFS_client: IDL_clnt.c cache.c client.c IDL_xdr.c log.c
 NFS_server: server.c IDL_svc.c IDL_xdr.c file_record.c
 	gcc -g3 -o NFS_server -lnsl $^ 
 
+genpass: genpass.c
+	gcc -g3 -o genpass 
+
 clean:
 	rm NFS_client NFS_server IDL.h IDL_* Makefile.IDL
