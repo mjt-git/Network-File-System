@@ -511,7 +511,6 @@ authenticate_1000_svc(authenticate_IDL *argp, struct svc_req *rqstp)
 	}else{
 		printf("passwords don't match.\n");
 	}
-
 	print_client_ip(rqstp);
 	return &result;
 }

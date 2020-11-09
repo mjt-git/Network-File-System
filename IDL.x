@@ -197,7 +197,6 @@ struct chown_IDL {
 };
 
 struct authenticate_IDL{
-  char password[128];
   uint32_t hash;
 };
 

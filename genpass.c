@@ -29,6 +29,5 @@ int main() {
     printf("hash value is %d\n",hashvalue);
     fprintf(fptr,"%d",hashvalue);
     fclose(fptr);
-
     return 0;
 }

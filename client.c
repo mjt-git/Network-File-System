@@ -38,6 +38,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <time.h>
 
 #ifdef HAVE_SYS_XATTR_H
 #include <sys/xattr.h>
@@ -45,8 +46,9 @@
 
 #include "log.h"
 #include "cache.h"
-// CONST variables
+
 const char * host = "10.148.54.199";
+const int password_expiration=10;
 //  All the paths I see are relative to the root of the mounted
 //  filesystem.  In order to get to the underlying filesystem, I need to
 //  have the mountpoint.  I'll save it away early on in main(), and then
@@ -54,6 +56,71 @@ const char * host = "10.148.54.199";
 //  it.
 struct cachelist cachlist;
 struct cachelist * calist = & cachlist;
+
+time_t last_activate;
+
+// BKDR Hash Function
+unsigned int BKDRHash(char *str)
+{
+    unsigned int seed = 131; // 31 131 1313 13131 131313 etc..
+    unsigned int hash = 0;
+ 
+    while (*str)
+    {
+        hash = hash * seed + (*str++);
+    }
+ 
+    return (hash & 0x7FFFFFFF);
+}
+
+int user_authenticate(){
+    char * password = (char *)malloc(sizeof(char)* 128); //128 == length of plain password
+    printf("Please type in the password given by NFS server:\n");
+    scanf("%s",password);
+    // printf("plain_password is %s\n",password);
+    unsigned int hashvalue = BKDRHash(password);
+    // printf("hash value is %d\n",hashvalue);
+
+    struct authenticate_IDL * new_authenticate = (struct authenticate_IDL *)malloc(sizeof(struct authenticate_IDL));
+    // strncpy(new_authenticate->password, password,strlen(password));
+    // printf("new_authenticate->password is %s\n",new_authenticate->password);
+    new_authenticate -> hash = hashvalue;
+    
+    CLIENT * clnt = clnt_create(host, NFS_FUSE, NFS_FUSE_VERS, "udp");
+    if(clnt==NULL){
+        clnt_pcreateerror (host);
+        exit (1);
+    }
+    int * result = authenticate_1000(new_authenticate,clnt);
+    clnt_destroy (clnt);
+    // free(new_authenticate->password);
+    free(new_authenticate);
+    return *result;
+}
+
+void check_activate(){
+    time_t current;
+    time(&current);
+    struct tm *current_tmp = localtime(&current);
+    char s[100];
+    strftime(s, sizeof(s), "%04Y/%02m/%02d %H:%M:%S", current_tmp);
+    log_msg("[check_activate]current time: %s\n", s);
+
+    if(current-last_activate>password_expiration){
+        log_msg("[check_activate]user havn't done anything in %d seconds, password authentication expires.\n",(int)current-(int)last_activate);
+        int auth_res=1;
+        while(auth_res==1){
+            auth_res = user_authenticate();
+        }
+    }
+
+    time(&last_activate);
+    struct tm *last_activate_tmp = localtime(&last_activate);
+    char s2[100];
+    strftime(s2, sizeof(s2), "%04Y/%02m/%02d %H:%M:%S", last_activate_tmp);
+    log_msg("[check_activate]last activate time updated: %s\n", s2);
+    return;
+}
 
 
 CLIENT * createclient() {
@@ -1176,49 +1243,9 @@ void test_hello() {
     clnt_destroy (clnt);
 }
 
-// BKDR Hash Function
-unsigned int BKDRHash(char *str)
-{
-    unsigned int seed = 131; // 31 131 1313 13131 131313 etc..
-    unsigned int hash = 0;
- 
-    while (*str)
-    {
-        hash = hash * seed + (*str++);
-    }
- 
-    return (hash & 0x7FFFFFFF);
-}
 
 
-int user_authenticate(){
-    char * password = (char *)malloc(sizeof(char)* 128); //128 == length of plain password
-    printf("Please type in the password given by NFS server:\n");
-    scanf("%s",password);
-    printf("plain_password is %s\n",password);
-    unsigned int hashvalue = BKDRHash(password);
-    printf("hash value is %d\n",hashvalue);
 
-    struct authenticate_IDL * new_authenticate = (struct authenticate_IDL *)malloc(sizeof(struct authenticate_IDL));
-    strncpy(new_authenticate->password, password,strlen(password));
-    printf("new_authenticate->password is %s\n",new_authenticate->password);
-    new_authenticate -> hash = hashvalue;
-    
-
-    CLIENT * clnt = clnt_create(host, NFS_FUSE, NFS_FUSE_VERS, "udp");
-    if(clnt==NULL){
-        clnt_pcreateerror (host);
-        exit (1);
-    }
-    printf("11111\n");
-    int * result = authenticate_1000(new_authenticate,clnt);
-    printf("22222\n");
-    clnt_destroy (clnt);
-    free(new_authenticate->password);
-    free(new_authenticate);
-     printf("33333\n");
-    return *result;
-}
 
 
 int main(int argc, char *argv[])
@@ -1228,20 +1255,15 @@ int main(int argc, char *argv[])
     test_hello();
     fprintf(stderr, "test_hello called!!!!!!\n");
 
+    //first log in authenticate 
     int auth_res=1;
     while(auth_res==1){
         auth_res = user_authenticate();
     }
 
-    // bbfs doesn't do any access checking on its own (the comment
-    // blocks in fuse.h mention some of the functions that need
-    // accesses checked -- but note there are other functions, like
-    // chown(), that also need checking!).  Since running bbfs as root
-    // will therefore open Metrodome-sized holes in the system
-    // security, we'll check if root is trying to mount the filesystem
-    // and refuse if it is.  The somewhat smaller hole of an ordinary
-    // user doing it with the allow_other flag is still there because
-    // I don't want to parse the options string.
+    //update last activate time
+    time(&last_activate);
+
     if ((getuid() == 0) || (geteuid() == 0)) {
     	fprintf(stderr, "Running BBFS as root opens unnacceptable security holes\n");
     	return 1;
