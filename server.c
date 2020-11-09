@@ -24,6 +24,7 @@
 #include <sys/xattr.h>
 #include <fuse.h>
 #include <pthread.h>
+#include <time.h>
 
 #include <openssl/sha.h>
 #include <sys/socket.h>
@@ -44,7 +45,7 @@ fileRecord fr;
 fileRecord * frP = &fr;
 
 void print_client_ip(struct svc_req *rqstp){
-	printf("client address: %hu.%hu.%hu.%hu\n", SPLIT_S_ADDR_INTO_BYTES(ntohl(rqstp->rq_xprt->xp_raddr.sin_addr.s_addr)));
+	printf("client address: %hu.%hu.%hu.%hu ", SPLIT_S_ADDR_INTO_BYTES(ntohl(rqstp->rq_xprt->xp_raddr.sin_addr.s_addr)));
 }
 
 static void * getfullpath(char fpath[PATH_MAX], const char * path){
@@ -94,16 +95,22 @@ void print_fgetattr_ret_IDL(fgetattr_ret_IDL res) {
 	printf("\n");
 }
 
-void print_function_name(const char * name) {
-	printf("\n*******************\n");
-	printf("INSIDE %s\n", name);
+void print_function_name(const char * name, struct svc_req *rqstp) {
+	time_t current;
+    time(&current);
+    struct tm *current_tmp = localtime(&current);
+    char s[100];
+    strftime(s, sizeof(s), "%04Y/%02m/%02d %H:%M:%S", current_tmp);
+	printf("\n*******************\nfuction %s is invoked by ", name);
+	print_client_ip(rqstp);
+	printf("at %s\n",s);
 	printf("*******************\n");
 }
 
 getattr_ret_IDL *
 getattr_1000_svc(getattr_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("getattr_10_svc");
+	print_function_name("getattr_10_svc",rqstp);
 
 	static getattr_ret_IDL result;
 	int res;
@@ -142,7 +149,7 @@ getattr_1000_svc(getattr_IDL *argp, struct svc_req *rqstp)
 int *
 mkdir_1000_svc(mkdir_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("mkdir_10_svc");
+	print_function_name("mkdir_10_svc",rqstp);
 
 	static int result;
 	char fpath[PATH_MAX];
@@ -160,7 +167,7 @@ mkdir_1000_svc(mkdir_IDL *argp, struct svc_req *rqstp)
 int *
 rmdir_1000_svc(rmdir_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("rmdir_10_svc");
+	print_function_name("rmdir_10_svc",rqstp);
 	
 	static int  result;
 	char fpath[PATH_MAX];
@@ -176,7 +183,7 @@ rmdir_1000_svc(rmdir_IDL *argp, struct svc_req *rqstp)
 int *
 open_1000_svc(open_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("open_1000_svc");
+	print_function_name("open_1000_svc",rqstp);
 
 	static int result;
 	char fpath[PATH_MAX];
@@ -192,7 +199,7 @@ open_1000_svc(open_IDL *argp, struct svc_req *rqstp)
 struct read_ret_IDL *
 read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("read_1000_svc");
+	print_function_name("read_1000_svc",rqstp);
 	static struct read_ret_IDL result;
 
 	printf("argp->fh: %d\n", argp->fh);
@@ -212,7 +219,7 @@ read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 int *
 write_1000_svc(write_IDL *argp, struct svc_req *rqstp)
 {
-  	print_function_name("write_1000_svc");
+  	print_function_name("write_1000_svc",rqstp);
 	static int  result;
 	
 	printf("to be written: %s\n", argp->buf);
@@ -225,7 +232,7 @@ write_1000_svc(write_IDL *argp, struct svc_req *rqstp)
 struct opendir_ret_IDL *
 opendir_1000_svc(opendir_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("opendir_1000_svc");
+	print_function_name("opendir_1000_svc",rqstp);
 
 	static struct opendir_ret_IDL result;
 	char fpath[PATH_MAX];
@@ -298,16 +305,15 @@ void *
 hellotest_1000_svc(void *argp, struct svc_req *rqstp)
 {
 	static char * result;
-	printf("*****************************\n");
-	printf("HELLO!!!!!!!!!!!!!\n");
-	printf("*****************************\n");
+	printf("[hellotest_1000_svc]successfully connected to ");
+	print_client_ip(rqstp);
 	return (void *) &result;
 }
 
 int *
 access_1000_svc(access_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("access_1000_svc");
+	print_function_name("access_1000_svc",rqstp);
 
 	static int result;
 	char fpath[PATH_MAX];
@@ -323,7 +329,7 @@ access_1000_svc(access_IDL *argp, struct svc_req *rqstp)
 int *
 releasedir_1000_svc(releasedir_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("releasedir_1000_svc");
+	print_function_name("releasedir_1000_svc",rqstp);
 	static int result = 0;
 
 	DIR * dp;
@@ -336,7 +342,7 @@ releasedir_1000_svc(releasedir_IDL *argp, struct svc_req *rqstp)
 int *
 release_1000_svc(release_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("release_1000_svc");
+	print_function_name("release_1000_svc",rqstp);
 	static int result;
 
 	result = close(argp->fh);
@@ -376,7 +382,7 @@ fgetattr_1000_svc(fgetattr_IDL *argp, struct svc_req *rqstp)
 int *
 mknod_1000_svc(mknod_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("mknod_1000_svc");
+	print_function_name("mknod_1000_svc",rqstp);
 	static int result;
 
 	char fpath[PATH_MAX];
@@ -413,7 +419,7 @@ truncate_1000_svc(truncate_IDL * argp, struct svc_req *rqstp){
 
 int *
 unlink_1000_svc(unlink_IDL * argp, struct svc_req *rqstp){
-	print_function_name("unlink_1000_svc");
+	print_function_name("unlink_1000_svc",rqstp);
 	static int result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath,argp->path);
@@ -426,7 +432,7 @@ unlink_1000_svc(unlink_IDL * argp, struct svc_req *rqstp){
 struct utime_ret_IDL *
 utime_1000_svc(utime_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("utime_1000_svc");
+	print_function_name("utime_1000_svc",rqstp);
 	static struct utime_ret_IDL result;
 
 	char fpath[PATH_MAX];
@@ -488,14 +494,11 @@ chown_1000_svc(chown_IDL *argp, struct svc_req *rqstp)
 }
 
 
-
-
-
 int *
 authenticate_1000_svc(authenticate_IDL *argp, struct svc_req *rqstp)
 {	
 	static int result;
-	print_function_name("authenticate_1000_svc");
+	print_function_name("authenticate_1000_svc",rqstp);
 	unsigned int  hashvalue = argp->hash;
 	unsigned int truevalue;
 	FILE *fptr;

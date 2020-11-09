@@ -231,7 +231,6 @@ struct chown_IDL {
 typedef struct chown_IDL chown_IDL;
 
 struct authenticate_IDL {
-	char password[128];
 	uint32_t hash;
 };
 typedef struct authenticate_IDL authenticate_IDL;

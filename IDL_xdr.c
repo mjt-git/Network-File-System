@@ -522,10 +522,6 @@ xdr_authenticate_IDL (XDR *xdrs, authenticate_IDL *objp)
 {
 	register int32_t *buf;
 
-	int i;
-	 if (!xdr_vector (xdrs, (char *)objp->password, 128,
-		sizeof (char), (xdrproc_t) xdr_char))
-		 return FALSE;
 	 if (!xdr_uint32_t (xdrs, &objp->hash))
 		 return FALSE;
 	return TRUE;

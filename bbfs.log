@@ -1,5 +1,5 @@
 
 bb_init()
 
-bb_getattr(path="/", statbuf=0x42218c00)
+bb_getattr(path="/.git", statbuf=0xe3cbdc30)
 before getattr

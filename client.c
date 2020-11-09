@@ -48,7 +48,7 @@
 #include "cache.h"
 
 const char * host = "10.148.54.199";
-const int password_expiration=10;
+const int password_expiration=20; //second
 //  All the paths I see are relative to the root of the mounted
 //  filesystem.  In order to get to the underlying filesystem, I need to
 //  have the mountpoint.  I'll save it away early on in main(), and then
@@ -75,15 +75,11 @@ unsigned int BKDRHash(char *str)
 
 int user_authenticate(){
     char * password = (char *)malloc(sizeof(char)* 128); //128 == length of plain password
-    printf("Please type in the password given by NFS server:\n");
-    scanf("%s",password);
-    // printf("plain_password is %s\n",password);
+    fprintf(stdout,"Please type in the password given by NFS server:\n");
+    fscanf(stdin,"%s",password);
     unsigned int hashvalue = BKDRHash(password);
-    // printf("hash value is %d\n",hashvalue);
 
     struct authenticate_IDL * new_authenticate = (struct authenticate_IDL *)malloc(sizeof(struct authenticate_IDL));
-    // strncpy(new_authenticate->password, password,strlen(password));
-    // printf("new_authenticate->password is %s\n",new_authenticate->password);
     new_authenticate -> hash = hashvalue;
     
     CLIENT * clnt = clnt_create(host, NFS_FUSE, NFS_FUSE_VERS, "udp");
@@ -93,33 +89,32 @@ int user_authenticate(){
     }
     int * result = authenticate_1000(new_authenticate,clnt);
     clnt_destroy (clnt);
-    // free(new_authenticate->password);
     free(new_authenticate);
     return *result;
 }
 
 void check_activate(){
-    time_t current;
-    time(&current);
-    struct tm *current_tmp = localtime(&current);
-    char s[100];
-    strftime(s, sizeof(s), "%04Y/%02m/%02d %H:%M:%S", current_tmp);
-    log_msg("[check_activate]current time: %s\n", s);
+    // time_t current;
+    // time(&current);
+    // struct tm *current_tmp = localtime(&current);
+    // char s[100];
+    // strftime(s, sizeof(s), "%04Y/%02m/%02d %H:%M:%S", current_tmp);
+    // log_msg("[check_activate]current time: %s\n", s);
 
-    if(current-last_activate>password_expiration){
-        log_msg("[check_activate]user havn't done anything in %d seconds, password authentication expires.\n",(int)current-(int)last_activate);
-        int auth_res=1;
-        while(auth_res==1){
-            auth_res = user_authenticate();
-        }
-    }
+    // if(current-last_activate>password_expiration){
+    //     log_msg("[check_activate]user havn't done anything in %d seconds, password authentication expires.\n",(int)current-(int)last_activate);
+    //     int auth_res=1;
+    //     while(auth_res==1){
+    //         auth_res = user_authenticate();
+    //     }
+    // }
 
-    time(&last_activate);
-    struct tm *last_activate_tmp = localtime(&last_activate);
-    char s2[100];
-    strftime(s2, sizeof(s2), "%04Y/%02m/%02d %H:%M:%S", last_activate_tmp);
-    log_msg("[check_activate]last activate time updated: %s\n", s2);
-    return;
+    // time(&last_activate);
+    // struct tm *last_activate_tmp = localtime(&last_activate);
+    // char s2[100];
+    // strftime(s2, sizeof(s2), "%04Y/%02m/%02d %H:%M:%S", last_activate_tmp);
+    // log_msg("[check_activate]last activate time updated: %s\n", s2);
+    // return;
 }
 
 
@@ -138,7 +133,7 @@ void destroyclient(CLIENT * clnt){
 }
 
 static void bb_fullpath(char fpath[PATH_MAX], const char *path)
-{
+{   
     strcpy(fpath, BB_DATA->rootdir);
     strncat(fpath, path, PATH_MAX); // ridiculously long paths will
 				    // break here
@@ -180,7 +175,8 @@ void print_getattr_IDL(getattr_ret_IDL res) {
  * mount option is given.
  */
 int bb_getattr(const char *path, struct stat *statbuf)
-{
+{   
+    check_activate();
     int retstat;
     char fpath[PATH_MAX];
     
@@ -241,7 +237,7 @@ int bb_getattr(const char *path, struct stat *statbuf)
 // less than the size passed to bb_readlink()
 // bb_readlink() code by Bernardo F Costa (thanks!)
 int bb_readlink(const char *path, char *link, size_t size)
-{
+{   
     int retstat;
     char fpath[PATH_MAX];
     
@@ -267,15 +263,9 @@ int bb_readlink(const char *path, char *link, size_t size)
 // shouldn't that comment be "if" there is no.... ?
 int bb_mknod(const char *path, mode_t mode, dev_t dev)
 {
+    check_activate();
     log_msg("\nbb_mknod(path=\"%s\", mode=0%3o, dev=%lld)\n",
 	  path, mode, dev);
-    
-    // On Linux this could just be 'mknod(path, mode, dev)' but this
-    // tries to be be more portable by honoring the quote in the Linux
-    // mknod man page stating the only portable use of mknod() is to
-    // make a fifo, but saying it should never actually be used for
-    // that.
-    
     CLIENT * clnt = createclient();
     mknod_IDL * new_mknod = (mknod_IDL *)malloc(sizeof(mknod_IDL));
     new_mknod->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
@@ -297,6 +287,7 @@ int bb_mknod(const char *path, mode_t mode, dev_t dev)
 /** Create a directory */
 int bb_mkdir(const char *path, mode_t mode)
 {
+    check_activate();
     char fpath[PATH_MAX];
     
     log_msg("\nbb_mkdir(path=\"%s\", mode=0%3o)\n",
@@ -319,7 +310,8 @@ int bb_mkdir(const char *path, mode_t mode)
 
 /** Remove a file */
 int bb_unlink(const char *path)
-{    
+{   
+    check_activate(); 
     log_msg("bb_unlink(path=\"%s\")\n", path);
     CLIENT * clnt = createclient();
     struct unlink_IDL * new_unlink = (struct unlink_IDL*)malloc(sizeof(struct unlink_IDL));
@@ -333,21 +325,10 @@ int bb_unlink(const char *path)
     return *result;
 }
 
-/** Remove a file */
-int bb_unlink_original(const char *path)
-{
-    char fpath[PATH_MAX];
-    
-    log_msg("bb_unlink(path=\"%s\")\n",
-        path);
-    bb_fullpath(fpath, path);
-
-    return log_syscall("unlink", unlink(fpath), 0);
-}
-
 /** Remove a directory */
 int bb_rmdir(const char *path)
 {
+    check_activate();
     char fpath[PATH_MAX];
     
     log_msg("bb_rmdir(path=\"%s\")\n",
@@ -386,6 +367,7 @@ int bb_symlink(const char *path, const char *link)
 // both path and newpath are fs-relative
 int bb_rename(const char *path, const char *newpath)
 {
+    check_activate();
     log_msg("\nbb_rename(fpath=\"%s\", newpath=\"%s\")\n", path, newpath);
     CLIENT * clnt = createclient();
     int * result;
@@ -423,6 +405,7 @@ int bb_link(const char *path, const char *newpath)
 /** Change the permission bits of a file */
 int bb_chmod(const char *path, mode_t mode)
 {
+    check_activate();
     log_msg("\nbb_chmod(fpath=\"%s\", mode=0%03o)\n", path, mode);
     CLIENT * clnt = createclient();
     int * result;
@@ -444,6 +427,7 @@ int bb_chmod(const char *path, mode_t mode)
 /** Change the owner and group of a file */
 int bb_chown(const char *path, uid_t uid, gid_t gid)
 {
+    check_activate();
     log_msg("\nbb_chown(path=\"%s\", uid=%d, gid=%d)\n", path, uid, gid);
     CLIENT * clnt = createclient();
     int * result;
@@ -466,6 +450,7 @@ int bb_chown(const char *path, uid_t uid, gid_t gid)
 /** Change the size of a file */
 int bb_truncate(const char *path, off_t newsize)
 {
+    check_activate();
     char fpath[PATH_MAX];
     int * result;
     log_msg("\nbb_truncate(path=\"%s\", newsize=%lld)\n",
@@ -489,6 +474,7 @@ int bb_truncate(const char *path, off_t newsize)
 /* note -- I'll want to change this as soon as 2.6 is in debian testing */
 int bb_utime(const char *path, struct utimbuf *ubuf)
 {
+    check_activate();
     log_msg("\nbb_utime(path=\"%s\", ubuf=0x%08x)\n", path, ubuf);
     utime_ret_IDL * result;
     CLIENT * clnt = createclient();
@@ -521,6 +507,7 @@ int bb_utime(const char *path, struct utimbuf *ubuf)
  */
 int bb_open(const char *path, struct fuse_file_info *fi)
 {
+    check_activate();
     int retstat = 0;
     int * p;
     
@@ -569,6 +556,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 // returned by read.
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
+    check_activate();
     size_t rest_len;
     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi);
@@ -666,6 +654,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 int bb_write(const char *path, const char *buf, size_t size, off_t offset,
 	     struct fuse_file_info *fi)
 {
+    check_activate();
     size_t rest_len;
     int total_length = 0;
     log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
@@ -772,6 +761,7 @@ int bb_flush(const char *path, struct fuse_file_info *fi)
  */
 int bb_release(const char *path, struct fuse_file_info *fi)
 {
+    check_activate();
     log_msg("\nbb_release(path=\"%s\", fi=0x%08x)\n",
 	  path, fi);
     log_fi(fi);
@@ -796,7 +786,7 @@ int bb_release(const char *path, struct fuse_file_info *fi)
  * Changed in version 2.2
  */
 int bb_fsync(const char *path, int datasync, struct fuse_file_info *fi)
-{
+{   
     log_msg("\nbb_fsync(path=\"%s\", datasync=%d, fi=0x%08x)\n",
 	    path, datasync, fi);
     log_fi(fi);
@@ -894,6 +884,7 @@ int bb_removexattr(const char *path, const char *name)
  */
 int bb_opendir(const char *path, struct fuse_file_info *fi)
 {
+    check_activate();
     log_msg("\nbb_opendir(path=\"%s\", fi=0x%08x)\n",
 	  path, fi);
 
@@ -944,6 +935,7 @@ int bb_opendir(const char *path, struct fuse_file_info *fi)
 int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
            struct fuse_file_info *fi)
 {
+    check_activate();
     log_msg("\nbb_readdir(path=\"%s\", buf=0x%08x, filler=0x%08x, offset=%lld, fi=0x%08x)\n",
         path, buf, filler, offset, fi);
 
@@ -975,6 +967,7 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
  */
 int bb_releasedir(const char *path, struct fuse_file_info *fi)
 {
+    check_activate();
     log_msg("\nbb_releasedir(path=\"%s\", fi=0x%08x)\n",
 	    path, fi);
     log_fi(fi);
@@ -1060,6 +1053,7 @@ void bb_destroy(void *userdata)
  */
 int bb_access(const char *path, int mask)
 {  
+    check_activate();
     log_msg("\nbb_access(path=\"%s\", mask=0%o)\n",
 	    path, mask);
 
@@ -1139,6 +1133,8 @@ int bb_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
  */
 int bb_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
+    check_activate();
+    
     int retstat = 0;
     
     log_msg("\nbb_fgetattr(path=\"%s\", statbuf=0x%08x, fi=0x%08x)\n",
@@ -1243,17 +1239,12 @@ void test_hello() {
     clnt_destroy (clnt);
 }
 
-
-
-
-
-
 int main(int argc, char *argv[])
 {
     int fuse_stat;
     struct bb_state *bb_data;
     test_hello();
-    fprintf(stderr, "test_hello called!!!!!!\n");
+    fprintf(stderr, "Sucessfully connecting to server(%s)\n",host);
 
     //first log in authenticate 
     int auth_res=1;
