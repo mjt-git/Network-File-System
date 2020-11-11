@@ -1,18 +1,22 @@
 #include "file_record.h"
 #include <string.h>
 
-fileNode * createNode(char * path) {
+fileNode * createNode(char * buf, unsigned int size, unsigned int offset, int fd) {
 	fileNode * newNode = (fileNode *)malloc(sizeof(fileNode));
-	newNode->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
-	strncpy(newNode->path, path, strlen(path));
-	newNode->path[strlen(path)] = '\0';
+	newNode->buf = (char*)malloc(sizeof(char) * (strlen(buf) + 1));
+	strncpy(newNode->buf, buf, strlen(buf));
+	newNode->buf[strlen(buf)] = '\0';
+
+	newNode->size = size;
+	newNode->offset = offset;
+	newNode->fd = fd;
 	newNode->next = NULL;
 
 	return newNode;
 }
 
-void addNode(fileRecord * fr, char * path) {
-	fileNode * newNode = createNode(path);
+void addNode(fileRecord * fr, char * buf, unsigned int size, unsigned int offset, int fd) {
+	fileNode * newNode = createNode(buf, size, offset, fd);
 
 	if(fr->head == NULL) {
 		fr->head = newNode;
@@ -23,11 +27,11 @@ void addNode(fileRecord * fr, char * path) {
 	}
 }
 
-void deleteNode(fileRecord * fr, char * path) {
+void deleteNode(fileRecord * fr, int fd) {
 	fileNode * cur = fr->head;
 	fileNode * prev = NULL;
 	while(cur != NULL) {
-		if(strcmp(cur->path, path) == 0) {
+		if(cur->fd == fd) {
 			if(cur == fr->head) {
 				if(fr->tail == fr->head) {fr->tail = NULL;}
 				fr->head = fr->head->next;
@@ -36,9 +40,10 @@ void deleteNode(fileRecord * fr, char * path) {
 				fr->tail = prev;
 				if(fr->tail) {fr->tail->next = NULL;}
 			} else {
-				prev = prev->next;
+				prev->next = cur->next;
 			}
 
+			free(cur->buf);
 			free(cur);
 			break;
 		} else {
@@ -48,13 +53,13 @@ void deleteNode(fileRecord * fr, char * path) {
 	}
 }
 
-int isInside(fileRecord * fr, char * path) {
+fileNode * find(fileRecord * fr, int fd) {
 	fileNode * cur = fr->head;
 	while(cur != NULL) {
-		if(strcmp(cur->path, path) == 0) {
-			return 1;
+		if(cur->fd == fd) {
+			return cur;
 		}
 		cur = cur->next;
 	}
-	return 0;
+	return NULL;
 }

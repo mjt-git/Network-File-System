@@ -31,7 +31,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "file_record.h"
+
 
 #define SPLIT_S_ADDR_INTO_BYTES(s_addr) \
     ((s_addr) >> 24) & 0xFF, \
@@ -40,9 +40,6 @@
     ((s_addr)      ) & 0xFF
 
 const char * rootpath = "/home/localadmin/finalproject/serverpoint";
-
-fileRecord fr;
-fileRecord * frP = &fr;
 
 void print_client_ip(struct svc_req *rqstp){
 	printf("client address: %hu.%hu.%hu.%hu ", SPLIT_S_ADDR_INTO_BYTES(ntohl(rqstp->rq_xprt->xp_raddr.sin_addr.s_addr)));

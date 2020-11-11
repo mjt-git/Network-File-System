@@ -2,7 +2,10 @@
 #include <stdio.h>
 
 struct fileNode {
-	char * path;
+	char * buf;
+	unsigned int size;
+	unsigned int offset;
+	int fd;
 	struct fileNode * next;
 };
 typedef struct fileNode fileNode;
@@ -13,8 +16,8 @@ struct fileRecord {
 };
 typedef struct fileRecord fileRecord;
 
-void addNode(fileRecord * fr, char * path);
+void addNode(fileRecord * fr, char * buf, unsigned int size, unsigned int offset, int fd);
 
-void deleteNode(fileRecord * fr, char * path);
+void deleteNode(fileRecord * fr, int fd);
 
-int isInside(fileRecord * fr, char * path);
+fileNode * find(fileRecord * fr, int fd);

@@ -45,6 +45,9 @@
 
 #include "log.h"
 #include "cache.h"
+#include "file_record.h"
+
+const int useWriteCache = 0;  // use to determine if we use write cache
 
 const char * host = "10.148.54.199";
 const int password_expiration=20; //second
@@ -55,6 +58,13 @@ const int password_expiration=20; //second
 //  it.
 struct cachelist cachlist;
 struct cachelist * calist = & cachlist;
+
+fileRecord fr;
+fileRecord * frP = &fr;
+// frP->head = NULL;
+// frP->tail = NULL; 
+// fr.head = NULL;
+// fr.tail = NULL; 
 
 time_t last_activate;
 
@@ -91,31 +101,6 @@ int user_authenticate(){
     free(new_authenticate);
     return *result;
 }
-
-void check_activate(){
-    // time_t current;
-    // time(&current);
-    // struct tm *current_tmp = localtime(&current);
-    // char s[100];
-    // strftime(s, sizeof(s), "%04Y/%02m/%02d %H:%M:%S", current_tmp);
-    // log_msg("[check_activate]current time: %s\n", s);
-
-    // if(current-last_activate>password_expiration){
-    //     log_msg("[check_activate]user havn't done anything in %d seconds, password authentication expires.\n",(int)current-(int)last_activate);
-    //     int auth_res=1;
-    //     while(auth_res==1){
-    //         auth_res = user_authenticate();
-    //     }
-    // }
-
-    // time(&last_activate);
-    // struct tm *last_activate_tmp = localtime(&last_activate);
-    // char s2[100];
-    // strftime(s2, sizeof(s2), "%04Y/%02m/%02d %H:%M:%S", last_activate_tmp);
-    // log_msg("[check_activate]last activate time updated: %s\n", s2);
-    // return;
-}
-
 
 CLIENT * createclient() {
     CLIENT * clnt;
@@ -175,7 +160,6 @@ void print_getattr_IDL(getattr_ret_IDL res) {
  */
 int bb_getattr(const char *path, struct stat *statbuf)
 {   
-    check_activate();
     int retstat;
     char fpath[PATH_MAX];
     
@@ -262,7 +246,6 @@ int bb_readlink(const char *path, char *link, size_t size)
 // shouldn't that comment be "if" there is no.... ?
 int bb_mknod(const char *path, mode_t mode, dev_t dev)
 {
-    check_activate();
     log_msg("\nbb_mknod(path=\"%s\", mode=0%3o, dev=%lld)\n",
 	  path, mode, dev);
     CLIENT * clnt = createclient();
@@ -286,7 +269,6 @@ int bb_mknod(const char *path, mode_t mode, dev_t dev)
 /** Create a directory */
 int bb_mkdir(const char *path, mode_t mode)
 {
-    check_activate();
     char fpath[PATH_MAX];
     
     log_msg("\nbb_mkdir(path=\"%s\", mode=0%3o)\n",
@@ -310,7 +292,6 @@ int bb_mkdir(const char *path, mode_t mode)
 /** Remove a file */
 int bb_unlink(const char *path)
 {   
-    check_activate(); 
     log_msg("bb_unlink(path=\"%s\")\n", path);
     CLIENT * clnt = createclient();
     struct unlink_IDL * new_unlink = (struct unlink_IDL*)malloc(sizeof(struct unlink_IDL));
@@ -327,7 +308,6 @@ int bb_unlink(const char *path)
 /** Remove a directory */
 int bb_rmdir(const char *path)
 {
-    check_activate();
     char fpath[PATH_MAX];
     
     log_msg("bb_rmdir(path=\"%s\")\n",
@@ -366,7 +346,6 @@ int bb_symlink(const char *path, const char *link)
 // both path and newpath are fs-relative
 int bb_rename(const char *path, const char *newpath)
 {
-    check_activate();
     log_msg("\nbb_rename(fpath=\"%s\", newpath=\"%s\")\n", path, newpath);
     CLIENT * clnt = createclient();
     int * result;
@@ -404,7 +383,6 @@ int bb_link(const char *path, const char *newpath)
 /** Change the permission bits of a file */
 int bb_chmod(const char *path, mode_t mode)
 {
-    check_activate();
     log_msg("\nbb_chmod(fpath=\"%s\", mode=0%03o)\n", path, mode);
     CLIENT * clnt = createclient();
     int * result;
@@ -426,7 +404,6 @@ int bb_chmod(const char *path, mode_t mode)
 /** Change the owner and group of a file */
 int bb_chown(const char *path, uid_t uid, gid_t gid)
 {
-    check_activate();
     log_msg("\nbb_chown(path=\"%s\", uid=%d, gid=%d)\n", path, uid, gid);
     CLIENT * clnt = createclient();
     int * result;
@@ -449,7 +426,6 @@ int bb_chown(const char *path, uid_t uid, gid_t gid)
 /** Change the size of a file */
 int bb_truncate(const char *path, off_t newsize)
 {
-    check_activate();
     char fpath[PATH_MAX];
     int * result;
     log_msg("\nbb_truncate(path=\"%s\", newsize=%lld)\n",
@@ -473,7 +449,6 @@ int bb_truncate(const char *path, off_t newsize)
 /* note -- I'll want to change this as soon as 2.6 is in debian testing */
 int bb_utime(const char *path, struct utimbuf *ubuf)
 {
-    check_activate();
     log_msg("\nbb_utime(path=\"%s\", ubuf=0x%08x)\n", path, ubuf);
     utime_ret_IDL * result;
     CLIENT * clnt = createclient();
@@ -506,7 +481,6 @@ int bb_utime(const char *path, struct utimbuf *ubuf)
  */
 int bb_open(const char *path, struct fuse_file_info *fi)
 {
-    check_activate();
     int retstat = 0;
     int * p;
     
@@ -555,7 +529,6 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 // returned by read.
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
-    check_activate();
     size_t rest_len;
     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
 	    path, buf, size, offset, fi);
@@ -625,7 +598,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
             total_length += length_readed;
             free(newread);
             destroyclient(clnt);
-            }
+        }
     	else{//if cache valid
     	    log_msg("cache hit, return cached buf");
     	    memcpy(buf, curr->buf, this_size);
@@ -638,6 +611,53 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     }
 
     return total_length;
+}
+
+// this function will write content in cache with "fd" to server
+void write_helper(int fd) {
+    fileNode * target = find(frP, fd);
+    if(target == NULL) {
+        log_msg("Inside write_helper, nothing in write back cache with fd: %d\n", fd);
+    } else {
+        while(target != NULL) {
+            char * buf = target->buf;
+            unsigned int size = target->size;
+            unsigned int offset = target->offset;
+            int total_length = 0;
+
+            log_msg("\nwrite_helper(buf=0x%08x, size=%d, offset=%lld)\n", buf, size, offset);
+
+            // start write to server
+            while(size > 0){
+              CLIENT * clnt = createclient();
+              struct write_IDL * newwrite = (struct write_IDL*)malloc(sizeof(struct write_IDL));
+              newwrite->size = size <= 4096 ? size : 4096;
+              newwrite->offset = offset;
+              newwrite->fh = fd;
+              //newwrite->buf = (char*)malloc(sizeof(char) * newwrite->size);
+              memset(newwrite->buf, '\0', 4096);
+              memcpy(newwrite->buf, buf, newwrite->size);
+              int * single_length;
+              single_length = write_1000(newwrite, clnt);
+              log_msg("single_length written is %d\n", *single_length);
+              total_length += *single_length;
+              size -= newwrite->size;
+              log_msg("size - newwrite->size is: %d\n", size);
+              offset += newwrite->size;
+              buf += newwrite->size;
+              log_msg("before free");
+              //free(newwrite->buf);
+              free(newwrite);
+              destroyclient(clnt);
+              printf("end of loop\n");
+            }
+            log_msg("total_length written is %d\n", total_length);
+
+            // delete this node
+            deleteNode(frP, fd);
+            target = find(frP, fd);
+        }
+    }
 }
 
 /** Write data to an open file
@@ -653,38 +673,50 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 int bb_write(const char *path, const char *buf, size_t size, off_t offset,
 	     struct fuse_file_info *fi)
 {
-    check_activate();
-    size_t rest_len;
-    int total_length = 0;
-    log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
-	    path, buf, size, offset, fi
-	    );
-    // no need to get fpath on this one, since I work from fi->fh not the
-    while(size > 0){
-      CLIENT * clnt = createclient();
-      struct write_IDL * newwrite = (struct write_IDL*)malloc(sizeof(struct write_IDL));
-      newwrite->size = size <= 4096 ? size : 4096;
-      newwrite->offset = offset;
-      newwrite->fh = fi->fh;
-      //newwrite->buf = (char*)malloc(sizeof(char) * newwrite->size);
-      memset(newwrite->buf, '\0', 4096);
-      memcpy(newwrite->buf, buf, newwrite->size);
-      int * single_length;
-      single_length = write_1000(newwrite, clnt);
-      log_msg("single_length written is %d\n", *single_length);
-      total_length += *single_length;
-      size -= newwrite->size;
-      log_msg("size - newwrite->size is: %d\n", size);
-      offset += newwrite->size;
-      buf += newwrite->size;
-      log_msg("before free");
-      //free(newwrite->buf);
-      free(newwrite);
-      destroyclient(clnt);
-      printf("end of loop\n");
+    if(useWriteCache == 1) {
+        size_t rest_len;
+        log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
+            path, buf, size, offset, fi
+            );
+        
+        log_msg("before addNode in bb_write\n");
+        addNode(frP, buf, size, offset, fi->fh);
+        log_msg("after addNode in bb_write\n");
+        
+        return size;
+    } else {
+        size_t rest_len;
+        int total_length = 0;
+        log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
+            path, buf, size, offset, fi
+            );
+        // no need to get fpath on this one, since I work from fi->fh not the
+        while(size > 0){
+          CLIENT * clnt = createclient();
+          struct write_IDL * newwrite = (struct write_IDL*)malloc(sizeof(struct write_IDL));
+          newwrite->size = size <= 4096 ? size : 4096;
+          newwrite->offset = offset;
+          newwrite->fh = fi->fh;
+          //newwrite->buf = (char*)malloc(sizeof(char) * newwrite->size);
+          memset(newwrite->buf, '\0', 4096);
+          memcpy(newwrite->buf, buf, newwrite->size);
+          int * single_length;
+          single_length = write_1000(newwrite, clnt);
+          log_msg("single_length written is %d\n", *single_length);
+          total_length += *single_length;
+          size -= newwrite->size;
+          log_msg("size - newwrite->size is: %d\n", size);
+          offset += newwrite->size;
+          buf += newwrite->size;
+          log_msg("before free");
+          //free(newwrite->buf);
+          free(newwrite);
+          destroyclient(clnt);
+          printf("end of loop\n");
+        }
+        log_msg("total_length written is %d\n", total_length);
+        return total_length;
     }
-    log_msg("total_length written is %d\n", total_length);
-    return total_length;
 }
 
 /** Get file system statistics
@@ -740,7 +772,12 @@ int bb_flush(const char *path, struct fuse_file_info *fi)
     log_msg("\nbb_flush(path=\"%s\", fi=0x%08x)\n", path, fi);
     // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
-	
+
+    if(useWriteCache == 1) {
+        log_msg("before calling write_helper\n");
+        write_helper(fi->fh);
+        log_msg("after calling write_helper\n");
+    }
     return 0;
 }
 
@@ -760,7 +797,6 @@ int bb_flush(const char *path, struct fuse_file_info *fi)
  */
 int bb_release(const char *path, struct fuse_file_info *fi)
 {
-    check_activate();
     log_msg("\nbb_release(path=\"%s\", fi=0x%08x)\n",
 	  path, fi);
     log_fi(fi);
@@ -883,7 +919,6 @@ int bb_removexattr(const char *path, const char *name)
  */
 int bb_opendir(const char *path, struct fuse_file_info *fi)
 {
-    check_activate();
     log_msg("\nbb_opendir(path=\"%s\", fi=0x%08x)\n",
 	  path, fi);
 
@@ -934,7 +969,6 @@ int bb_opendir(const char *path, struct fuse_file_info *fi)
 int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
            struct fuse_file_info *fi)
 {
-    check_activate();
     log_msg("\nbb_readdir(path=\"%s\", buf=0x%08x, filler=0x%08x, offset=%lld, fi=0x%08x)\n",
         path, buf, filler, offset, fi);
 
@@ -966,7 +1000,6 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
  */
 int bb_releasedir(const char *path, struct fuse_file_info *fi)
 {
-    check_activate();
     log_msg("\nbb_releasedir(path=\"%s\", fi=0x%08x)\n",
 	    path, fi);
     log_fi(fi);
@@ -1052,7 +1085,6 @@ void bb_destroy(void *userdata)
  */
 int bb_access(const char *path, int mask)
 {  
-    check_activate();
     log_msg("\nbb_access(path=\"%s\", mask=0%o)\n",
 	    path, mask);
 
@@ -1132,7 +1164,6 @@ int bb_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
  */
 int bb_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *fi)
 {
-    check_activate();
     
     int retstat = 0;
     
