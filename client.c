@@ -19,8 +19,7 @@
   filesystem semantics on top of any other existing structure.  It
   simply reports the requests that come in, and passes them to an
   underlying filesystem.  The information is saved in a logfile named
-  bbfs.log, in the directory from whichStore!566
-   you run bbfs.
+  bbfs.log, in the directory from which you run bbfs.
 */
 #define _FILE_OFFSET_BITS  64
 #include "params.h"
