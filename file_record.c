@@ -1,7 +1,7 @@
 #include "file_record.h"
 #include <string.h>
 
-fileNode * createNode(char * buf, unsigned int size, unsigned int offset, int fd) {
+fileNode * createNode(const char * buf, unsigned int size, unsigned int offset, int fd) {
 	fileNode * newNode = (fileNode *)malloc(sizeof(fileNode));
 	newNode->buf = (char*)malloc(sizeof(char) * (strlen(buf) + 1));
 	strncpy(newNode->buf, buf, strlen(buf));
@@ -15,7 +15,7 @@ fileNode * createNode(char * buf, unsigned int size, unsigned int offset, int fd
 	return newNode;
 }
 
-void addNode(fileRecord * fr, char * buf, unsigned int size, unsigned int offset, int fd) {
+void addNode(fileRecord * fr, const char * buf, unsigned int size, unsigned int offset, int fd) {
 	fileNode * newNode = createNode(buf, size, offset, fd);
 
 	if(fr->head == NULL) {

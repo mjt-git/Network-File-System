@@ -16,7 +16,7 @@ struct fileRecord {
 };
 typedef struct fileRecord fileRecord;
 
-void addNode(fileRecord * fr, char * buf, unsigned int size, unsigned int offset, int fd);
+void addNode(fileRecord * fr, const char * buf, unsigned int size, unsigned int offset, int fd);
 
 void deleteNode(fileRecord * fr, int fd);
 
