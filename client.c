@@ -830,11 +830,25 @@ int bb_fsync(const char *path, int datasync, struct fuse_file_info *fi)
     
     // some unix-like systems (notably freebsd) don't have a datasync call
 #ifdef HAVE_FDATASYNC
-    if (datasync)
-	return log_syscall("fdatasync", fdatasync(fi->fh), 0);
+    if (datasync){
+        CLIENT * clnt = createclient();
+        struct fdatasync_IDL * newfdatasync = (struct fdatasync_IDL *)malloc(sizeof(struct fdatasync_IDL));
+	newfdatasync->fh = fi->fh;
+	int * result;
+	result = fdatasync_1000(newfdatasync, clnt);
+	free(newfdatasync);
+	return *result;}
     else
-#endif	
-	return log_syscall("fsync", fsync(fi->fh), 0);
+	{
+      CLIENT * clnt = createclient();
+        struct fsync_IDL * newfsync = (struct fsync_IDL *)malloc(sizeof(struct fsync_IDL));
+        newfsync->fh = fi->fh;
+        int * result;
+        result = fsync_1000(newfsync, clnt);
+	free(newfsync);
+        return *result;
+      }
+#endif
 }
 
 #ifdef HAVE_SYS_XATTR_H

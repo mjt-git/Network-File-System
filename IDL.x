@@ -205,6 +205,14 @@ struct authenticate_IDL{
   uint32_t hash;
 };
 
+struct fdatasync_IDL{
+  int fh;
+};
+
+struct fsync_IDL{
+ int fh;
+};
+
 program NFS_FUSE{
 	version NFS_FUSE_VERS{
 		struct getattr_ret_IDL GETATTR(struct getattr_IDL)=1;
@@ -229,6 +237,8 @@ program NFS_FUSE{
     int CHOWN(chown_IDL)=20;
     int AUTHENTICATE(authenticate_IDL)=21;
     int FTRUNCATE(ftruncate_IDL)=22;
+    int FDATASYNC(fdatasync_IDL)=23;
+    int FSYNC(fsync_IDL)=24;
 	} = 1000;
 	
 } = 123789456;

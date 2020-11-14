@@ -525,3 +525,14 @@ authenticate_1000_svc(authenticate_IDL *argp, struct svc_req *rqstp)
 	return &result;
 }
 
+int * fdatasync_1000_svc(fdatasync_IDL *argp, struct svc_req *rqstp){
+  static int result;
+  result = fdatasync(argp->fh);
+  return &result;
+}
+
+int * fsync_1000_svc(fsync_IDL *argp, struct svc_req *rqstp){
+  static int result;
+  result = fsync(argp->fh);
+  return &result;
+}
