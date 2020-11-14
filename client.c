@@ -576,24 +576,26 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
                 }
                 memcpy(buf, result->buf, length_readed);
                 //log_msg("current buf: \n%s\n", buf);
-    	    if(find_cache == 0 && useReadCache != 0){//if cache miss, add a new one to cache list
-              log_msg("start add new cache");
-    	      struct cache * newcache = (struct cache *)malloc(sizeof(struct cache));
-    	      newcache->size = 4096;
-    	      newcache->offset = newread->offset;
-              newcache->next = NULL;
-              memset(newcache->path, '\0', PATH_MAX);
-    	      memcpy(newcache->path, path, strlen(path));
-    	      newcache->mtime = statbuf->st_mtime;
-              memset(newcache->buf, '\0', 4096);
-    	      memcpy(newcache->buf, result->buf, length_readed);
-              add_cache(calist, newcache);
-    	    }
-    	    else{//if cache invalid, update it
-    	      curr->mtime = statbuf->st_mtime;
+		if(useReadCache != 0){//update cache only when using it
+		  if(find_cache == 0){//if cache miss, add a new one to cache list
+		    log_msg("start add new cache");
+		    struct cache * newcache = (struct cache *)malloc(sizeof(struct cache));
+		    newcache->size = 4096;
+		    newcache->offset = newread->offset;
+		    newcache->next = NULL;
+		    memset(newcache->path, '\0', PATH_MAX);
+		    memcpy(newcache->path, path, strlen(path));
+		    newcache->mtime = statbuf->st_mtime;
+		    memset(newcache->buf, '\0', 4096);
+		    memcpy(newcache->buf, result->buf, length_readed);
+		    add_cache(calist, newcache);
+		  }
+		  else{//if cache invalid, update it
+		    curr->mtime = statbuf->st_mtime;
     	      //memcpy(curr->buf, result->buf, length_readed);
-    	      update_cache(calist, curr, prev, result->buf);
-    	    }
+		    update_cache(calist, curr, prev, result->buf);
+		  }
+		}
             buf += this_size;
             offset += this_size;
             size -= this_size;
