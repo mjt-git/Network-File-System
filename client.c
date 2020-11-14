@@ -1144,11 +1144,24 @@ int bb_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
 	    path, offset, fi);
     log_fi(fi);
     
-    retstat = ftruncate(fi->fh, offset);
-    if (retstat < 0)
-	retstat = log_error("bb_ftruncate ftruncate");
-    
-    return retstat;
+    //char fpath[PATH_MAX];
+    int * result;
+    log_msg("\nbb_truncate(path=\"%s\", newsize=%lld), fi->fh=%d\n",
+            path, offset, fi->fh);
+    //bb_fullpath(fpath, path);                                                                                                               
+    struct ftruncate_IDL * newftruncate = (struct ftruncate_IDL * )malloc(sizeof(ftruncate_IDL));
+    //newtruncate->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    //strncpy(newtruncate->path, path, strlen(path));
+    //newtruncate->path[strlen(path)] = '\0';
+    newftruncate->newsize = offset;
+    newftruncate->fh = fi->fh;
+    CLIENT * clnt = createclient();
+    result = ftruncate_1000(newftruncate, clnt);
+    destroyclient(clnt);
+    //free(newtruncate->path);
+    free(newftruncate);
+    return *result;
+
 }
 
 /**

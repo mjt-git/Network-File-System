@@ -415,6 +415,16 @@ truncate_1000_svc(truncate_IDL * argp, struct svc_req *rqstp){
 }
 
 int *
+ftruncate_1000_svc(ftruncate_IDL * argp, struct svc_req *rqstp){
+  static int result;
+  //char fpath[PATH_MAX];
+  //getfullpath(fpath, argp->path);
+  //int newsize = argp->newsize;
+  result = ftruncate(argp->fh, argp->newsize);
+  return &result;
+}
+
+int *
 unlink_1000_svc(unlink_IDL * argp, struct svc_req *rqstp){
 	print_function_name("unlink_1000_svc",rqstp);
 	static int result;

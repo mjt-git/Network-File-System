@@ -166,6 +166,11 @@ struct truncate_IDL{
   int newsize;
 };
 
+struct ftruncate_IDL{
+  int fh;
+  int newsize;
+};
+
 struct unlink_IDL{
   string path<PATH_MAX>;
 };
@@ -223,6 +228,7 @@ program NFS_FUSE{
     int CHMOD(chmod_IDL)=19;
     int CHOWN(chown_IDL)=20;
     int AUTHENTICATE(authenticate_IDL)=21;
+    int FTRUNCATE(ftruncate_IDL)=22;
 	} = 1000;
 	
 } = 123789456;
