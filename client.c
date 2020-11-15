@@ -491,7 +491,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 	
     fi->fh = *p;
 
-    log_fi(fi);
+    //log_fi(fi);
     destroyclient(clnt);
     free(newopen->path);
     free(newopen);
@@ -781,7 +781,7 @@ int bb_flush(const char *path, struct fuse_file_info *fi)
 {
     //log_msg("\nbb_flush(path=\"%s\", fi=0x%08x)\n", path, fi);
     // no need to get fpath on this one, since I work from fi->fh not the path
-    log_fi(fi);
+    //log_fi(fi);
 
     if(useWriteCache == 1) {
         //log_msg("before calling write_helper\n");
@@ -808,7 +808,7 @@ int bb_flush(const char *path, struct fuse_file_info *fi)
 int bb_release(const char *path, struct fuse_file_info *fi)
 {
     //log_msg("\nbb_release(path=\"%s\", fi=0x%08x)\n",path, fi);
-    log_fi(fi);
+    //log_fi(fi);
 
     // We need to close the file.  Had we allocated any resources
     // (buffers etc) we'd need to free them here as well.
@@ -832,7 +832,7 @@ int bb_release(const char *path, struct fuse_file_info *fi)
 int bb_fsync(const char *path, int datasync, struct fuse_file_info *fi)
 {   
     //log_msg("\nbb_fsync(path=\"%s\", datasync=%d, fi=0x%08x)\n",path, datasync, fi);
-    log_fi(fi);
+    //log_fi(fi);
     
     // some unix-like systems (notably freebsd) don't have a datasync call
 #ifdef HAVE_FDATASYNC
