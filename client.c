@@ -485,8 +485,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     int retstat = 0;
     int * p;
     
-    log_msg("\nbb_open(path\"%s\", fi=0x%08x)\n",
-	    path, fi);
+    //log_msg("\nbb_open(path\"%s\", fi=0x%08x)\n", path, fi);
 
     CLIENT * clnt = createclient();
     
@@ -496,10 +495,10 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     newopen->path[strlen(path)] = '\0';
     newopen->flags = fi->flags;
 
-    log_msg("newopen->flags: %d\n", newopen->flags);
+    //log_msg("newopen->flags: %d\n", newopen->flags);
 
     p = open_1000(newopen, clnt);
-    log_msg("open_10 return value *p: %d\n", *p);
+    //log_msg("open_10 return value *p: %d\n", *p);
     if (*p < 0)
 	   retstat = log_error("open");
 	
@@ -531,7 +530,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     size_t rest_len;
-    log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n", path, buf, size, offset, fi);
+    //log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n", path, buf, size, offset, fi);
     int total_length = 0;
 
     if(useReadCache == 0){
@@ -545,11 +544,11 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
       struct read_ret_IDL * result;
       result = read_1000(newread, clnt);
       int length_readed = result->count;
-      log_msg("length_readed: %d\n", length_readed);
+      //log_msg("length_readed: %d\n", length_readed);
       if(length_readed == 0) {
         break;
       }
-      log_msg("content readed: %x\n", result->buf);
+      //log_msg("content readed: %x\n", result->buf);
       memcpy(buf, result->buf, length_readed);
       buf += this_size;
       offset += this_size;
@@ -564,15 +563,15 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
             struct stat *statbuf = (struct stat*)malloc(sizeof(struct stat));
     	       //if use read cache, then getattr to get timestamp
     	    bb_getattr(path, statbuf);
-    	    log_msg("\npresent stat->mtime is %d\n", statbuf->st_mtime);
+    	    //log_msg("\npresent stat->mtime is %d\n", statbuf->st_mtime);
         	struct cache * curr = calist->head;
         	struct cache * prev = NULL;
         	int find_cache = 0;//0 = no cache; 1 = valid cache; 2 = invalid cache
         	size_t this_size = size <= 4096 ? size : 4096;
         	while(curr != NULL){
     	  //make sure if not use read cache, no need to check cache
-              log_msg("curr cache: size is %ld, offset is %ld, path is %s\n", curr->size, curr->offset, curr->path);
-              log_msg("requested content: size is %ld, offset is %ld, path is %s\n", this_size, offset, path);
+              //log_msg("curr cache: size is %ld, offset is %ld, path is %s\n", curr->size, curr->offset, curr->path);
+              //log_msg("requested content: size is %ld, offset is %ld, path is %s\n", this_size, offset, path);
         	  if(strncmp(path, curr->path, strlen(path) + 1) == 0 && curr->size == this_size && curr->offset == offset){
         	    if(curr->mtime == statbuf->st_mtime){
         	      find_cache = 1;
@@ -586,7 +585,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
         	  prev = curr;
         	  curr = curr->next;
         	}
-            log_msg("find cache state is %d\n", find_cache);
+            //log_msg("find cache state is %d\n", find_cache);
         	if (find_cache == 0 || find_cache == 2){
                     CLIENT * clnt = createclient();
                     struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
@@ -596,7 +595,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
                     struct read_ret_IDL * result;
                     result = read_1000(newread, clnt);
                     int length_readed = result->count;
-                    log_msg("length_readed: %d\n", length_readed);
+                    //log_msg("length_readed: %d\n", length_readed);
                     if(length_readed == 0) {
                         break;
                     }
@@ -604,7 +603,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
                     //log_msg("current buf: \n%s\n", buf);
     		//update cache only when using it
     		if(find_cache == 0){//if cache miss, add a new one to cache list
-    		    log_msg("start add new cache");
+    		    //log_msg("start add new cache");
     		    struct cache * newcache = (struct cache *)malloc(sizeof(struct cache));
     		    newcache->size = 4096;
     		    newcache->offset = newread->offset;
@@ -630,7 +629,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     	
     	}
         	else{//if cache valid
-        	    log_msg("cache hit, return cached buf");
+        	    //log_msg("cache hit, return cached buf");
         	    memcpy(buf, curr->buf, this_size);
         	    update_cache(calist, curr, prev, NULL);
                 buf += this_size;
@@ -647,7 +646,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 void write_helper(int fd) {
     fileNode * target = find(frP, fd);
     if(target == NULL) {
-        log_msg("Inside write_helper, nothing in write back cache with fd: %d\n", fd);
+        //log_msg("Inside write_helper, nothing in write back cache with fd: %d\n", fd);
     } else {
         while(target != NULL) {
             char * buf = target->buf;
@@ -655,7 +654,7 @@ void write_helper(int fd) {
             unsigned int offset = target->offset;
             int total_length = 0;
 
-            log_msg("\nwrite_helper(buf=0x%08x, size=%d, offset=%lld)\n", buf, size, offset);
+            //log_msg("\nwrite_helper(buf=0x%08x, size=%d, offset=%lld)\n", buf, size, offset);
 
             // start write to server
             while(size > 0){
@@ -669,19 +668,19 @@ void write_helper(int fd) {
               memcpy(newwrite->buf, buf, newwrite->size);
               int * single_length;
               single_length = write_1000(newwrite, clnt);
-              log_msg("single_length written is %d\n", *single_length);
+              //log_msg("single_length written is %d\n", *single_length);
               total_length += *single_length;
               size -= newwrite->size;
-              log_msg("size - newwrite->size is: %d\n", size);
+              //log_msg("size - newwrite->size is: %d\n", size);
               offset += newwrite->size;
               buf += newwrite->size;
-              log_msg("before free");
+              //log_msg("before free");
               //free(newwrite->buf);
               free(newwrite);
               destroyclient(clnt);
-              printf("end of loop\n");
+              //printf("end of loop\n");
             }
-            log_msg("total_length written is %d\n", total_length);
+            //log_msg("total_length written is %d\n", total_length);
 
             // delete this node
             deleteNode(frP, fd);
@@ -705,21 +704,17 @@ int bb_write(const char *path, const char *buf, size_t size, off_t offset,
 {
     if(useWriteCache == 1) {
         size_t rest_len;
-        log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
-            path, buf, size, offset, fi
-            );
+        //log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",path, buf, size, offset, fi);
         
-        log_msg("before addNode in bb_write\n");
+        //log_msg("before addNode in bb_write\n");
         addNode(frP, buf, size, offset, fi->fh);
-        log_msg("after addNode in bb_write\n");
+        //log_msg("after addNode in bb_write\n");
         
         return size;
     } else {
         size_t rest_len;
         int total_length = 0;
-        log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
-            path, buf, size, offset, fi
-            );
+        //log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",path, buf, size, offset, fi);
         // no need to get fpath on this one, since I work from fi->fh not the
         while(size > 0){
           CLIENT * clnt = createclient();
@@ -732,19 +727,19 @@ int bb_write(const char *path, const char *buf, size_t size, off_t offset,
           memcpy(newwrite->buf, buf, newwrite->size);
           int * single_length;
           single_length = write_1000(newwrite, clnt);
-          log_msg("single_length written is %d\n", *single_length);
+          //log_msg("single_length written is %d\n", *single_length);
           total_length += *single_length;
           size -= newwrite->size;
-          log_msg("size - newwrite->size is: %d\n", size);
+          //log_msg("size - newwrite->size is: %d\n", size);
           offset += newwrite->size;
           buf += newwrite->size;
           log_msg("before free");
           //free(newwrite->buf);
           free(newwrite);
           destroyclient(clnt);
-          printf("end of loop\n");
+          //printf("end of loop\n");
         }
-        log_msg("total_length written is %d\n", total_length);
+        //log_msg("total_length written is %d\n", total_length);
         return total_length;
     }
 }
