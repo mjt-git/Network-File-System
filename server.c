@@ -146,17 +146,17 @@ getattr_1000_svc(getattr_IDL *argp, struct svc_req *rqstp)
 int *
 mkdir_1000_svc(mkdir_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("mkdir_10_svc",rqstp);
+	//print_function_name("mkdir_10_svc",rqstp);
 
 	static int result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
-	printf("argp->path is: %s\n", argp->path);
+	//printf("argp->path is: %s\n", argp->path);
 	//printf("argp->path_p is: %s\n", *argp->path_p);
-	printf("%s, mode is %3o\n", fpath, argp->mode);
+	//printf("%s, mode is %3o\n", fpath, argp->mode);
 	//uint32_t fmode = argp->mode & 0777;
     result = mkdir(fpath, argp->mode);
-	printf("mkdir result is: %d\n", result);
+	//printf("mkdir result is: %d\n", result);
 	
 	return &result;
 }
@@ -164,15 +164,15 @@ mkdir_1000_svc(mkdir_IDL *argp, struct svc_req *rqstp)
 int *
 rmdir_1000_svc(rmdir_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("rmdir_10_svc",rqstp);
+	//print_function_name("rmdir_10_svc",rqstp);
 	
 	static int  result;
 	char fpath[PATH_MAX];
         getfullpath(fpath, argp->path);
-        printf("remove %s\n", fpath);
+        //printf("remove %s\n", fpath);
         //uint32_t fmode = argp->mode & 0777;                                                                    
         result = rmdir(fpath);
-        printf("result is %d\n", result);
+        //printf("result is %d\n", result);
 
 	return &result;
 }
@@ -180,15 +180,15 @@ rmdir_1000_svc(rmdir_IDL *argp, struct svc_req *rqstp)
 int *
 open_1000_svc(open_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("open_1000_svc",rqstp);
+	//print_function_name("open_1000_svc",rqstp);
 
 	static int result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
-	printf("fpath: %s\n", fpath);
-	printf("argp->flags: %d\n", argp->flags);
+	//printf("fpath: %s\n", fpath);
+	//printf("argp->flags: %d\n", argp->flags);
 	result = open(fpath, argp->flags);	
-	printf("open call result: %d\n", result);
+	//printf("open call result: %d\n", result);
 	
 	return &result;
 }
@@ -229,24 +229,24 @@ write_1000_svc(write_IDL *argp, struct svc_req *rqstp)
 struct opendir_ret_IDL *
 opendir_1000_svc(opendir_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("opendir_1000_svc",rqstp);
+	//print_function_name("opendir_1000_svc",rqstp);
 
 	static struct opendir_ret_IDL result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
-	printf("full path is: %s\n", fpath);
+	//printf("full path is: %s\n", fpath);
 	DIR * dp;
 	dp = opendir(fpath);
 	result.isvalid = (dp == NULL) ? 0 : 1;   // 0 -> invalid; 1 -> valid
 	result.res = dirfd(dp);
-	printf("is valid: %d; dp is %ld\n", result.isvalid, (intptr_t)dp);
+	//printf("is valid: %d; dp is %ld\n", result.isvalid, (intptr_t)dp);
 	return &result;
 }
 
 struct readdir_ret_IDL *
 readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
 {
-	printf("[readdir_1000_svc]: start\n");
+	//printf("[readdir_1000_svc]: start\n");
 	void * buf = (void*)malloc(sizeof(char) * 65535);
 	// 	memset(buf, 0, 65535);
 	static readdir_ret_IDL response;
@@ -256,22 +256,22 @@ readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
 
 	dp = fdopendir(argp->fh);
 
-	printf("arg->fh=%ld\n",argp->fh);
+	//printf("arg->fh=%ld\n",argp->fh);
 	//syscall readdir
 	de = readdir(dp);
-	printf("after readdir call\n");
+	//printf("after readdir call\n");
     if (de == 0) {
         // retstat = log_error("bb_readdir readdir");
         printf("error: readdir ");
         return &response;
     }
 
-    printf("*****de->d_d_name=%s\n",de->d_name);
+    //printf("*****de->d_d_name=%s\n",de->d_name);
     int length = 0;
     int count = 0;
     char * curr = buf;
     do {
-      printf("calling filler with name %s\n", de->d_name);
+      //printf("calling filler with name %s\n", de->d_name);
       memcpy(curr, de->d_name, strlen(de->d_name));
       const char * zero = "\0";
       memcpy(curr+strlen(de->d_name), zero, 1);
@@ -279,21 +279,21 @@ readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
       curr += strlen(de->d_name) + 1;
       count += 1;
     } while ((de = readdir(dp)) != NULL);
-    int off = 0;
-    for(int i = 0; i < count; i++){
-      printf("%s\n", (char*)(buf + off));
-      off += strlen(buf + off) + 1;
-    }
-    printf("[readdir_1000_svc]: end with retstat=%d, buf is: %p\n",retstat, buf);
+    //int off = 0;
+    //for(int i = 0; i < count; i++){
+      //printf("%s\n", (char*)(buf + off));
+      //off += strlen(buf + off) + 1;
+    //}
+    //printf("[readdir_1000_svc]: end with retstat=%d, buf is: %p\n",retstat, buf);
     response.res = retstat;
     memmove(response.buf, buf, length);
     response.length = length;
     response.count = count;
-    off = 0;
-    for(int i = 0; i < count; i++){
-      printf("%s\n", (char*)(response.buf + off));
-      off += strlen(response.buf + off) + 1;
-    }
+    //off = 0;
+    //for(int i = 0; i < count; i++){
+      //printf("%s\n", (char*)(response.buf + off));
+      //off += strlen(response.buf + off) + 1;
+    //}
     //printf("res buf is: %s\n", response.buf);
     return &response;
 }
@@ -310,23 +310,23 @@ hellotest_1000_svc(void *argp, struct svc_req *rqstp)
 int *
 access_1000_svc(access_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("access_1000_svc",rqstp);
+	//print_function_name("access_1000_svc",rqstp);
 
 	static int result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
-	printf("argp->path is: %s\n", argp->path);
-	printf("fpath is: %s\n", fpath);
+	//printf("argp->path is: %s\n", argp->path);
+	//printf("fpath is: %s\n", fpath);
 
 	result = access(fpath, argp->mask);
-	printf("access function result: %d", result);
+	//printf("access function result: %d", result);
 	return &result;
 }
 
 int *
 releasedir_1000_svc(releasedir_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("releasedir_1000_svc",rqstp);
+	//print_function_name("releasedir_1000_svc",rqstp);
 	static int result = 0;
 
 	DIR * dp;
@@ -339,11 +339,11 @@ releasedir_1000_svc(releasedir_IDL *argp, struct svc_req *rqstp)
 int *
 release_1000_svc(release_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("release_1000_svc",rqstp);
+	//print_function_name("release_1000_svc",rqstp);
 	static int result;
 
 	result = close(argp->fh);
-	printf("close function result: %d\n", result);
+	//printf("close function result: %d\n", result);
 
 	return &result;
 }
@@ -379,7 +379,7 @@ fgetattr_1000_svc(fgetattr_IDL *argp, struct svc_req *rqstp)
 int *
 mknod_1000_svc(mknod_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("mknod_1000_svc",rqstp);
+	//print_function_name("mknod_1000_svc",rqstp);
 	static int result;
 
 	char fpath[PATH_MAX];
@@ -426,20 +426,20 @@ ftruncate_1000_svc(ftruncate_IDL * argp, struct svc_req *rqstp){
 
 int *
 unlink_1000_svc(unlink_IDL * argp, struct svc_req *rqstp){
-	print_function_name("unlink_1000_svc",rqstp);
+	//print_function_name("unlink_1000_svc",rqstp);
 	static int result;
 	char fpath[PATH_MAX];
 	getfullpath(fpath,argp->path);
-	printf("fpath=%s\n",fpath);
+	//printf("fpath=%s\n",fpath);
 	result = unlink(fpath);
-	printf("result=%d\n",result);
+	//printf("result=%d\n",result);
 	return &result;
 }
 
 struct utime_ret_IDL *
 utime_1000_svc(utime_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("utime_1000_svc",rqstp);
+	//print_function_name("utime_1000_svc",rqstp);
 	static struct utime_ret_IDL result;
 
 	char fpath[PATH_MAX];

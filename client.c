@@ -119,8 +119,7 @@ static void bb_fullpath(char fpath[PATH_MAX], const char *path)
     strncat(fpath, path, PATH_MAX); // ridiculously long paths will
 				    // break here
 
-    log_msg("    bb_fullpath:  rootdir = \"%s\", path = \"%s\", fpath = \"%s\"\n",
-	    BB_DATA->rootdir, path, fpath);
+    //log_msg("    bb_fullpath:  rootdir = \"%s\", path = \"%s\", fpath = \"%s\"\n",BB_DATA->rootdir, path, fpath);
 }
 
 void print_getattr_IDL(getattr_ret_IDL res) {
@@ -220,15 +219,14 @@ int bb_readlink(const char *path, char *link, size_t size)
     int retstat;
     char fpath[PATH_MAX];
     
-    log_msg("\nbb_readlink(path=\"%s\", link=\"%s\", size=%d)\n",
-	  path, link, size);
+    //log_msg("\nbb_readlink(path=\"%s\", link=\"%s\", size=%d)\n",path, link, size);
     bb_fullpath(fpath, path);
 
     retstat = log_syscall("readlink", readlink(fpath, link, size - 1), 0);
     if (retstat >= 0) {
 	link[retstat] = '\0';
 	retstat = 0;
-	log_msg("    link=\"%s\"\n", link);
+	//log_msg("    link=\"%s\"\n", link);
     }
     
     return retstat;
@@ -242,8 +240,7 @@ int bb_readlink(const char *path, char *link, size_t size)
 // shouldn't that comment be "if" there is no.... ?
 int bb_mknod(const char *path, mode_t mode, dev_t dev)
 {
-    log_msg("\nbb_mknod(path=\"%s\", mode=0%3o, dev=%lld)\n",
-	  path, mode, dev);
+    //log_msg("\nbb_mknod(path=\"%s\", mode=0%3o, dev=%lld)\n",path, mode, dev);
     CLIENT * clnt = createclient();
     mknod_IDL * new_mknod = (mknod_IDL *)malloc(sizeof(mknod_IDL));
     new_mknod->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
@@ -267,14 +264,13 @@ int bb_mkdir(const char *path, mode_t mode)
 {
     char fpath[PATH_MAX];
     
-    log_msg("\nbb_mkdir(path=\"%s\", mode=0%3o)\n",
-	    path, mode);
+    //log_msg("\nbb_mkdir(path=\"%s\", mode=0%3o)\n",path, mode);
     CLIENT * clnt = createclient();
     struct mkdir_IDL * new_mkdir = (struct mkdir_IDL*)malloc(sizeof(struct mkdir_IDL));
     new_mkdir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
     strncpy(new_mkdir->path, path, strlen(path));
     new_mkdir->path[strlen(path)] = '\0';
-    log_msg("path sent %s\n", new_mkdir->path);
+    //log_msg("path sent %s\n", new_mkdir->path);
     new_mkdir->mode = mode;
     int result;                                                                                                 
     int * p = &result;
@@ -288,7 +284,7 @@ int bb_mkdir(const char *path, mode_t mode)
 /** Remove a file */
 int bb_unlink(const char *path)
 {   
-    log_msg("bb_unlink(path=\"%s\")\n", path);
+    //log_msg("bb_unlink(path=\"%s\")\n", path);
     CLIENT * clnt = createclient();
     struct unlink_IDL * new_unlink = (struct unlink_IDL*)malloc(sizeof(struct unlink_IDL));
     new_unlink -> path =  (char*)malloc(sizeof(char) * (strlen(path) + 1));
@@ -306,8 +302,7 @@ int bb_rmdir(const char *path)
 {
     char fpath[PATH_MAX];
     
-    log_msg("bb_rmdir(path=\"%s\")\n",
-	    path);
+    //log_msg("bb_rmdir(path=\"%s\")\n",path);
     CLIENT * clnt = createclient();
     struct rmdir_IDL * new_rmdir = (struct rmdir_IDL*)malloc(sizeof(struct rmdir_IDL));
     new_rmdir->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
@@ -331,8 +326,7 @@ int bb_symlink(const char *path, const char *link)
 {
     char flink[PATH_MAX];
     
-    log_msg("\nbb_symlink(path=\"%s\", link=\"%s\")\n",
-	    path, link);
+    //log_msg("\nbb_symlink(path=\"%s\", link=\"%s\")\n", path, link);
     bb_fullpath(flink, link);
 
     return log_syscall("symlink", symlink(path, flink), 0);
@@ -342,7 +336,7 @@ int bb_symlink(const char *path, const char *link)
 // both path and newpath are fs-relative
 int bb_rename(const char *path, const char *newpath)
 {
-    log_msg("\nbb_rename(fpath=\"%s\", newpath=\"%s\")\n", path, newpath);
+    //log_msg("\nbb_rename(fpath=\"%s\", newpath=\"%s\")\n", path, newpath);
     CLIENT * clnt = createclient();
     int * result;
 
@@ -368,8 +362,7 @@ int bb_link(const char *path, const char *newpath)
 {
     char fpath[PATH_MAX], fnewpath[PATH_MAX];
     
-    log_msg("\nbb_link(path=\"%s\", newpath=\"%s\")\n",
-	    path, newpath);
+    //log_msg("\nbb_link(path=\"%s\", newpath=\"%s\")\n",path, newpath);
     bb_fullpath(fpath, path);
     bb_fullpath(fnewpath, newpath);
 
@@ -379,7 +372,7 @@ int bb_link(const char *path, const char *newpath)
 /** Change the permission bits of a file */
 int bb_chmod(const char *path, mode_t mode)
 {
-    log_msg("\nbb_chmod(fpath=\"%s\", mode=0%03o)\n", path, mode);
+    //log_msg("\nbb_chmod(fpath=\"%s\", mode=0%03o)\n", path, mode);
     CLIENT * clnt = createclient();
     int * result;
 
@@ -400,7 +393,7 @@ int bb_chmod(const char *path, mode_t mode)
 /** Change the owner and group of a file */
 int bb_chown(const char *path, uid_t uid, gid_t gid)
 {
-    log_msg("\nbb_chown(path=\"%s\", uid=%d, gid=%d)\n", path, uid, gid);
+    //log_msg("\nbb_chown(path=\"%s\", uid=%d, gid=%d)\n", path, uid, gid);
     CLIENT * clnt = createclient();
     int * result;
 
@@ -424,8 +417,7 @@ int bb_truncate(const char *path, off_t newsize)
 {
     char fpath[PATH_MAX];
     int * result;
-    log_msg("\nbb_truncate(path=\"%s\", newsize=%lld)\n",
-	    path, newsize);
+    //log_msg("\nbb_truncate(path=\"%s\", newsize=%lld)\n",path, newsize);
     //bb_fullpath(fpath, path);
     struct truncate_IDL * newtruncate = (struct truncate_IDL * )malloc(sizeof(truncate_IDL));
     newtruncate->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
@@ -445,7 +437,7 @@ int bb_truncate(const char *path, off_t newsize)
 /* note -- I'll want to change this as soon as 2.6 is in debian testing */
 int bb_utime(const char *path, struct utimbuf *ubuf)
 {
-    log_msg("\nbb_utime(path=\"%s\", ubuf=0x%08x)\n", path, ubuf);
+    //log_msg("\nbb_utime(path=\"%s\", ubuf=0x%08x)\n", path, ubuf);
     utime_ret_IDL * result;
     CLIENT * clnt = createclient();
 
@@ -750,8 +742,7 @@ int bb_statfs(const char *path, struct statvfs *statv)
     int retstat = 0;
     char fpath[PATH_MAX];
     
-    log_msg("\nbb_statfs(path=\"%s\", statv=0x%08x)\n",
-	    path, statv);
+    //log_msg("\nbb_statfs(path=\"%s\", statv=0x%08x)\n",path, statv);
     bb_fullpath(fpath, path);
     
     // get stats for underlying filesystem
@@ -788,14 +779,14 @@ int bb_statfs(const char *path, struct statvfs *statv)
 // this is a no-op in BBFS.  It just logs the call and returns success
 int bb_flush(const char *path, struct fuse_file_info *fi)
 {
-    log_msg("\nbb_flush(path=\"%s\", fi=0x%08x)\n", path, fi);
+    //log_msg("\nbb_flush(path=\"%s\", fi=0x%08x)\n", path, fi);
     // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
 
     if(useWriteCache == 1) {
-        log_msg("before calling write_helper\n");
+        //log_msg("before calling write_helper\n");
         write_helper(fi->fh);
-        log_msg("after calling write_helper\n");
+        //log_msg("after calling write_helper\n");
     }
     return 0;
 }
@@ -816,8 +807,7 @@ int bb_flush(const char *path, struct fuse_file_info *fi)
  */
 int bb_release(const char *path, struct fuse_file_info *fi)
 {
-    log_msg("\nbb_release(path=\"%s\", fi=0x%08x)\n",
-	  path, fi);
+    //log_msg("\nbb_release(path=\"%s\", fi=0x%08x)\n",path, fi);
     log_fi(fi);
 
     // We need to close the file.  Had we allocated any resources
@@ -827,7 +817,7 @@ int bb_release(const char *path, struct fuse_file_info *fi)
     new_release.fh = fi->fh;
     int * pRes;
     pRes = release_1000(&new_release, clnt);
-    log_msg("close function result: %d\n", *pRes);
+    //log_msg("close function result: %d\n", *pRes);
     destroyclient(clnt);
     return *pRes;
 }
@@ -841,8 +831,7 @@ int bb_release(const char *path, struct fuse_file_info *fi)
  */
 int bb_fsync(const char *path, int datasync, struct fuse_file_info *fi)
 {   
-    log_msg("\nbb_fsync(path=\"%s\", datasync=%d, fi=0x%08x)\n",
-	    path, datasync, fi);
+    //log_msg("\nbb_fsync(path=\"%s\", datasync=%d, fi=0x%08x)\n",path, datasync, fi);
     log_fi(fi);
     
     // some unix-like systems (notably freebsd) don't have a datasync call
@@ -881,8 +870,7 @@ int bb_setxattr(const char *path, const char *name, const char *value, size_t si
 {
     char fpath[PATH_MAX];
     
-    log_msg("\nbb_setxattr(path=\"%s\", name=\"%s\", value=\"%s\", size=%d, flags=0x%08x)\n",
-	    path, name, value, size, flags);
+    //log_msg("\nbb_setxattr(path=\"%s\", name=\"%s\", value=\"%s\", size=%d, flags=0x%08x)\n",path, name, value, size, flags);
     bb_fullpath(fpath, path);
 
     return log_syscall("lsetxattr", lsetxattr(fpath, name, value, size, flags), 0);
@@ -894,13 +882,12 @@ int bb_getxattr(const char *path, const char *name, char *value, size_t size)
     int retstat = 0;
     char fpath[PATH_MAX];
     
-    log_msg("\nbb_getxattr(path = \"%s\", name = \"%s\", value = 0x%08x, size = %d)\n",
-	    path, name, value, size);
+    //log_msg("\nbb_getxattr(path = \"%s\", name = \"%s\", value = 0x%08x, size = %d)\n",path, name, value, size);
     bb_fullpath(fpath, path);
 
     retstat = log_syscall("lgetxattr", lgetxattr(fpath, name, value, size), 0);
     if (retstat >= 0)
-	log_msg("    value = \"%s\"\n", value);
+	//log_msg("    value = \"%s\"\n", value);
     
     return retstat;
 }
@@ -912,19 +899,17 @@ int bb_listxattr(const char *path, char *list, size_t size)
     char fpath[PATH_MAX];
     char *ptr;
     
-    log_msg("\nbb_listxattr(path=\"%s\", list=0x%08x, size=%d)\n",
-	    path, list, size
-	    );
+    //log_msg("\nbb_listxattr(path=\"%s\", list=0x%08x, size=%d)\n",path, list, size);
     bb_fullpath(fpath, path);
 
     retstat = log_syscall("llistxattr", llistxattr(fpath, list, size), 0);
     if (retstat >= 0) {
-	log_msg("    returned attributes (length %d):\n", retstat);
+	//log_msg("    returned attributes (length %d):\n", retstat);
 	if (list != NULL)
 	    for (ptr = list; ptr < list + retstat; ptr += strlen(ptr)+1)
-		log_msg("    \"%s\"\n", ptr);
+		//log_msg("    \"%s\"\n", ptr);
 	else
-	    log_msg("    (null)\n");
+	    //log_msg("    (null)\n");
     }
     
     return retstat;
@@ -935,8 +920,7 @@ int bb_removexattr(const char *path, const char *name)
 {
     char fpath[PATH_MAX];
     
-    log_msg("\nbb_removexattr(path=\"%s\", name=\"%s\")\n",
-	    path, name);
+    //log_msg("\nbb_removexattr(path=\"%s\", name=\"%s\")\n",path, name);
     bb_fullpath(fpath, path);
 
     return log_syscall("lremovexattr", lremovexattr(fpath, name), 0);
@@ -952,8 +936,7 @@ int bb_removexattr(const char *path, const char *name)
  */
 int bb_opendir(const char *path, struct fuse_file_info *fi)
 {
-    log_msg("\nbb_opendir(path=\"%s\", fi=0x%08x)\n",
-	  path, fi);
+    //log_msg("\nbb_opendir(path=\"%s\", fi=0x%08x)\n",path, fi);
 
     CLIENT * clnt = createclient();
     opendir_IDL * new_opendir = (opendir_IDL *)malloc(sizeof(opendir_IDL));
@@ -963,11 +946,11 @@ int bb_opendir(const char *path, struct fuse_file_info *fi)
 
     opendir_ret_IDL * pRes;   // field of isvalid determine if opendir call on server side is successful, 1 -> success; 0 ->fail
     pRes = (opendir_ret_IDL *)opendir_1000(new_opendir, clnt);
-    log_msg("pRes->res: %d", pRes->res);
-    log_msg("pRes->isvalid: %d", pRes->isvalid);
+    //log_msg("pRes->res: %d", pRes->res);
+    //log_msg("pRes->isvalid: %d", pRes->isvalid);
 
     fi->fh = pRes->res;
-    log_fi(fi);
+    //log_fi(fi);
     if(pRes->isvalid == 0) {
         int retstat = log_error("bb_opendir opendir");
         return retstat;
@@ -1002,25 +985,24 @@ int bb_opendir(const char *path, struct fuse_file_info *fi)
 int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
            struct fuse_file_info *fi)
 {
-    log_msg("\nbb_readdir(path=\"%s\", buf=0x%08x, filler=0x%08x, offset=%lld, fi=0x%08x)\n",
-        path, buf, filler, offset, fi);
+    //log_msg("\nbb_readdir(path=\"%s\", buf=0x%08x, filler=0x%08x, offset=%lld, fi=0x%08x)\n",path, buf, filler, offset, fi);
 
     CLIENT * clnt = createclient();
     struct readdir_IDL *new_readdir = (struct readdir_IDL*)malloc(sizeof(struct  readdir_IDL));
-    log_msg("fi->fh=%ld\n",fi->fh);
+    //log_msg("fi->fh=%ld\n",fi->fh);
     new_readdir -> fh = fi->fh;
-    log_msg("new_readdir->fh=%ld\n",new_readdir->fh);
+    //log_msg("new_readdir->fh=%ld\n",new_readdir->fh);
 
     struct readdir_ret_IDL * ans; 
     ans = (readdir_ret_IDL*)readdir_1000(new_readdir, clnt);
-    log_msg("ans count: %d\n", ans->count);
+    //log_msg("ans count: %d\n", ans->count);
     int offs = 0;
     for(int i = 0; i < ans->count; i++){
       if (filler(buf, ans->buf + offs, NULL, 0) != 0) {
-            log_msg("    ERROR bb_readdir filler:  buffer full");
+            //log_msg("    ERROR bb_readdir filler:  buffer full");
             return -ENOMEM;
       }
-      log_msg("ans->buf + offs: %s\n", ans->buf + offs);
+      //log_msg("ans->buf + offs: %s\n", ans->buf + offs);
       offs += strlen(ans->buf + offs) + 1;
     }
     destroyclient(clnt);
@@ -1033,9 +1015,8 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
  */
 int bb_releasedir(const char *path, struct fuse_file_info *fi)
 {
-    log_msg("\nbb_releasedir(path=\"%s\", fi=0x%08x)\n",
-	    path, fi);
-    log_fi(fi);
+    //log_msg("\nbb_releasedir(path=\"%s\", fi=0x%08x)\n",path, fi);
+    //log_fi(fi);
 
     CLIENT * clnt = createclient();
     releasedir_IDL new_releasedir;
@@ -1059,9 +1040,8 @@ int bb_fsyncdir(const char *path, int datasync, struct fuse_file_info *fi)
 {
     int retstat = 0;
     
-    log_msg("\nbb_fsyncdir(path=\"%s\", datasync=%d, fi=0x%08x)\n",
-	    path, datasync, fi);
-    log_fi(fi);
+    //log_msg("\nbb_fsyncdir(path=\"%s\", datasync=%d, fi=0x%08x)\n",path, datasync, fi);
+    //log_fi(fi);
     
     return retstat;
 }
@@ -1118,8 +1098,7 @@ void bb_destroy(void *userdata)
  */
 int bb_access(const char *path, int mask)
 {  
-    log_msg("\nbb_access(path=\"%s\", mask=0%o)\n",
-	    path, mask);
+    //log_msg("\nbb_access(path=\"%s\", mask=0%o)\n",path, mask);
 
     CLIENT * clnt = createclient();
     int * pRes;
@@ -1171,14 +1150,12 @@ int bb_ftruncate(const char *path, off_t offset, struct fuse_file_info *fi)
 {
     int retstat = 0;
     
-    log_msg("\nbb_ftruncate(path=\"%s\", offset=%lld, fi=0x%08x)\n",
-	    path, offset, fi);
-    log_fi(fi);
+    //log_msg("\nbb_ftruncate(path=\"%s\", offset=%lld, fi=0x%08x)\n",path, offset, fi);
+    //log_fi(fi);
     
     //char fpath[PATH_MAX];
     int * result;
-    log_msg("\nbb_truncate(path=\"%s\", newsize=%lld), fi->fh=%d\n",
-            path, offset, fi->fh);
+    //log_msg("\nbb_truncate(path=\"%s\", newsize=%lld), fi->fh=%d\n",path, offset, fi->fh);
     //bb_fullpath(fpath, path);                                                                                                               
     struct ftruncate_IDL * newftruncate = (struct ftruncate_IDL * )malloc(sizeof(ftruncate_IDL));
     //newtruncate->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
@@ -1213,9 +1190,8 @@ int bb_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *f
     
     int retstat = 0;
     
-    log_msg("\nbb_fgetattr(path=\"%s\", statbuf=0x%08x, fi=0x%08x)\n",
-	    path, statbuf, fi);
-    log_fi(fi);
+    //log_msg("\nbb_fgetattr(path=\"%s\", statbuf=0x%08x, fi=0x%08x)\n",path, statbuf, fi);
+    //log_fi(fi);
 
     // On FreeBSD, trying to do anything with the mountpoint ends up
     // opening it, and then using the FD for an fgetattr.  So in the
