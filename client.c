@@ -549,7 +549,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
       if(length_readed == 0) {
         break;
       }
-      log_msg("content readed: %x\n", result->buf);
+      log_msg("content readed: %s\n", result->buf);
       memcpy(buf, result->buf, length_readed);
       buf += length_readed;
       offset += length_readed;
