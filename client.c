@@ -47,7 +47,7 @@
 #include "cache.h"
 #include "file_record.h"
 
-const int useReadCache = 1; // use to determine if we use read cache
+const int useReadCache = 0; // use to determine if we use read cache
 const int useWriteCache = 0;  // use to determine if we use write cache
 
 const char * host = "10.148.54.199";
