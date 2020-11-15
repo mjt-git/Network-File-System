@@ -107,15 +107,15 @@ void print_function_name(const char * name, struct svc_req *rqstp) {
 getattr_ret_IDL *
 getattr_1000_svc(getattr_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("getattr_10_svc",rqstp);
+	//print_function_name("getattr_10_svc",rqstp);
 
 	static getattr_ret_IDL result;
 	int res;
 	struct stat * statbuf = (struct stat*)malloc(sizeof(struct stat));
 	char fpath[PATH_MAX];
 	getfullpath(fpath, argp->path);
-	printf("argp->path: %s\n", argp->path);
-	printf("full path is %s\n", fpath);
+	// printf("argp->path: %s\n", argp->path);
+	// printf("full path is %s\n", fpath);
 	res = lstat(fpath, statbuf);
 
 	if(res == 0){
@@ -137,7 +137,7 @@ getattr_1000_svc(getattr_IDL *argp, struct svc_req *rqstp)
 	result.st_mtim = statbuf->st_mtime;
 	result.st_ctim = statbuf->st_ctime;
 	
-	print_getattr_IDL(result);
+	//print_getattr_IDL(result);
 
 	free(statbuf);
 	return &result;
@@ -370,7 +370,7 @@ fgetattr_1000_svc(fgetattr_IDL *argp, struct svc_req *rqstp)
 	result.st_mtim = statbuf->st_mtime;
 	result.st_ctim = statbuf->st_ctime;
 
-	print_fgetattr_ret_IDL(result);
+	//print_fgetattr_ret_IDL(result);
 
 	free(statbuf);
 	return &result;
