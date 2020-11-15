@@ -539,7 +539,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
       size_t this_size = size <= 4096 ? size : 4096;
       CLIENT * clnt = createclient();
       struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
-      newread->size = size <= 4096 ? size : 4096;
+      newread->size = this_size;
       newread->offset = offset;
       newread->fh = fi->fh;
       struct read_ret_IDL * result;
@@ -549,95 +549,96 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
       if(length_readed == 0) {
         break;
       }
+      log_msg("content readed: %x\n", result->buf);
       memcpy(buf, result->buf, length_readed);
-      buf += this_size;
-      offset += this_size;
-      size -= this_size;
+      buf += length_readed;
+      offset += length_readed;
+      size -= length_readed;
       total_length += length_readed;
       free(newread);
       destroyclient(clnt);
       }
     }
     else{
-    while(size > 0) {
-        struct stat *statbuf = (struct stat*)malloc(sizeof(struct stat));
-	//if use read cache, then getattr to get timestamp
-	bb_getattr(path, statbuf);
-	log_msg("\npresent stat->mtime is %d\n", statbuf->st_mtime);
-    	struct cache * curr = calist->head;
-    	struct cache * prev = NULL;
-    	int find_cache = 0;//0 = no cache; 1 = valid cache; 2 = invalid cache
-    	size_t this_size = size <= 4096 ? size : 4096;
-    	while(curr != NULL){
-	  //make sure if not use read cache, no need to check cache
-          log_msg("curr cache: size is %ld, offset is %ld, path is %s\n", curr->size, curr->offset, curr->path);
-          log_msg("requested content: size is %ld, offset is %ld, path is %s\n", this_size, offset, path);
-    	  if(strncmp(path, curr->path, strlen(path) + 1) == 0 && curr->size == this_size && curr->offset == offset){
-    	    if(curr->mtime == statbuf->st_mtime){
-    	      find_cache = 1;
-    	      break;
-    	    }
-    	    else{
-    	      find_cache = 2;
-    	      break;
-    	    }
-    	  }
-    	  prev = curr;
-    	  curr = curr->next;
+        while(size > 0) {
+            struct stat *statbuf = (struct stat*)malloc(sizeof(struct stat));
+    	       //if use read cache, then getattr to get timestamp
+    	    bb_getattr(path, statbuf);
+    	    log_msg("\npresent stat->mtime is %d\n", statbuf->st_mtime);
+        	struct cache * curr = calist->head;
+        	struct cache * prev = NULL;
+        	int find_cache = 0;//0 = no cache; 1 = valid cache; 2 = invalid cache
+        	size_t this_size = size <= 4096 ? size : 4096;
+        	while(curr != NULL){
+    	  //make sure if not use read cache, no need to check cache
+              log_msg("curr cache: size is %ld, offset is %ld, path is %s\n", curr->size, curr->offset, curr->path);
+              log_msg("requested content: size is %ld, offset is %ld, path is %s\n", this_size, offset, path);
+        	  if(strncmp(path, curr->path, strlen(path) + 1) == 0 && curr->size == this_size && curr->offset == offset){
+        	    if(curr->mtime == statbuf->st_mtime){
+        	      find_cache = 1;
+        	      break;
+        	    }
+        	    else{
+        	      find_cache = 2;
+        	      break;
+        	    }
+        	  }
+        	  prev = curr;
+        	  curr = curr->next;
+        	}
+            log_msg("find cache state is %d\n", find_cache);
+        	if (find_cache == 0 || find_cache == 2){
+                    CLIENT * clnt = createclient();
+                    struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
+                    newread->size = size <= 4096 ? size : 4096;
+                    newread->offset = offset;
+                    newread->fh = fi->fh;
+                    struct read_ret_IDL * result;
+                    result = read_1000(newread, clnt);
+                    int length_readed = result->count;
+                    log_msg("length_readed: %d\n", length_readed);
+                    if(length_readed == 0) {
+                        break;
+                    }
+                    memcpy(buf, result->buf, length_readed);
+                    //log_msg("current buf: \n%s\n", buf);
+    		//update cache only when using it
+    		if(find_cache == 0){//if cache miss, add a new one to cache list
+    		    log_msg("start add new cache");
+    		    struct cache * newcache = (struct cache *)malloc(sizeof(struct cache));
+    		    newcache->size = 4096;
+    		    newcache->offset = newread->offset;
+    		    newcache->next = NULL;
+    		    memset(newcache->path, '\0', PATH_MAX);
+    		    memcpy(newcache->path, path, strlen(path));
+    		    newcache->mtime = statbuf->st_mtime;
+    		    memset(newcache->buf, '\0', 4096);
+    		    memcpy(newcache->buf, result->buf, length_readed);
+    		    add_cache(calist, newcache);
+    		}
+    		else{//if cache invalid, update it
+    		    curr->mtime = statbuf->st_mtime;
+        	      //memcpy(curr->buf, result->buf, length_readed);
+    		    update_cache(calist, curr, prev, result->buf);
+    		}
+    		buf += this_size;
+    		offset += this_size;
+    		size -= this_size;
+    		total_length += length_readed;
+    		free(newread);
+    		destroyclient(clnt);
+    	
     	}
-        log_msg("find cache state is %d\n", find_cache);
-    	if (find_cache == 0 || find_cache == 2){
-                CLIENT * clnt = createclient();
-                struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
-                newread->size = size <= 4096 ? size : 4096;
-                newread->offset = offset;
-                newread->fh = fi->fh;
-                struct read_ret_IDL * result;
-                result = read_1000(newread, clnt);
-                int length_readed = result->count;
-                log_msg("length_readed: %d\n", length_readed);
-                if(length_readed == 0) {
-                    break;
-                }
-                memcpy(buf, result->buf, length_readed);
-                //log_msg("current buf: \n%s\n", buf);
-		//update cache only when using it
-		if(find_cache == 0){//if cache miss, add a new one to cache list
-		    log_msg("start add new cache");
-		    struct cache * newcache = (struct cache *)malloc(sizeof(struct cache));
-		    newcache->size = 4096;
-		    newcache->offset = newread->offset;
-		    newcache->next = NULL;
-		    memset(newcache->path, '\0', PATH_MAX);
-		    memcpy(newcache->path, path, strlen(path));
-		    newcache->mtime = statbuf->st_mtime;
-		    memset(newcache->buf, '\0', 4096);
-		    memcpy(newcache->buf, result->buf, length_readed);
-		    add_cache(calist, newcache);
-		}
-		else{//if cache invalid, update it
-		    curr->mtime = statbuf->st_mtime;
-    	      //memcpy(curr->buf, result->buf, length_readed);
-		    update_cache(calist, curr, prev, result->buf);
-		}
-		buf += this_size;
-		offset += this_size;
-		size -= this_size;
-		total_length += length_readed;
-		free(newread);
-		destroyclient(clnt);
-	
-	}
-    	else{//if cache valid
-    	    log_msg("cache hit, return cached buf");
-    	    memcpy(buf, curr->buf, this_size);
-    	    update_cache(calist, curr, prev, NULL);
-            buf += this_size;
-            offset += this_size;
-            size -= this_size;
-            total_length += this_size;
-    	}
-    }
+        	else{//if cache valid
+        	    log_msg("cache hit, return cached buf");
+        	    memcpy(buf, curr->buf, this_size);
+        	    update_cache(calist, curr, prev, NULL);
+                buf += this_size;
+                offset += this_size;
+                size -= this_size;
+                total_length += this_size;
+        	}
+        }
     }
     return total_length;
 }
