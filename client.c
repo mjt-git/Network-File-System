@@ -665,7 +665,7 @@ void write_helper(int fd) {
               newwrite->fh = fd;
               //newwrite->buf = (char*)malloc(sizeof(char) * newwrite->size);
               memset(newwrite->buf, '\0', 4096);
-              memcpy(newwrite->buf, buf, newwrite->size);
+              memcpy(newwrite->buf, target->buf, newwrite->size);
               int * single_length;
               single_length = write_1000(newwrite, clnt);
               //log_msg("single_length written is %d\n", *single_length);
