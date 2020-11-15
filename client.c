@@ -47,8 +47,8 @@
 #include "cache.h"
 #include "file_record.h"
 
-const int useReadCache = 1; // use to determine if we use read cache
-const int useWriteCache = 1;  // use to determine if we use write cache
+const int useReadCache = 0; // use to determine if we use read cache
+const int useWriteCache = 0;  // use to determine if we use write cache
 
 const char * host = "10.148.54.199";
 const int password_expiration=20; //second
@@ -602,32 +602,32 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
                     memcpy(buf, result->buf, length_readed);
                     //log_msg("current buf: \n%s\n", buf);
     		//update cache only when using it
-    		if(find_cache == 0){//if cache miss, add a new one to cache list
-    		    //log_msg("start add new cache");
-    		    struct cache * newcache = (struct cache *)malloc(sizeof(struct cache));
-    		    newcache->size = 4096;
-    		    newcache->offset = newread->offset;
-    		    newcache->next = NULL;
-    		    memset(newcache->path, '\0', PATH_MAX);
-    		    memcpy(newcache->path, path, strlen(path));
-    		    newcache->mtime = statbuf->st_mtime;
-    		    memset(newcache->buf, '\0', 4096);
-    		    memcpy(newcache->buf, result->buf, length_readed);
-    		    add_cache(calist, newcache);
-    		}
-    		else{//if cache invalid, update it
-    		    curr->mtime = statbuf->st_mtime;
-        	      //memcpy(curr->buf, result->buf, length_readed);
-    		    update_cache(calist, curr, prev, result->buf);
-    		}
-    		buf += this_size;
-    		offset += this_size;
-    		size -= this_size;
-    		total_length += this_size;
-    		free(newread);
-    		destroyclient(clnt);
+            		if(find_cache == 0){//if cache miss, add a new one to cache list
+            		    //log_msg("start add new cache");
+            		    struct cache * newcache = (struct cache *)malloc(sizeof(struct cache));
+            		    newcache->size = 4096;
+            		    newcache->offset = newread->offset;
+            		    newcache->next = NULL;
+            		    memset(newcache->path, '\0', PATH_MAX);
+            		    memcpy(newcache->path, path, strlen(path));
+            		    newcache->mtime = statbuf->st_mtime;
+            		    memset(newcache->buf, '\0', 4096);
+            		    memcpy(newcache->buf, result->buf, length_readed);
+            		    add_cache(calist, newcache);
+            		}
+            		else{//if cache invalid, update it
+            		    curr->mtime = statbuf->st_mtime;
+                	      //memcpy(curr->buf, result->buf, length_readed);
+            		    update_cache(calist, curr, prev, result->buf);
+            		}
+            		buf += this_size;
+            		offset += this_size;
+            		size -= this_size;
+            		total_length += this_size;
+            		free(newread);
+            		destroyclient(clnt);
     	
-    	}
+    	   }
         	else{//if cache valid
         	    //log_msg("cache hit, return cached buf");
         	    memcpy(buf, curr->buf, this_size);
