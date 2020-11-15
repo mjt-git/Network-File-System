@@ -160,8 +160,7 @@ int bb_getattr(const char *path, struct stat *statbuf)
     int retstat;
     char fpath[PATH_MAX];
     
-    log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
-      path, statbuf);
+    //log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n", path, statbuf);
     
     CLIENT * clnt = createclient();
     
@@ -174,12 +173,12 @@ int bb_getattr(const char *path, struct stat *statbuf)
     // log_msg("original path: %s\n", path);
     // log_msg("strlen result: %u\n", strlen(path));
     // log_msg("new_getattr->path: %s\n", new_getattr->path);
-    log_msg("before getattr\n");
+    //log_msg("before getattr\n");
     result = getattr_1000(new_getattr, clnt);
-    print_getattr_IDL(*result);
-    log_msg("after getattr\n");
+    //print_getattr_IDL(*result);
+    //log_msg("after getattr\n");
     // log_msg("mode recv is %3o\n", new_getattr->st_mode);
-    log_msg("result.st_dev: %d\n", result->st_dev);
+    //log_msg("result.st_dev: %d\n", result->st_dev);
     statbuf->st_dev = result->st_dev;
     statbuf->st_ino = result->st_ino;
     statbuf->st_mode = result->st_mode;
@@ -193,11 +192,11 @@ int bb_getattr(const char *path, struct stat *statbuf)
     statbuf->st_atime = result->st_atim;
     statbuf->st_mtime = result->st_mtim;
     statbuf->st_ctime = result->st_ctim;
-    log_msg("mode returned is %3o\n", statbuf->st_mode);
+    //log_msg("mode returned is %3o\n", statbuf->st_mode);
 
     free(new_getattr->path);
     free(new_getattr);
-    log_stat(statbuf);
+    //log_stat(statbuf);
     destroyclient(clnt);
     return result->res;
 }
