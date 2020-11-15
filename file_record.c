@@ -5,9 +5,9 @@
 fileNode * createNode(const char * buf, unsigned int size, unsigned int offset, int fd) {
 	fileNode * newNode = (fileNode *)malloc(sizeof(fileNode));
 	newNode->buf = (char*)malloc(sizeof(char) * size);
-	printf("\n--------****************-------\n");
-	printf("strlen(buf): %d\n", size);
-	printf("\n--------****************-------\n");
+	//printf("\n--------****************-------\n");
+	//printf("strlen(buf): %d\n", size);
+	//printf("\n--------****************-------\n");
 	memcpy(newNode->buf, buf, size);
 
 	newNode->size = size;
