@@ -531,7 +531,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     size_t rest_len;
-    log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n", path, buf, size, offset, fi);
+    //log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n", path, buf, size, offset, fi);
     int total_length = 0;
 
     if(useReadCache == 0){
@@ -545,11 +545,11 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
       struct read_ret_IDL * result;
       result = read_1000(newread, clnt);
       int length_readed = result->count;
-      log_msg("length_readed: %d\n", length_readed);
+      //log_msg("length_readed: %d\n", length_readed);
       if(length_readed == 0) {
         break;
       }
-      log_msg("content readed: %x\n", result->buf);
+      //log_msg("content readed: %x\n", result->buf);
       memcpy(buf, result->buf, length_readed);
       buf += this_size;
       offset += this_size;

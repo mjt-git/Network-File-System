@@ -196,19 +196,19 @@ open_1000_svc(open_IDL *argp, struct svc_req *rqstp)
 struct read_ret_IDL *
 read_1000_svc(read_IDL *argp, struct svc_req *rqstp)
 {
-	print_function_name("read_1000_svc",rqstp);
+  //print_function_name("read_1000_svc",rqstp);
 	static struct read_ret_IDL result;
 
-	printf("argp->fh: %d\n", argp->fh);
-	printf("argp->size: %u\n", argp->size);
-	printf("argp->offset: %d\n", argp->offset);
+	//printf("argp->fh: %d\n", argp->fh);
+	//printf("argp->size: %u\n", argp->size);
+	//printf("argp->offset: %d\n", argp->offset);
 
 	char * buf = (char*)malloc(sizeof(char) * argp->size);
 	result.count = pread(argp->fh, buf, argp->size, argp->offset);
-	printf("result.count: %d\n", result.count);
+	//printf("result.count: %d\n", result.count);
 	memcpy(result.buf, buf, argp->size);
 
-	printf("buf readed: \n%s\n", result.buf);
+	//printf("buf readed: \n%s\n", result.buf);
 	
 	return &result;
 }
