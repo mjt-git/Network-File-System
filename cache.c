@@ -1,6 +1,6 @@
 #include "cache.h"
 
-int CACHE_SIZE = 100;
+int CACHE_SIZE = 10;
 
 void create_cachelist(struct cachelist * calist){
   calist->length = 0; 
