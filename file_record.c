@@ -1,11 +1,14 @@
 #include "file_record.h"
 #include <string.h>
+#include <stdio.h>
 
 fileNode * createNode(const char * buf, unsigned int size, unsigned int offset, int fd) {
 	fileNode * newNode = (fileNode *)malloc(sizeof(fileNode));
-	newNode->buf = (char*)malloc(sizeof(char) * (strlen(buf) + 1));
-	strncpy(newNode->buf, buf, strlen(buf));
-	newNode->buf[strlen(buf)] = '\0';
+	newNode->buf = (char*)malloc(sizeof(char) * size);
+	printf("\n--------****************-------\n");
+	printf("strlen(buf): %d\n", size);
+	printf("\n--------****************-------\n");
+	memcpy(newNode->buf, buf, size);
 
 	newNode->size = size;
 	newNode->offset = offset;

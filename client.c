@@ -47,8 +47,8 @@
 #include "cache.h"
 #include "file_record.h"
 
-const int useReadCache = 0; // use to determine if we use read cache
-const int useWriteCache = 0;  // use to determine if we use write cache
+const int useReadCache = 1; // use to determine if we use read cache
+const int useWriteCache = 1;  // use to determine if we use write cache
 
 const char * host = "10.148.54.199";
 const int password_expiration=20; //second
@@ -62,10 +62,6 @@ struct cachelist * calist = & cachlist;
 
 fileRecord fr;
 fileRecord * frP = &fr;
-// frP->head = NULL;
-// frP->tail = NULL; 
-// fr.head = NULL;
-// fr.tail = NULL; 
 
 time_t last_activate;
 
@@ -646,7 +642,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 void write_helper(int fd) {
     fileNode * target = find(frP, fd);
     if(target == NULL) {
-        //log_msg("Inside write_helper, nothing in write back cache with fd: %d\n", fd);
+        log_msg("Inside write_helper, nothing in write back cache with fd: %d\n", fd);
     } else {
         while(target != NULL) {
             char * buf = target->buf;
@@ -654,7 +650,7 @@ void write_helper(int fd) {
             unsigned int offset = target->offset;
             int total_length = 0;
 
-            //log_msg("\nwrite_helper(buf=0x%08x, size=%d, offset=%lld)\n", buf, size, offset);
+            log_msg("\nwrite_helper(buf=0x%08x, size=%d, offset=%lld)\n", buf, size, offset);
 
             // start write to server
             while(size > 0){
@@ -663,24 +659,23 @@ void write_helper(int fd) {
               newwrite->size = size <= 4096 ? size : 4096;
               newwrite->offset = offset;
               newwrite->fh = fd;
-              //newwrite->buf = (char*)malloc(sizeof(char) * newwrite->size);
               memset(newwrite->buf, '\0', 4096);
               memcpy(newwrite->buf, target->buf, newwrite->size);
               int * single_length;
               single_length = write_1000(newwrite, clnt);
-              //log_msg("single_length written is %d\n", *single_length);
+              log_msg("single_length written is %d\n", *single_length);
               total_length += *single_length;
               size -= newwrite->size;
-              //log_msg("size - newwrite->size is: %d\n", size);
+              log_msg("size - newwrite->size is: %d\n", size);
               offset += newwrite->size;
               buf += newwrite->size;
-              //log_msg("before free");
+              log_msg("before free");
               //free(newwrite->buf);
               free(newwrite);
               destroyclient(clnt);
               //printf("end of loop\n");
             }
-            //log_msg("total_length written is %d\n", total_length);
+            log_msg("total_length written is %d\n", total_length);
 
             // delete this node
             deleteNode(frP, fd);
@@ -704,11 +699,11 @@ int bb_write(const char *path, const char *buf, size_t size, off_t offset,
 {
     if(useWriteCache == 1) {
         size_t rest_len;
-        //log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",path, buf, size, offset, fi);
+        log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",path, buf, size, offset, fi);
         
-        //log_msg("before addNode in bb_write\n");
+        log_msg("before addNode in bb_write\n");
         addNode(frP, buf, size, offset, fi->fh);
-        //log_msg("after addNode in bb_write\n");
+        log_msg("after addNode in bb_write\n");
         
         return size;
     } else {
