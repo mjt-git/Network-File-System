@@ -47,8 +47,8 @@
 #include "cache.h"
 #include "file_record.h"
 
-const int useReadCache = 0; // use to determine if we use read cache
-const int useWriteCache = 0;  // use to determine if we use write cache
+const int useReadCache = 1; // use to determine if we use read cache
+const int useWriteCache = 1;  // use to determine if we use write cache
 
 char * host;
 const int password_expiration=20; //second
@@ -83,9 +83,8 @@ int user_authenticate(){
     // char * password = (char *)malloc(sizeof(char)* 128); //128 == length of plain password
     fprintf(stdout,"Please type in the password given by NFS server:\n");
     // fscanf(stdin,"%s",password);
-    char * password;
+    char * password = (char *)malloc(sizeof(char)*128);
     password = getpass("Enter Password: \n");
-
     unsigned int hashvalue = BKDRHash(password);
 
     struct authenticate_IDL * new_authenticate = (struct authenticate_IDL *)malloc(sizeof(struct authenticate_IDL));
@@ -1284,34 +1283,60 @@ void bb_usage()
     exit(1);
 }
 
+void get_host(){
+    host = (char*)malloc(sizeof(char)*128);
+    fprintf(stdout, "Please input the host IP address: (or d for default)\n");
+    fscanf(stdin, "%s",host);
+    if(strcmp(host,"default")==0||strcmp(host,"d")==0){ //default
+        host = "10.148.54.199";
+    }
+    // fprintf(stdout,"host = %s\n",host);
+}
+
+char * get_dir(){
+    char * path = (char *)malloc(sizeof(char)*128);
+    fprintf(stdout, "Please input the directory path: (or d for default)\n");
+    fscanf(stdin, "%s",path);
+    if(strcmp(path,"default")==0||strcmp(path,"d")==0){ //default
+        path = "/serverpoint";
+    }
+
+    fprintf(stdout,"path = %s\n",path);
+    return path;
+    
+}
+
 // test rpc hello
 void test_hello() {
+    get_host();
+    char *path = get_dir();
+
+    // access_IDL * new_access = (access_IDL *)malloc(sizeof(access_IDL));
+    // new_access->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    hello_IDL * new_hello = (hello_IDL *)malloc(sizeof(hello_IDL));
+    new_hello->path = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    strncpy(new_hello->path, path, strlen(path));
     CLIENT * clnt;
     clnt = clnt_create (host, NFS_FUSE, NFS_FUSE_VERS, "udp");
+
     if (clnt == NULL) {
         clnt_pcreateerror (host);
         exit (1);
     }
-    hellotest_1000(NULL, clnt);
+    hellotest_1000(new_hello, clnt);
     clnt_destroy (clnt);
 }
 
-void get_host(){
-    fprintf(stdout, "Please input the host IP address\n");
-    fscanf(stdin,"%s",host);
-    if(strlen(host)==0){ //default
-        host = "10.148.54.199";
-    }
-    fprintf(stdout,"host = %s\n",host);
-}
+
 
 int main(int argc, char *argv[])
 {
-    // fprintf("")
-    get_host();
+    test_hello();
+    // get_host();
     int fuse_stat;
     struct bb_state *bb_data;
-    test_hello();
+    // get_dir();
+    
     fprintf(stderr, "Sucessfully connecting to server(%s)\n",host);
 
     //first log in authenticate 

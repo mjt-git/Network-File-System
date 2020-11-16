@@ -28,6 +28,7 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		write_IDL write_1000_arg;
 		opendir_IDL opendir_1000_arg;
 		readdir_IDL readdir_1000_arg;
+		hello_IDL hellotest_1000_arg;
 		access_IDL access_1000_arg;
 		releasedir_IDL releasedir_1000_arg;
 		release_IDL release_1000_arg;
@@ -102,7 +103,7 @@ nfs_fuse_1000(struct svc_req *rqstp, register SVCXPRT *transp)
 		break;
 
 	case HELLOTEST:
-		_xdr_argument = (xdrproc_t) xdr_void;
+		_xdr_argument = (xdrproc_t) xdr_hello_IDL;
 		_xdr_result = (xdrproc_t) xdr_void;
 		local = (char *(*)(char *, struct svc_req *)) hellotest_1000_svc;
 		break;

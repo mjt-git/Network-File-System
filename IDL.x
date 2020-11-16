@@ -213,6 +213,10 @@ struct fsync_IDL{
  int fh;
 };
 
+struct hello_IDL{
+  string path<PATH_MAX>;
+};  
+
 program NFS_FUSE{
 	version NFS_FUSE_VERS{
 		struct getattr_ret_IDL GETATTR(struct getattr_IDL)=1;
@@ -223,7 +227,7 @@ program NFS_FUSE{
   	int WRITE(write_IDL)=6;
     struct opendir_ret_IDL OPENDIR(opendir_IDL)=7;
     struct readdir_ret_IDL READDIR(readdir_IDL)=8;
-		void HELLOTEST()=9;
+		void HELLOTEST(hello_IDL)=9;
 		int ACCESS(access_IDL)=10;
 		int RELEASEDIR(releasedir_IDL)=11;
 		int RELEASE(release_IDL)=12;

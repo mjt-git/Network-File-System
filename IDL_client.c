@@ -28,7 +28,7 @@ nfs_fuse_1000(char *host)
 	struct readdir_ret_IDL  *result_8;
 	readdir_IDL  readdir_1000_arg;
 	void  *result_9;
-	char *hellotest_1000_arg;
+	hello_IDL  hellotest_1000_arg;
 	int  *result_10;
 	access_IDL  access_1000_arg;
 	int  *result_11;
@@ -100,7 +100,7 @@ nfs_fuse_1000(char *host)
 	if (result_8 == (struct readdir_ret_IDL *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}
-	result_9 = hellotest_1000((void*)&hellotest_1000_arg, clnt);
+	result_9 = hellotest_1000(&hellotest_1000_arg, clnt);
 	if (result_9 == (void *) NULL) {
 		clnt_perror (clnt, "call failed");
 	}

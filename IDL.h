@@ -251,6 +251,11 @@ struct fsync_IDL {
 };
 typedef struct fsync_IDL fsync_IDL;
 
+struct hello_IDL {
+	char *path;
+};
+typedef struct hello_IDL hello_IDL;
+
 #define NFS_FUSE 123789456
 #define NFS_FUSE_VERS 1000
 
@@ -280,8 +285,8 @@ extern  struct opendir_ret_IDL * opendir_1000_svc(opendir_IDL *, struct svc_req 
 extern  struct readdir_ret_IDL * readdir_1000(readdir_IDL *, CLIENT *);
 extern  struct readdir_ret_IDL * readdir_1000_svc(readdir_IDL *, struct svc_req *);
 #define HELLOTEST 9
-extern  void * hellotest_1000(void *, CLIENT *);
-extern  void * hellotest_1000_svc(void *, struct svc_req *);
+extern  void * hellotest_1000(hello_IDL *, CLIENT *);
+extern  void * hellotest_1000_svc(hello_IDL *, struct svc_req *);
 #define ACCESS 10
 extern  int * access_1000(access_IDL *, CLIENT *);
 extern  int * access_1000_svc(access_IDL *, struct svc_req *);
@@ -441,6 +446,7 @@ extern  bool_t xdr_chown_IDL (XDR *, chown_IDL*);
 extern  bool_t xdr_authenticate_IDL (XDR *, authenticate_IDL*);
 extern  bool_t xdr_fdatasync_IDL (XDR *, fdatasync_IDL*);
 extern  bool_t xdr_fsync_IDL (XDR *, fsync_IDL*);
+extern  bool_t xdr_hello_IDL (XDR *, hello_IDL*);
 
 #else /* K&R C */
 extern bool_t xdr_timespec_IDL ();
@@ -476,6 +482,7 @@ extern bool_t xdr_chown_IDL ();
 extern bool_t xdr_authenticate_IDL ();
 extern bool_t xdr_fdatasync_IDL ();
 extern bool_t xdr_fsync_IDL ();
+extern bool_t xdr_hello_IDL ();
 
 #endif /* K&R C */
 

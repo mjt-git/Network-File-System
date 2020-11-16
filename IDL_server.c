@@ -103,7 +103,7 @@ readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
 }
 
 void *
-hellotest_1000_svc(void *argp, struct svc_req *rqstp)
+hellotest_1000_svc(hello_IDL *argp, struct svc_req *rqstp)
 {
 	static char * result;
 

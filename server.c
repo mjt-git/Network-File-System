@@ -39,7 +39,9 @@
     ((s_addr) >>  8) & 0xFF, \
     ((s_addr)      ) & 0xFF
 
-const char * rootpath = "/home/localadmin/finalproject/serverpoint";
+// char * rootpath="/home/localadmin/finalproject";
+char * rootpath;
+
 
 void print_client_ip(struct svc_req *rqstp){
 	printf("client address: %hu.%hu.%hu.%hu ", SPLIT_S_ADDR_INTO_BYTES(ntohl(rqstp->rq_xprt->xp_raddr.sin_addr.s_addr)));
@@ -299,11 +301,15 @@ readdir_1000_svc(readdir_IDL *argp, struct svc_req *rqstp)
 }
 
 void *
-hellotest_1000_svc(void *argp, struct svc_req *rqstp)
+hellotest_1000_svc(hello_IDL *argp, struct svc_req *rqstp)
 {
 	static char * result;
 	printf("[hellotest_1000_svc]successfully connected to ");
 	print_client_ip(rqstp);
+	rootpath=(char *)malloc(sizeof(char)*256);
+	strcpy(rootpath,"/home/localadmin/finalproject");
+	strncat(rootpath,argp->path,strlen(argp->path));
+	printf("\nrootpath is %s\n", rootpath);
 	return (void *) &result;
 }
 

@@ -558,3 +558,13 @@ xdr_fsync_IDL (XDR *xdrs, fsync_IDL *objp)
 		 return FALSE;
 	return TRUE;
 }
+
+bool_t
+xdr_hello_IDL (XDR *xdrs, hello_IDL *objp)
+{
+	register int32_t *buf;
+
+	 if (!xdr_string (xdrs, &objp->path, PATH_MAX))
+		 return FALSE;
+	return TRUE;
+}

@@ -25,9 +25,7 @@ int main() {
     printf("Please type in the password given by NFS server:\n");
     char * password;
     password = getpass("Enter Password: \n");
-    // printf("plain_password is %s\n",password);
     unsigned int hashvalue = BKDRHash(password);
-    // printf("hash value is %d\n",hashvalue);
     printf("Sucessfully saved the hash value of the password to password file!\n");
     fprintf(fptr,"%d",hashvalue);
     fclose(fptr);
