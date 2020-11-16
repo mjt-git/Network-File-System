@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> 
-#include <unistd.h>   
+#include <sgtty.h>
+#include <asm/ioctls.h>
 
 unsigned int BKDRHash(char *str)
 {
@@ -15,6 +16,21 @@ unsigned int BKDRHash(char *str)
     return (hash & 0x7FFFFFFF);
 }
 
+void echo_off()
+{
+    struct sgttyb state;
+    (void)ioctl(0, (int)TIOCGETP, (char *)&state);
+    state.sg_flags &= ~ECHO;
+    (void)ioctl(0, (int)TIOCSETP, (char *)&state);
+}
+
+void echo_on()
+{
+    struct sgttyb state;
+    (void)ioctl(0, (int)TIOCGETP, (char *)&state);
+    state.sg_flags |= ECHO;
+    (void)ioctl(0, (int)TIOCSETP, (char *)&state);
+}
 
 int main() {
     FILE *fptr;
@@ -23,12 +39,14 @@ int main() {
         exit(1);
     }
     printf("Please type in the password given by NFS server:\n");
-    char * password;
-    password = getpass("Enter Password: \n");
-    // printf("plain_password is %s\n",password);
+    char password[128]={'\0'};
+    echo_off();
+    printf("*********");
+    scanf("%s",password);
+    echo_on();
+    printf("plain_password is %s\n",password);
     unsigned int hashvalue = BKDRHash(password);
-    // printf("hash value is %d\n",hashvalue);
-    printf("Sucessfully saved the hash value of the password to password file!\n");
+    printf("hash value is %d\n",hashvalue);
     fprintf(fptr,"%d",hashvalue);
     fclose(fptr);
     return 0;

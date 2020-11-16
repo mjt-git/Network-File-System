@@ -80,9 +80,12 @@ unsigned int BKDRHash(char *str)
 }
 
 int user_authenticate(){
-    char * password = (char *)malloc(sizeof(char)* 128); //128 == length of plain password
+    // char * password = (char *)malloc(sizeof(char)* 128); //128 == length of plain password
     fprintf(stdout,"Please type in the password given by NFS server:\n");
-    fscanf(stdin,"%s",password);
+    // fscanf(stdin,"%s",password);
+    char * password;
+    password = getpass("Enter Password: \n");
+    
     unsigned int hashvalue = BKDRHash(password);
 
     struct authenticate_IDL * new_authenticate = (struct authenticate_IDL *)malloc(sizeof(struct authenticate_IDL));
