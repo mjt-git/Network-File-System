@@ -47,8 +47,8 @@
 #include "cache.h"
 #include "file_record.h"
 
-const int useReadCache = 1; // use to determine if we use read cache
-const int useWriteCache = 1;  // use to determine if we use write cache
+const int useReadCache = 0; // use to determine if we use read cache
+const int useWriteCache = 0;  // use to determine if we use write cache
 
 char * host;
 const int password_expiration=20; //second
