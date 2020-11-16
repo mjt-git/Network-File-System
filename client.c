@@ -47,8 +47,8 @@
 #include "cache.h"
 #include "file_record.h"
 
-const int useReadCache = 0; // use to determine if we use read cache
-const int useWriteCache = 0;  // use to determine if we use write cache
+const int useReadCache = 1; // use to determine if we use read cache
+const int useWriteCache = 1;  // use to determine if we use write cache
 
 const char * host = "10.148.54.199";
 const int password_expiration=20; //second
@@ -289,7 +289,7 @@ int bb_unlink(const char *path)
     struct unlink_IDL * new_unlink = (struct unlink_IDL*)malloc(sizeof(struct unlink_IDL));
     new_unlink -> path =  (char*)malloc(sizeof(char) * (strlen(path) + 1));
     strncpy(new_unlink->path, path, strlen(path));
-    printf("new_unlink->path=%s",new_unlink->path);
+    //printf("new_unlink->path=%s",new_unlink->path);
     int * result = unlink_1000(new_unlink, clnt);
     destroyclient(clnt);
     free(new_unlink->path);
@@ -522,27 +522,27 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 
     if(useReadCache == 0){
       while(size > 0){
-      size_t this_size = size <= 4096 ? size : 4096;
-      CLIENT * clnt = createclient();
-      struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
-      newread->size = this_size;
-      newread->offset = offset;
-      newread->fh = fi->fh;
-      struct read_ret_IDL * result;
-      result = read_1000(newread, clnt);
-      int length_readed = result->count;
-      //log_msg("length_readed: %d\n", length_readed);
-      if(length_readed == 0) {
-        break;
-      }
-      //log_msg("content readed: %x\n", result->buf);
-      memcpy(buf, result->buf, length_readed);
-      buf += this_size;
-      offset += this_size;
-      size -= this_size;
-      total_length += this_size;
-      free(newread);
-      destroyclient(clnt);
+          size_t this_size = size <= 4096 ? size : 4096;
+          CLIENT * clnt = createclient();
+          struct read_IDL * newread = (struct read_IDL*)malloc(sizeof(struct read_IDL));
+          newread->size = this_size;
+          newread->offset = offset;
+          newread->fh = fi->fh;
+          struct read_ret_IDL * result;
+          result = read_1000(newread, clnt);
+          int length_readed = result->count;
+          //log_msg("length_readed: %d\n", length_readed);
+          if(length_readed == 0) {
+            break;
+          }
+          //log_msg("content readed: %x\n", result->buf);
+          memcpy(buf, result->buf, length_readed);
+          buf += this_size;
+          offset += this_size;
+          size -= this_size;
+          total_length += this_size;
+          free(newread);
+          destroyclient(clnt);
       }
     }
     else{
@@ -831,28 +831,30 @@ int bb_release(const char *path, struct fuse_file_info *fi)
  */
 int bb_fsync(const char *path, int datasync, struct fuse_file_info *fi)
 {   
-    //log_msg("\nbb_fsync(path=\"%s\", datasync=%d, fi=0x%08x)\n",path, datasync, fi);
-    //log_fi(fi);
+    log_msg("\nbb_fsync(path=\"%s\", datasync=%d, fi=0x%08x)\n",path, datasync, fi);
+    log_fi(fi);
     
     // some unix-like systems (notably freebsd) don't have a datasync call
 #ifdef HAVE_FDATASYNC
     if (datasync){
-        CLIENT * clnt = createclient();
-        struct fdatasync_IDL * newfdatasync = (struct fdatasync_IDL *)malloc(sizeof(struct fdatasync_IDL));
-	newfdatasync->fh = fi->fh;
-	int * result;
-	result = fdatasync_1000(newfdatasync, clnt);
-	free(newfdatasync);
-	return *result;}
+            CLIENT * clnt = createclient();
+            struct fdatasync_IDL * newfdatasync = (struct fdatasync_IDL *)malloc(sizeof(struct fdatasync_IDL));
+    	   newfdatasync->fh = fi->fh;
+    	   int * result;
+    	   result = fdatasync_1000(newfdatasync, clnt);
+           log_msg("fdatasync return %d\n", *result);
+    	   free(newfdatasync);
+    	   return *result;}
     else
 	{
-      CLIENT * clnt = createclient();
-        struct fsync_IDL * newfsync = (struct fsync_IDL *)malloc(sizeof(struct fsync_IDL));
-        newfsync->fh = fi->fh;
-        int * result;
-        result = fsync_1000(newfsync, clnt);
-	free(newfsync);
-        return *result;
+            CLIENT * clnt = createclient();
+            struct fsync_IDL * newfsync = (struct fsync_IDL *)malloc(sizeof(struct fsync_IDL));
+            newfsync->fh = fi->fh;
+            int * result;
+            result = fsync_1000(newfsync, clnt);
+            log_msg("fsync return %d\n", *result);
+    	    free(newfsync);
+            return *result;
       }
 #endif
 }

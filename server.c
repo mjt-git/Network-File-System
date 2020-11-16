@@ -534,5 +534,6 @@ int * fdatasync_1000_svc(fdatasync_IDL *argp, struct svc_req *rqstp){
 int * fsync_1000_svc(fsync_IDL *argp, struct svc_req *rqstp){
   static int result;
   result = fsync(argp->fh);
+  printf("fsync return %d; errno is %d", result, errno);
   return &result;
 }
