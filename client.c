@@ -47,8 +47,8 @@
 #include "cache.h"
 #include "file_record.h"
 
-const int useReadCache = 1; // use to determine if we use read cache
-const int useWriteCache = 1;  // use to determine if we use write cache
+const int useReadCache = 0; // use to determine if we use read cache
+const int useWriteCache = 0;  // use to determine if we use write cache
 
 char * host;
 const int password_expiration=20; //second
@@ -83,8 +83,9 @@ int user_authenticate(){
     // char * password = (char *)malloc(sizeof(char)* 128); //128 == length of plain password
     fprintf(stdout,"Please type in the password given by NFS server:\n");
     // fscanf(stdin,"%s",password);
-    char * password = (char *)malloc(sizeof(char)*128);
+    char * password;
     password = getpass("Enter Password: \n");
+
     unsigned int hashvalue = BKDRHash(password);
 
     struct authenticate_IDL * new_authenticate = (struct authenticate_IDL *)malloc(sizeof(struct authenticate_IDL));
@@ -1296,10 +1297,9 @@ void test_hello() {
 }
 
 void get_host(){
-    host = (char*)malloc(sizeof(char)*128);
-    fprintf(stdout, "Please input the host IP address: (or default)\n");
-    fscanf(stdin, "%s",host);
-    if(strcmp(host,"default")==0){ //default
+    fprintf(stdout, "Please input the host IP address\n");
+    fscanf(stdin,"%s",host);
+    if(strlen(host)==0){ //default
         host = "10.148.54.199";
     }
     fprintf(stdout,"host = %s\n",host);
@@ -1307,6 +1307,7 @@ void get_host(){
 
 int main(int argc, char *argv[])
 {
+    // fprintf("")
     get_host();
     int fuse_stat;
     struct bb_state *bb_data;
