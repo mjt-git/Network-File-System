@@ -50,7 +50,7 @@
 const int useReadCache = 1; // use to determine if we use read cache
 const int useWriteCache = 1;  // use to determine if we use write cache
 
-const char * host = "10.148.54.199";
+char * host;
 const int password_expiration=20; //second
 //  All the paths I see are relative to the root of the mounted
 //  filesystem.  In order to get to the underlying filesystem, I need to
@@ -83,9 +83,8 @@ int user_authenticate(){
     // char * password = (char *)malloc(sizeof(char)* 128); //128 == length of plain password
     fprintf(stdout,"Please type in the password given by NFS server:\n");
     // fscanf(stdin,"%s",password);
-    char * password;
+    char * password = (char *)malloc(sizeof(char)*128);
     password = getpass("Enter Password: \n");
-    
     unsigned int hashvalue = BKDRHash(password);
 
     struct authenticate_IDL * new_authenticate = (struct authenticate_IDL *)malloc(sizeof(struct authenticate_IDL));
@@ -1296,8 +1295,19 @@ void test_hello() {
     clnt_destroy (clnt);
 }
 
+void get_host(){
+    host = (char*)malloc(sizeof(char)*128);
+    fprintf(stdout, "Please input the host IP address: (or default)\n");
+    fscanf(stdin, "%s",host);
+    if(strcmp(host,"default")==0){ //default
+        host = "10.148.54.199";
+    }
+    fprintf(stdout,"host = %s\n",host);
+}
+
 int main(int argc, char *argv[])
 {
+    get_host();
     int fuse_stat;
     struct bb_state *bb_data;
     test_hello();
